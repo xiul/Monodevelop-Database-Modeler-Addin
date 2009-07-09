@@ -95,9 +95,18 @@ namespace MonoDevelop.Database.Modeler
 			foreach (DatabaseConnectionContext context in ConnectionContextService.DatabaseConnections){
 				System.Console.Write (context.ConnectionSettings.Name + ": ");
 				string hash2=context.SchemaProvider.ConnectionPool.GetHashCode().ToString();
-				System.Console.WriteLine("tengo HASH: "+hash2);
-				if(hash.Equals(hash2))
-					_controller.addFigure (context.ConnectionSettings.Name);
+					System.Console.WriteLine("tengo HASH: "+hash2);
+				if(hash.Equals(hash2)){
+				System.Console.WriteLine("Ese hash esta en conexion: "+context.ConnectionSettings.Name);
+					ISchemaProvider Provider = DbFactoryService.CreateSchemaProvider(context,context.ConnectionPool);
+				TableSchema t=Provider.CreateTableSchema("prueba");
+				System.Console.WriteLine("Tiene :"+t.Columns.Count+" columnas");
+				_controller.addFigure (t.FullName);
+					foreach (ColumnSchema column in t.Columns) {
+						System.Console.WriteLine("column.Name:"+column.Name);
+					}
+					
+					                                      }
 			}
 
 			Gtk.Drag.Finish (args.Context, true, false, args.Time);
