@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<Template Originator="Mike Krueger" Language="XML" Created="6/10/2001" LastModified="6/10/2001">
+	
+	<TemplateConfiguration>
+		<_Name>Database Design</_Name>
+		<Icon>md-text-file-icon|res:nunit-overlay-32.png</Icon>
+		<_Category>Designers</_Category>
+		<_Description>Create a new Database Design.</_Description>
+	</TemplateConfiguration>
+	
+	<TemplateFiles>
+		<File DefaultExtension=".dbm" DefaultName="EmptyDesign" BuildAction="None" />
+	</TemplateFiles>
+	
+	<FileOptions/>
+	
+</Template>

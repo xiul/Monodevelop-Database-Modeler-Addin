@@ -1,0 +1,52 @@
+<Addin id = "Database Designer2"
+namespace   = "MonoDevelop"
+name        = "Database Designer2"
+author      = "Luis Ochoa"
+copyright   = "MIT X11"
+url         = "http://someone.net/"
+description = "Graphical Database Designer for MonoDevelop"
+category    = "Database"	   
+version     = "2.1.0">
+	<Runtime>
+		<Import assembly="MonoDevelop.Database.Designer2.dll"/>
+	</Runtime>
+
+	<Dependencies>
+	    <Addin id="Core" version="2.1.0"/>
+	    <Addin id="Core.Gui" version="2.1.0"/>
+	    <Addin id="Projects" version="2.1.0"/>
+		<Addin id="Ide" version="2.1.0"/>
+	</Dependencies>
+	
+	<Extension path = "/MonoDevelop/Ide/Commands">
+		<Command id = "MonoDevelop.Database.Designer2.DatabaseDesignerCommands.ShowDesigner2"
+			defaultHandler = "MonoDevelop.Database.Designer2.ShowDesignerPageHandler"
+			_label = "Database Designer" 
+			icon = "gtk-home"/>
+	</Extension>
+
+	<Extension path="/MonoDevelop/Ide/MainMenu/View">
+		<CommandItem id="MonoDevelop.Database.Designer2.DatabaseDesignerCommands.ShowDesigner2" 
+			insertafter="ViewItemsSeparator2"
+			insertbefore="MonoDevelop.Ide.Commands.ViewCommands.FullScreen" />
+	</Extension>
+
+	<Extension path = "/MonoDevelop/Ide/GlobalOptionsDialog/Preferences/Style">
+		<Panel _label = "Welcome Page" class = "MonoDevelop.AddinTest2.WelcomePageOptionPanel" />
+	</Extension>
+
+	<Extension path = "/MonoDevelop/Ide/DisplayBindings">
+		<DisplayBinding id = "DatabaseDesigner2" insertbefore="DefaultDisplayBinding" supportedextensions = ".dbm" supportedformats = ".Database Design Files" class = "MonoDevelop.Database.Designer2.DatabaseDesignerDisplayBinding" />
+	</Extension>
+
+	<Extension path = "/MonoDevelop/Ide/FileTemplates">
+		<FileTemplate id = "DatabaseDesign" resource = "DatabaseDesign.xft.xml"/>
+	</Extension>
+
+	<Extension path = "/MonoDevelop/Core/MimeTypes">
+		<MimeType id="application/database" _description="Database Design" icon="md-project|res:nunit-overlay-32.png" isText="false">
+			<File pattern="*.dbm" />
+		</MimeType>
+	</Extension>
+
+</Addin>

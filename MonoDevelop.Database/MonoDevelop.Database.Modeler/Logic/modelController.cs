@@ -1,0 +1,82 @@
+// 
+// modelController.cs
+//  
+// Author:
+//       Xiul <ziul1979@gmail.com>
+// 
+// Copyright (c) 2009 Luis Ochoa
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+
+using System;
+using MonoHotDraw;
+
+namespace MonoDevelop.Database.Modeler
+{
+
+
+	public class modelController
+	{
+
+		//todo: this is not really the controller just a testing class
+		public modelController (IDrawingView view)
+		{
+			_view = view;
+			//todo: main model should be created here.
+		}
+
+		public void addFigure (string nombre)
+		{
+			_model = new TableModel (nombre);
+			_fig = new TableFigure (_model);
+			_view.Drawing.Add (_fig);
+		}
+
+		public void xxxremoveColumna ()
+		{
+		}
+			/*		if(_model!=null){
+				Column xy = _model.columns[1] as Column;
+				_view.Drawing.Remove(xy);
+				_model.columns.RemoveAt(1);
+				//_tool.Deactivate();
+			}*/
+
+				public void xxxaddColumna ()
+		{
+			if (_model != null) {
+				_fig.AddColumn ("ColumnaX" + System.DateTime.Now.Millisecond);
+
+			}
+		}
+
+		public void refreshView ()
+		{
+			//StandardDrawingView x = (StandardDrawingView) _view;
+
+		}
+
+		private IDrawingView _view;
+		private TableModel _model;
+		//todo: this is not really all model only 1 table
+		TableFigure _fig;
+
+	}
+}
