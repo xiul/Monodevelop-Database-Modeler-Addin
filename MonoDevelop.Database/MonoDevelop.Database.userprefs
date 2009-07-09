@@ -5,7 +5,10 @@
   </MonoDevelop.Ide.DebuggingService>
   <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Canvas/ModelerCanvas.cs" ctype="Workbench">
     <Files>
-      <File FileName="MonoDevelop.Database.Modeler/Canvas/ModelerCanvas.cs" Line="105" Column="39" />
+      <File FileName="MonoDevelop.Database.Modeler/Canvas/ModelerCanvas.cs" Line="73" Column="1" />
+      <File FileName="MonoDevelop.Database.Modeler/Logic/modelController.cs" Line="54" Column="15" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="267" Column="35" />
+      <File FileName="MonoDevelop.Database.Modeler/Logic/TableModel.cs" Line="98" Column="45" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -15,6 +18,8 @@
               <Node name="ModelerCanvas.cs" selected="True" />
             </Node>
             <Node name="Commands" expanded="True" />
+            <Node name="Figures" expanded="True" />
+            <Node name="Logic" expanded="True" />
           </Node>
         </State>
       </Pad>
@@ -31,7 +36,9 @@
         <State expanded="True">
           <Node name="prueba" expanded="True" />
           <Node name="testdata" expanded="True">
-            <Node name="Tablas" expanded="True" />
+            <Node name="Tablas" expanded="True">
+              <Node name="prueba" selected="True" />
+            </Node>
           </Node>
           <Node name="xiul" expanded="True" />
         </State>

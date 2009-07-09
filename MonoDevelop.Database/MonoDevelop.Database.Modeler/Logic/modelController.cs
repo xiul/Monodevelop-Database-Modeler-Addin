@@ -27,6 +27,8 @@
 
 using System;
 using MonoHotDraw;
+using MonoDevelop.Database.Sql;
+using MonoDevelop.Database.ConnectionManager;
 
 namespace MonoDevelop.Database.Modeler
 {
@@ -47,6 +49,12 @@ namespace MonoDevelop.Database.Modeler
 			_model = new TableModel (nombre);
 			_fig = new TableFigure (_model);
 			_view.Drawing.Add (_fig);
+		}
+		
+		public void addTable (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider){
+			_model = new TableModel(name,context,schemaProvider);
+			_fig = new TableFigure (_model);
+			_view.Drawing.Add (_fig);			
 		}
 
 		public void xxxremoveColumna ()

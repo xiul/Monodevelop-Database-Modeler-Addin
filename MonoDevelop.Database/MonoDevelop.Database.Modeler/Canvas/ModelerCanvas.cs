@@ -65,11 +65,10 @@ namespace MonoDevelop.Database.Modeler
 			widget.getScroller ().ShowAll ();
 
 			//Add drag and drop support
-			TargetEntry[] te2 = new TargetEntry[] { new Gtk.TargetEntry("tree3 ",0,7777) };
+			TargetEntry[] te2 = new TargetEntry[] { new Gtk.TargetEntry ("tree3 ", 0, 7777) };
 			ScrolledWindow xscroller = widget.getScroller ();
 			Gtk.Drag.DestSet (xscroller, DestDefaults.All, te2, Gdk.DragAction.Copy);
 			xscroller.DragDataReceived += tree3_DragDataReceived;
-
 
 			//todo: fix this undo manager
 			_undoManager = new UndoManager ();
@@ -80,33 +79,14 @@ namespace MonoDevelop.Database.Modeler
 		private void tree3_DragDataReceived (object o, DragDataReceivedArgs args)
 		{
 
-			//Text Drag and Drop
-			System.Console.WriteLine ("Datos del drop");
-			System.Console.WriteLine ("Args Info: " + args.Info.ToString ());
-			System.Console.WriteLine ("Args Type: " + args.GetType ());
-			System.Console.WriteLine ("Args Length:\t" + args.Context.Targets.Length);
-			System.Console.WriteLine ("Args String Full: " + args.Context.Targets[0].Name);
-			System.Console.WriteLine ("Args String Full: " + args.Context.Targets[1].Name);
-			System.Console.WriteLine ("Args String Full: " + args.Context.Targets[2].Name);
-			System.Console.WriteLine ("Args String Full: " + args.Context.Targets[3].Name);
-			System.Console.WriteLine ("Args Data: " + args.SelectionData.Target.ToString ());
-			string hash=Encoding.UTF8.GetString(args.SelectionData.Data).Trim();
-			System.Console.WriteLine("BUSCO HASH: "+hash);
-			foreach (DatabaseConnectionContext context in ConnectionContextService.DatabaseConnections){
-				System.Console.Write (context.ConnectionSettings.Name + ": ");
-				string hash2=context.SchemaProvider.ConnectionPool.GetHashCode().ToString();
-					System.Console.WriteLine("tengo HASH: "+hash2);
-				if(hash.Equals(hash2)){
-				System.Console.WriteLine("Ese hash esta en conexion: "+context.ConnectionSettings.Name);
-					ISchemaProvider Provider = DbFactoryService.CreateSchemaProvider(context,context.ConnectionPool);
-				TableSchema t=Provider.CreateTableSchema("prueba");
-				System.Console.WriteLine("Tiene :"+t.Columns.Count+" columnas");
-				_controller.addFigure (t.FullName);
-					foreach (ColumnSchema column in t.Columns) {
-						System.Console.WriteLine("column.Name:"+column.Name);
-					}
-					
-					                                      }
+			string hash = Encoding.UTF8.GetString (args.SelectionData.Data).Trim ();
+			foreach (DatabaseConnectionContext context in ConnectionContextService.DatabaseConnections) {
+				string hash2 = context.SchemaProvider.ConnectionPool.GetHashCode ().ToString ();
+				if (hash.Equals (hash2)) {
+					ISchemaProvider Provider = DbFactoryService.CreateSchemaProvider (context, context.ConnectionPool);
+					TableSchema t = Provider.CreateTableSchema ("prueba");
+					_controller.addTable (t.FullName, context, Provider);
+				}
 			}
 
 			Gtk.Drag.Finish (args.Context, true, false, args.Time);

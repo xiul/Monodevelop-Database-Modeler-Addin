@@ -90,6 +90,11 @@ namespace MonoDevelop.Database.Modeler
 				}
 			}
 
+			//Set default width
+			if(newWidth<100)
+				newWidth=100;
+			
+			
 			RectangleD r = DisplayBox;
 			if (newWidth != _width) {
 				r.Width = newWidth;
@@ -108,7 +113,7 @@ namespace MonoDevelop.Database.Modeler
 		private void populateTable ()
 		{
 			//Create Labels
-			_tableName = new SimpleTextFigure (_tableModel.tableName);
+			_tableName = new SimpleTextFigure (_tableModel.Name);
 			_tableName.SetAttribute (FigureAttribute.FontSize, 6);
 
 			_indexLabel = new SimpleTextFigure ("Indexes");
@@ -202,7 +207,7 @@ namespace MonoDevelop.Database.Modeler
 
 		public void AddColumn (string Name)
 		{
-			Column newColumn = new Column ("ColumnaX" + System.DateTime.Now.Millisecond);
+			Column newColumn = new Column ();
 			_tableModel.columns.Add (newColumn);
 			this.Add (newColumn);
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));

@@ -29,26 +29,43 @@ using System;
 using MonoHotDraw;
 using MonoHotDraw.Figures;
 using System.Collections;
+using MonoDevelop.Database.Sql;
+using MonoDevelop.Database.ConnectionManager;
 
 namespace MonoDevelop.Database.Modeler
 {
+	/*
+	 * Wrapper classes to integrate monohotdraw with MonoDevelop.Database
+	 */
 	public class Column : SimpleTextFigure
 	{
-		//string other_attributes;
-		public Column (string columnName) : base(columnName)
-		{
-			//other_attributes="";
-			this.SetAttribute (FigureAttribute.FontSize, 6);
-		}
-	}
-		/* todo: finish attributes
-		private string _datatype;
-		private int _datalenght;
-		private bool _primarykey;
-		private bool _unique;
-		*/
 
-		public class Index : SimpleTextFigure
+		public Column (ColumnSchema column) : base(column.Name)
+		{
+			Initialize();
+			columnModel=column;
+		}
+		
+		public Column ( ) : base("Column")
+		{
+			Initialize();
+			columnModel=null;
+		}
+		
+		private void Initialize(){
+			this.SetAttribute (FigureAttribute.FontSize, 6);		
+		}
+		
+		public ColumnSchema schema {
+			get { return columnModel; }
+			set { columnModel=schema; }
+		}
+
+		
+		private ColumnSchema columnModel;
+	}
+
+	public class Index : SimpleTextFigure
 	{
 		public Index (string indexName) : base(indexName)
 		{
@@ -66,27 +83,33 @@ namespace MonoDevelop.Database.Modeler
 		//todo: set attributes		
 	}
 
-	//public class Relationship : 
 
+	//Create a wrapper class to MonoDevelop.Database.Sql.Schema.TableSchema
 	public class TableModel
 	{
 
-		public TableModel (string tableName)
+		public TableModel (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider)
 		{
-			_tableName = tableName;
-			_columns = new ArrayList ();
-			_indexes = new ArrayList ();
-			_triggers = new ArrayList ();
-			_columns.Add (new Column ("DummyColumn1"));
-			_columns.Add (new Column ("DummyColumn2"));
-			_columns.Add (new Column ("DummyColumn3"));
-			_columns.Add (new Column ("DummyColumn4"));
-			_columns.Add (new Column ("DummyColumn5"));
-			_columns.Add (new Column ("DummyColumn6"));
-			_columns.Add (new Column ("DummyColumn7"));
-			_columns.Add (new Column ("DummyColumn8"));
-			_columns.Add (new Column ("DummyColumn9"));
-			_columns.Add (new Column ("DC10DoubleClickToEdit"));
+			tableName = name;
+			tableContext = context;
+			tableSchemaProvider = schemaProvider;
+			tableSchema = tableSchemaProvider.CreateTableSchema (name);
+			Initialize ();
+			//TODO: delete this only for test purpose			
+			indexes.Add (new Index ("DummyIndex2"));
+			triggers.Add (new Trigger ("DummyTrigger1"));
+		}
+			/*			
+			columns.Add (new Column ("DummyColumn1"));
+			columns.Add (new Column ("DummyColumn2"));
+			columns.Add (new Column ("DummyColumn3"));
+			columns.Add (new Column ("DummyColumn4"));
+			columns.Add (new Column ("DummyColumn5"));
+			columns.Add (new Column ("DummyColumn6"));
+			columns.Add (new Column ("DummyColumn7"));
+			columns.Add (new Column ("DummyColumn8"));
+			columns.Add (new Column ("DummyColumn9"));
+			columns.Add (new Column ("DC10DoubleClickToEdit"));
 
 			_indexes.Add (new Index ("DummyIndex1"));
 			_indexes.Add (new Index ("DummyIndex2"));
@@ -94,9 +117,52 @@ namespace MonoDevelop.Database.Modeler
 			_triggers.Add (new Trigger ("DummyTrigger2"));
 			_triggers.Add (new Trigger ("DummyTrigger3"));
 			_triggers.Add (new Trigger ("DummyTrigger4"));
+			 */
 
+		public TableModel (string name)
+		{
+			tableName = name;
+			tableContext = null;
+			tableSchemaProvider = null;
+			tableSchema = null;
+			Initialize ();
+			
+			columns.Add (new Column ());
+			columns.Add (new Column ());
+			columns.Add (new Column ());
+			columns.Add (new Column ());
+			columns.Add (new Column ());
+			columns.Add (new Column ());
+			columns.Add (new Column ());
+			columns.Add (new Column ());
+			columns.Add (new Column ());
+			columns.Add (new Column ());
+
+			indexes.Add (new Index ("DummyIndex1"));
+			indexes.Add (new Index ("DummyIndex2"));
+			triggers.Add (new Trigger ("DummyTrigger1"));
+			triggers.Add (new Trigger ("DummyTrigger2"));
+			triggers.Add (new Trigger ("DummyTrigger3"));
+			triggers.Add (new Trigger ("DummyTrigger4"));
+			
+			
+			
 		}
 
+		private void Initialize ()
+		{
+			tableColumns = new ArrayList ();
+			tableIndexes = new ArrayList ();
+			tableTriggers = new ArrayList ();
+			if(tableSchema!=null)
+			{
+				foreach (ColumnSchema col in tableSchema.Columns) {
+					columns.Add(new Column(col));
+				}
+			}
+		}
+
+		/*
 		//observer is table that uses this table as Foreign Key (FK)
 		public ArrayList observers {
 			get { return _relationships; }
@@ -106,29 +172,36 @@ namespace MonoDevelop.Database.Modeler
 		public ArrayList relationships {
 			get { return _observers; }
 		}
+		 */
 
 		public ArrayList columns {
-			get { return _columns; }
+			get { return tableColumns; }
 		}
 
 		public ArrayList indexes {
-			get { return _indexes; }
+			get { return tableIndexes; }
 		}
 
 		public ArrayList triggers {
-			get { return _triggers; }
+			get { return tableTriggers; }
 		}
 
-		public string tableName {
-			get { return _tableName; }
+		public string Name {
+			get { return tableName; }
 		}
 
-		private ArrayList _columns;
-		private ArrayList _indexes;
-		private ArrayList _triggers;
-		private ArrayList _observers;
-		private ArrayList _relationships;
 		//todo: use non-generic arrays?
-		private string _tableName;
+		private ArrayList tableColumns;
+		private ArrayList tableIndexes;
+		private ArrayList tableTriggers;
+		/*
+		private ArrayList observers;
+		private ArrayList relationships;
+		*/
+
+		private DatabaseConnectionContext tableContext;
+		private ISchemaProvider tableSchemaProvider;
+		private string tableName;
+		private TableSchema tableSchema;
 	}
 }
