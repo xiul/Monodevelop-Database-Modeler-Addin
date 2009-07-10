@@ -30,6 +30,7 @@ using Gtk;
 using Cairo;
 using MonoHotDraw.Tools;
 using MonoDevelop.Database.Components;
+using MonoDevelop.Database.Sql;
 
 namespace MonoDevelop.Database.Modeler
 {
@@ -53,7 +54,6 @@ namespace MonoDevelop.Database.Modeler
 			toolbar.ShowArrow = true;
 			toolbar.IconSize = Gtk.IconSize.LargeToolbar;
 			toolbar.ToolbarStyle = ToolbarStyle.BothHoriz;			
-			System.Console.WriteLine("FUCK: "+toolbar.Name);
 			toolbar.Sensitive=true;
 			toolbar.Activate();
 			mainVbox.Add(toolbar);
@@ -78,7 +78,7 @@ namespace MonoDevelop.Database.Modeler
 			//Create Toolbar Buttons
 			
 			//Add New Table
-			ToolButton buttonNew = new ToolButton(new Gtk.Image (Gtk.Stock.New, IconSize.Button),"Add Table");	                                           
+			buttonNew = new ToolButton(new Gtk.Image (Gtk.Stock.New, IconSize.Button),"Add Table");	                                           
 			buttonNew.Sensitive = true;
 			buttonNew.TooltipMarkup = "Add a new empty table";
 			buttonNew.IsImportant = true;
@@ -87,7 +87,7 @@ namespace MonoDevelop.Database.Modeler
 			buttonNew.Show();
 			toolbar.Add (buttonNew);
 			//Create a Relationship between two tables
-			ToolButton buttonRelationship = new ToolButton(new Gtk.Image (Gtk.Stock.New, IconSize.Button),"Relationship");	                                           
+			buttonRelationship = new ToolButton(new Gtk.Image (Gtk.Stock.New, IconSize.Button),"Relationship");	                                           
 			buttonRelationship.Sensitive = true;
 			buttonRelationship.TooltipMarkup = "Add a new relationship between tables";
 			buttonRelationship.IsImportant = true;
@@ -96,7 +96,9 @@ namespace MonoDevelop.Database.Modeler
 			buttonRelationship.Show();
 			toolbar.Add (buttonRelationship);		
 			//Select Active Database
-			DatabaseConnectionContextComboBox comboConnections = new DatabaseConnectionContextComboBox ();
+			comboConnections = new DatabaseConnectionContextComboBox ();
+			selectedConnection = comboConnections.DatabaseConnection;
+			comboConnections.Changed += new EventHandler (ConnectionChanged);
 			ToolItem comboItem = new ToolItem ();
 			comboItem.Child = comboConnections;
 			comboItem.Show();
@@ -122,8 +124,30 @@ namespace MonoDevelop.Database.Modeler
 			_owner.Tool = new ConnectionCreationTool (_owner, rel);
 		}
 
+		public DatabaseConnectionContext SelectedConnectionContext {
+			get { return selectedConnection; }
+			set {
+				if (selectedConnection != value) {
+					selectedConnection = value;
+					buttonNew.Sensitive = value != null;
+					buttonRelationship.Sensitive = value != null;
+					comboConnections.DatabaseConnection = value;
+				}
+			}
+		}
+
+		private void ConnectionChanged (object sender, EventArgs args)
+		{
+			selectedConnection = comboConnections.DatabaseConnection;
+			buttonNew.Sensitive = selectedConnection!=null;
+			buttonRelationship.Sensitive = selectedConnection!=null;
+		}		
+		
 		private modelController _controller;
 		private ModelerCanvas _owner;
 		private ScrolledWindow mainScrolledWindow;
+		private DatabaseConnectionContext selectedConnection;
+		private ToolButton buttonNew, buttonRelationship;
+		private DatabaseConnectionContextComboBox comboConnections;
 	}
 }

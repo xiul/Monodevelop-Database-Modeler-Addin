@@ -68,7 +68,7 @@ namespace MonoDevelop.Database.Modeler
 			TargetEntry[] te2 = new TargetEntry[] { new Gtk.TargetEntry ("tree3 ", 0, 7777) };
 			ScrolledWindow xscroller = widget.getScroller ();
 			Gtk.Drag.DestSet (xscroller, DestDefaults.All, te2, Gdk.DragAction.Copy);
-			xscroller.DragDataReceived += tree3_DragDataReceived;
+			xscroller.DragDataReceived += OnDragDataReceived;
 
 			//todo: fix this undo manager
 			_undoManager = new UndoManager ();
@@ -76,16 +76,24 @@ namespace MonoDevelop.Database.Modeler
 		}
 
 
-		private void tree3_DragDataReceived (object o, DragDataReceivedArgs args)
+		private void OnDragDataReceived (object o, DragDataReceivedArgs args)
 		{
 
 			string hash = Encoding.UTF8.GetString (args.SelectionData.Data).Trim ();
+			
 			foreach (DatabaseConnectionContext context in ConnectionContextService.DatabaseConnections) {
 				string hash2 = context.SchemaProvider.ConnectionPool.GetHashCode ().ToString ();
+				//TODO: improve verification process
 				if (hash.Equals (hash2)) {
+					string hash3 = widget.SelectedConnectionContext.SchemaProvider.ConnectionPool.GetHashCode().ToString();
+					if(hash2.Equals (hash3)){
 					ISchemaProvider Provider = DbFactoryService.CreateSchemaProvider (context, context.ConnectionPool);
 					TableSchema t = Provider.CreateTableSchema ("prueba");
-					_controller.addTable (t.FullName, context, Provider);
+					_controller.addTable (t.FullName, context, Provider);						
+					}
+					else{
+						MonoDevelop.Core.Gui.MessageService.ShowWarning("Is not possible to add tables from a differente working database, use Combobox to select right database");
+					}
 				}
 			}
 

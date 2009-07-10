@@ -3,16 +3,18 @@
   <MonoDevelop.Ide.DebuggingService>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService>
-  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Canvas/ModelerCanvasWidget.cs" ctype="Workbench">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Canvas/ModelerCanvas.cs" ctype="Workbench">
     <Files>
-      <File FileName="MonoDevelop.Database.Modeler/Canvas/ModelerCanvasWidget.cs" Line="92" Column="77" />
+      <File FileName="../../monodevelop/extras/MonoDevelop.Database/MonoDevelop.Database.Query/SqlQueryView.cs" Line="221" Column="5" />
+      <File FileName="MonoDevelop.Database.Modeler/Canvas/ModelerCanvasWidget.cs" Line="137" Column="4" />
+      <File FileName="MonoDevelop.Database.Modeler/Canvas/ModelerCanvas.cs" Line="95" Column="7" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="MonoDevelop.Database.Modeler" expanded="True">
             <Node name="Canvas" expanded="True">
-              <Node name="ModelerCanvasWidget.cs" selected="True" />
+              <Node name="ModelerCanvas.cs" selected="True" />
             </Node>
           </Node>
         </State>
@@ -27,9 +29,13 @@
         <State selected="True" />
       </Pad>
       <Pad Id="ConnectionManagerPad">
-        <State expanded="True" selected="True">
+        <State expanded="True">
           <Node name="prueba" expanded="True" />
-          <Node name="testdata" expanded="True" />
+          <Node name="testdata" expanded="True">
+            <Node name="Tablas" expanded="True">
+              <Node name="prueba" selected="True" />
+            </Node>
+          </Node>
           <Node name="xiul" expanded="True" />
         </State>
       </Pad>
