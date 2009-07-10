@@ -58,7 +58,7 @@ namespace MonoDevelop.Database.Modeler
 		//todo: fix metrics because add extra space at bottom
 		private void syncFigureMetrics ()
 		{
-			double newWidth = 0, newHeight = 0;
+			double newWidth = 0, newHeight = 10;
 			//Add Columns metrics
 			foreach (Column col in _tableModel.columns) {
 				if (col.BasicDisplayBox.Width > newWidth) {
@@ -114,7 +114,8 @@ namespace MonoDevelop.Database.Modeler
 		{
 			//Create Labels
 			_tableName = new SimpleTextFigure (_tableModel.Name);
-			_tableName.SetAttribute (FigureAttribute.FontSize, 6);
+			_tableName.SetAttribute (FigureAttribute.FontSize, 7);
+			_tableName.SetAttribute (FigureAttribute.FontColor, new Color (0, 0, 0.501961));
 
 			_indexLabel = new SimpleTextFigure ("Indexes");
 			_indexLabel.SetAttribute (FigureAttribute.FontColor, new Color (0, 0, 0.501961));
@@ -151,7 +152,7 @@ namespace MonoDevelop.Database.Modeler
 				return ((_indexLabel.BasicDisplayBox.Y - DisplayBox.Y) + _triggerLabel.BasicDisplayBox.Height);
 		}
 
-		//todo: use PointD
+		//TODO: improve this function
 		public override void BasicDraw (Cairo.Context context)
 		{
 			if (DisplayBox.Width == 0 || DisplayBox.Height == 0) {
@@ -166,13 +167,19 @@ namespace MonoDevelop.Database.Modeler
 			context.Restore ();
 			_tableName.BasicDraw (context);
 			syncFigureMetrics ();
-			//Draw Indexes
+			//Draw Table name Line
+			PointD start0 = new PointD (DisplayBox.X, DisplayBox.Y+1);
+			context.Color = new Color (0.8, 0.8, 1, 0.7);
+			context.Rectangle (start0, _width, _tableName.BasicDisplayBox.Height - 5);
+			context.FillPreserve ();
+			context.Stroke ();			
+			//Draw Indexes Line
 			PointD start = new PointD (DisplayBox.X, DisplayBox.Y + calcIndexLabelHeightPos ());
 			context.Color = new Color (0.8, 0.8, 1, 0.7);
 			context.Rectangle (start, _width, _indexLabel.BasicDisplayBox.Height - 4);
 			context.FillPreserve ();
 			context.Stroke ();
-			//Draw Triggers
+			//Draw Triggers Line
 			PointD start2 = new PointD (DisplayBox.X, DisplayBox.Y + calcTriggerLabelHeightPos ());
 			context.Color = new Color (0.8, 0.8, 1, 0.7);
 			context.Rectangle (start2, _width, _triggerLabel.BasicDisplayBox.Height - 4);
@@ -251,7 +258,7 @@ namespace MonoDevelop.Database.Modeler
 		{
 			base.OnFigureChanged (e);
 			//Arrange position for table title and columns
-			_tableName.MoveTo (DisplayBox.X + 2, DisplayBox.Y + 2);
+			_tableName.MoveTo (DisplayBox.X + 2, DisplayBox.Y - 2);
 			double y = 0.0;
 			foreach (Column col in _tableModel.columns) {
 				y += col.BasicDisplayBox.Height - 4;
