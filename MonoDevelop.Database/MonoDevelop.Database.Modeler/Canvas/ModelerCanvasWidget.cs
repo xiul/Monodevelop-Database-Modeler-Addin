@@ -29,11 +29,12 @@ using System;
 using Gtk;
 using Cairo;
 using MonoHotDraw.Tools;
+using MonoDevelop.Database.Components;
 
 namespace MonoDevelop.Database.Modeler
 {
 
-	[System.ComponentModel.ToolboxItem(true)]
+	//[System.ComponentModel.ToolboxItem(true)]
 	public partial class ModelerCanvasWidget : Gtk.Bin
 	{
 
@@ -42,36 +43,87 @@ namespace MonoDevelop.Database.Modeler
 			this.Build ();
 			_owner = owner;
 			_controller = controller;
+			VBox mainVbox = new VBox (false, 6);
+			mainVbox.BorderWidth = 6;
+			this.Add(mainVbox);
+
+			//Create Toolbar
+			Toolbar toolbar = new Toolbar ();
+			toolbar.Name = "toolbar";
+			toolbar.ShowArrow = true;
+			toolbar.IconSize = Gtk.IconSize.LargeToolbar;
+			toolbar.ToolbarStyle = ToolbarStyle.BothHoriz;			
+			System.Console.WriteLine("FUCK: "+toolbar.Name);
+			toolbar.Sensitive=true;
+			toolbar.Activate();
+			mainVbox.Add(toolbar);
+			Gtk.Box.BoxChild w1 = ((Gtk.Box.BoxChild)(mainVbox[toolbar]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = true;			
+			
+			//Create SCrollWindow
+			mainScrolledWindow = new ScrolledWindow();
+			mainScrolledWindow.Activate();
+			mainScrolledWindow.SetPolicy( Gtk.PolicyType.Always,Gtk.PolicyType.Always);
+			mainScrolledWindow.CanFocus = true;
+			mainScrolledWindow.Name = "mainScrolledWindow";
+			mainScrolledWindow.ShadowType = ((Gtk.ShadowType)(1));
+			mainVbox.Add(mainScrolledWindow);
+			Gtk.Box.BoxChild w2 = ((Gtk.Box.BoxChild)(mainVbox[mainScrolledWindow]));
+ 			w2.Position = 1;
+			w2.Fill=true;
+			w2.Expand=true;
+			
+			//Create Toolbar Buttons
+			
+			//Add New Table
+			ToolButton buttonNew = new ToolButton(new Gtk.Image (Gtk.Stock.New, IconSize.Button),"Add Table");	                                           
+			buttonNew.Sensitive = true;
+			buttonNew.TooltipMarkup = "Add a new empty table";
+			buttonNew.IsImportant = true;
+			buttonNew.Clicked += new EventHandler (OnbuttonNewActionActivated);
+			buttonNew.Activate();
+			buttonNew.Show();
+			toolbar.Add (buttonNew);
+			//Create a Relationship between two tables
+			ToolButton buttonRelationship = new ToolButton(new Gtk.Image (Gtk.Stock.New, IconSize.Button),"Relationship");	                                           
+			buttonRelationship.Sensitive = true;
+			buttonRelationship.TooltipMarkup = "Add a new relationship between tables";
+			buttonRelationship.IsImportant = true;
+			buttonRelationship.Clicked += new EventHandler (OnbuttonRelationshipActivated);
+			buttonRelationship.Activate();
+			buttonRelationship.Show();
+			toolbar.Add (buttonRelationship);		
+			//Select Active Database
+			DatabaseConnectionContextComboBox comboConnections = new DatabaseConnectionContextComboBox ();
+			ToolItem comboItem = new ToolItem ();
+			comboItem.Child = comboConnections;
+			comboItem.Show();
+			toolbar.Add (new SeparatorToolItem ());
+			toolbar.Add (comboItem);
+			//Show all items
+			mainVbox.ShowAll ();
 		}
 
 		public ScrolledWindow getScroller ()
 		{
 			return this.mainScrolledWindow;
 		}
-
-		protected virtual void OnCloseActionActivated (object sender, System.EventArgs e)
-		{
-			_controller.xxxremoveColumna ();
-		}
-
-		protected virtual void OnAplicarActionActivated (object sender, System.EventArgs e)
+		
+		protected virtual void OnbuttonNewActionActivated (object sender, System.EventArgs e)
 		{
 			_controller.addFigure ("tableNameDummy");
 		}
 
-		protected virtual void OnConvertActionActivated (object sender, System.EventArgs e)
+		protected virtual void OnbuttonRelationshipActivated (object sender, System.EventArgs e)
 		{
 			RelationshipFigure rel = new RelationshipFigure ();
 			_owner.Tool = new ConnectionCreationTool (_owner, rel);
 		}
 
-		protected virtual void OnAddActionActivated (object sender, System.EventArgs e)
-		{
-			_controller.xxxaddColumna ();
-		}
-
-
 		private modelController _controller;
 		private ModelerCanvas _owner;
+		private ScrolledWindow mainScrolledWindow;
 	}
 }

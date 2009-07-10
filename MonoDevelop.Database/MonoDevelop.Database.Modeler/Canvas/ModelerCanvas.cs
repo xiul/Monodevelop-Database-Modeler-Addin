@@ -40,7 +40,7 @@ using MonoHotDraw.Util;
 using MonoDevelop.Database.Sql;
 using MonoDevelop.Database.ConnectionManager;
 
-
+using MonoDevelop.Database.Components;
 
 namespace MonoDevelop.Database.Modeler
 {
@@ -63,7 +63,7 @@ namespace MonoDevelop.Database.Modeler
 			widget.getScroller ().Add ((Widget)View);
 			Tool = new SelectionTool (this);
 			widget.getScroller ().ShowAll ();
-
+			
 			//Add drag and drop support
 			TargetEntry[] te2 = new TargetEntry[] { new Gtk.TargetEntry ("tree3 ", 0, 7777) };
 			ScrolledWindow xscroller = widget.getScroller ();

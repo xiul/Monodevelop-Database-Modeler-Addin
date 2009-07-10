@@ -67,7 +67,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\monohotdraw\MonoHotDraw\bin\Debug\MonoHotDraw.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cairo, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" />
+    <Reference Include="Mono.Cairo" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
