@@ -1,0 +1,74 @@
+Index: ConnectionManagerPad.cs
+===================================================================
+--- ConnectionManagerPad.cs	(revisión: 137518)
++++ ConnectionManagerPad.cs	(copia de trabajo)
+@@ -27,6 +27,7 @@
+ //
+ 
+ using Gtk;
++using Gdk;
+ using System;
+ using System.IO;
+ using MonoDevelop.Core;
+@@ -34,7 +35,10 @@
+ using MonoDevelop.Ide.Gui.Pads;
+ using MonoDevelop.Components.Commands;
+ using MonoDevelop.Ide.Gui.Components;
++using System.Text;
++using System.Text.RegularExpressions;
+ 
++
+ using MonoDevelop.Database.Sql;
+ 
+ namespace MonoDevelop.Database.ConnectionManager
+@@ -42,6 +46,8 @@
+ 	public class ConnectionManagerPad : TreeViewPad
+ 	{
+ 		private VBox vbox;
++		private Gtk.TreeView temporary;
++		private ExtensibleTreeView temporary2;
+ 
+ 		public ConnectionManagerPad ()
+ 		{
+@@ -49,10 +55,34 @@
+ 			
+ 			Toolbar toolbar = IdeApp.CommandService.CreateToolbar ("/MonoDevelop/Database/ToolBar/ConnectionManagerPad");
+ 			toolbar.ToolbarStyle = ToolbarStyle.Icons;
++			temporary=this.TreeView.Tree;
++			temporary2=this.treeView;
++
++			//added but not working I needed to modify extensibleTreeView too
++			TargetEntry[] te3 = new	TargetEntry[] { new TargetEntry("x-relationship",0,7777)};
++			temporary.EnableModelDragDest (te3, Gdk.DragAction.Copy | Gdk.DragAction.Move);
++			Gtk.Drag.SourceSet (temporary, Gdk.ModifierType.Button1Mask, te3, Gdk.DragAction.Copy | Gdk.DragAction.Move);
++			temporary.DragDataGet += tree_DragDataGet;
+ 			
+ 			vbox.PackStart (toolbar, false, true, 0);
+ 		}
+ 		
++private void tree_DragDataGet(object o,DragDataGetArgs args)
++{
++ITreeNavigator nodo=temporary2.GetSelectedNode();
++			TableNode xx = nodo.DataItem as TableNode;
++			TableSchema ss=null;
++			string hash="";
++			if(xx is TableNode){
++				ss = xx.Table;
++				ISchemaProvider pp = ss.SchemaProvider;
++				hash=pp.ConnectionPool.GetHashCode().ToString();
++			} 
++args.SelectionData.Set(args.SelectionData.Target, 8,Encoding.UTF8.GetBytes(hash));
++}
++
++
++
+ 		public override void Initialize (NodeBuilder[] builders, TreePadOption[] options, string contextMenuPath)
+ 		{
+ 			base.Initialize (builders, options, contextMenuPath);
+@@ -68,4 +98,4 @@
+ 			get { return vbox; }
+ 		}
+ 	}
+-}
+\ No newline at end of file
++}
