@@ -42,18 +42,21 @@ namespace MonoDevelop.Database.Modeler
 
 		public Column (ColumnSchema column) : base(column.Name)
 		{
-			Initialize();
 			columnModel=column;
+			Initialize();
 		}
+		
 		
 		public Column ( ) : base("Column")
 		{
-			Initialize();
 			columnModel=null;
+			Initialize();
 		}
 		
 		private void Initialize(){
-			this.SetAttribute (FigureAttribute.FontSize, 6);		
+			this.TextChanged +=  OnColumnNameChange;
+			this.SetAttribute (FigureAttribute.FontSize, 6);
+			OnColumnNameChange(this, new EventArgs ());
 		}
 		
 		public ColumnSchema schema {
@@ -61,6 +64,11 @@ namespace MonoDevelop.Database.Modeler
 			set { columnModel=schema; }
 		}
 
+		protected virtual void OnColumnNameChange (object sender, EventArgs args){
+			if(columnModel!=null)
+				this.Text=columnModel.Name+" : "+columnModel.DataTypeName.ToUpper();
+		}
+		
 		
 		private ColumnSchema columnModel;
 	}
