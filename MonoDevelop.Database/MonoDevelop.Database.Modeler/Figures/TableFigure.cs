@@ -139,16 +139,21 @@ namespace MonoDevelop.Database.Modeler
 		//todo: fix if table columns count=0
 		public double calcIndexLabelHeightPos ()
 		{
-			Column last = _tableModel.columns[_tableModel.columns.Count - 1] as Column;
-			return ((last.BasicDisplayBox.Y - DisplayBox.Y) + _indexLabel.BasicDisplayBox.Height);
+			if(_tableModel.columns.Count > 0){
+				Column last = _tableModel.columns[_tableModel.columns.Count - 1] as Column;
+				return ((last.BasicDisplayBox.Y - DisplayBox.Y) + _indexLabel.BasicDisplayBox.Height);
+			}else
+				return ((_tableName.BasicDisplayBox.Y - DisplayBox.Y) + _indexLabel.BasicDisplayBox.Height);
 		}
 
 		//todo: fix if table indexes count=0
 		public double calcTriggerLabelHeightPos ()
 		{
-			Index last = _tableModel.indexes[_tableModel.indexes.Count - 1] as Index;
-			if (showIndexes)
-				return ((last.BasicDisplayBox.Y - DisplayBox.Y) + _triggerLabel.BasicDisplayBox.Height); else
+			if(_tableModel.indexes.Count > 0 && showIndexes){
+				Index last = _tableModel.indexes[_tableModel.indexes.Count - 1] as Index;
+				return ((last.BasicDisplayBox.Y - DisplayBox.Y) + _triggerLabel.BasicDisplayBox.Height); 
+			}				
+			else
 				return ((_indexLabel.BasicDisplayBox.Y - DisplayBox.Y) + _triggerLabel.BasicDisplayBox.Height);
 		}
 
@@ -264,8 +269,10 @@ namespace MonoDevelop.Database.Modeler
 				y += col.BasicDisplayBox.Height - 4;
 				col.MoveTo ((DisplayBox.X + 5), (DisplayBox.Y + y));
 			}
+			System.Console.WriteLine("TABLE FIGURE: Aqui nahhh");
 			//Arrange position for Indexes
 			y = calcIndexLabelHeightPos ();
+			System.Console.WriteLine("TABLE FIGURE: Aqui nooooooooooohhh");
 			_indexLabel.MoveTo ((DisplayBox.X + 20), (DisplayBox.Y + y - 2));
 			foreach (Index indx in _tableModel.indexes) {
 				y += indx.BasicDisplayBox.Height - 4;

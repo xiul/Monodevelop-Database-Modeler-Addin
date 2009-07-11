@@ -175,8 +175,10 @@ namespace MonoDevelop.Database.Modeler
 			alteredTable=false;			
 			if(tableSchema!=null)
 			{
-				foreach (ColumnSchema col in tableSchema.Columns) {
-					columns.Add(new Column(col));
+				if(tableSchema!=null){
+					foreach (ColumnSchema col in tableSchema.Columns) {
+						columns.Add(new Column(col));
+					}
 				}
 			}
 		}
