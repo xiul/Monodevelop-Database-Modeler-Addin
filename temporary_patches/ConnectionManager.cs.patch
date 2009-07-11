@@ -10,18 +10,19 @@ Index: ConnectionManagerPad.cs
  using System;
  using System.IO;
  using MonoDevelop.Core;
-@@ -34,7 +35,10 @@
+@@ -34,7 +35,11 @@
  using MonoDevelop.Ide.Gui.Pads;
  using MonoDevelop.Components.Commands;
  using MonoDevelop.Ide.Gui.Components;
 +using System.Text;
++using System.Xml;
 +using System.Text.RegularExpressions;
  
 +
  using MonoDevelop.Database.Sql;
  
  namespace MonoDevelop.Database.ConnectionManager
-@@ -42,6 +46,8 @@
+@@ -42,6 +47,8 @@
  	public class ConnectionManagerPad : TreeViewPad
  	{
  		private VBox vbox;
@@ -30,7 +31,7 @@ Index: ConnectionManagerPad.cs
  
  		public ConnectionManagerPad ()
  		{
-@@ -49,10 +55,34 @@
+@@ -49,10 +56,70 @@
  			
  			Toolbar toolbar = IdeApp.CommandService.CreateToolbar ("/MonoDevelop/Database/ToolBar/ConnectionManagerPad");
  			toolbar.ToolbarStyle = ToolbarStyle.Icons;
@@ -38,7 +39,7 @@ Index: ConnectionManagerPad.cs
 +			temporary2=this.treeView;
 +
 +			//added but not working I needed to modify extensibleTreeView too
-+			TargetEntry[] te3 = new	TargetEntry[] { new TargetEntry("x-relationship",0,7777)};
++			TargetEntry[] te3 = new	TargetEntry[] { new TargetEntry("table/relationship", 0, 7777)};
 +			temporary.EnableModelDragDest (te3, Gdk.DragAction.Copy | Gdk.DragAction.Move);
 +			Gtk.Drag.SourceSet (temporary, Gdk.ModifierType.Button1Mask, te3, Gdk.DragAction.Copy | Gdk.DragAction.Move);
 +			temporary.DragDataGet += tree_DragDataGet;
@@ -48,24 +49,60 @@ Index: ConnectionManagerPad.cs
  		
 +private void tree_DragDataGet(object o,DragDataGetArgs args)
 +{
-+ITreeNavigator nodo=temporary2.GetSelectedNode();
-+			TableNode xx = nodo.DataItem as TableNode;
-+			TableSchema ss=null;
-+			string hash="";
-+			if(xx is TableNode){
-+				ss = xx.Table;
-+				ISchemaProvider pp = ss.SchemaProvider;
-+				hash=pp.ConnectionPool.GetHashCode().ToString();
++			ITreeNavigator nodo = temporary2.GetSelectedNode();
++			TableNode table = nodo.DataItem as TableNode;
++			XmlDocument data=null;
++			if(table is TableNode){
++				TableSchema schema = table.Table;
++				ISchemaProvider provider = schema.SchemaProvider;
++				data=PrepareDataGet(provider.ConnectionPool.GetHashCode().ToString(), schema.Name);
 +			} 
-+args.SelectionData.Set(args.SelectionData.Target, 8,Encoding.UTF8.GetBytes(hash));
-+}
++			if(data!=null)
++				args.SelectionData.Set(args.SelectionData.Target, 8,Encoding.UTF8.GetBytes(data.OuterXml));
++			else
++				args.SelectionData.Set(args.SelectionData.Target, 8,Encoding.UTF8.GetBytes("Error"));
++		}
++		
++private XmlDocument PrepareDataGet(string hashCodeDB, string tableName){
++			//TODO: extent document to allow multiple tables drag and drop
++			/* Xml Document Style
++			 * <?xml version="1.0" encoding="utf-8"?>
++			 * <DBDesignerDragInfo>
++			 * <Hash TYPE="postgresql" NAMEDB="Test"></Hash>
++			 * <Table></Table>
++			 * </DBDesignerDragInfo>
++			 */ 
++			
++			XmlDocument data = new XmlDocument();
++      		//XML declaration
++        	XmlDeclaration xmlDeclaration = data.CreateXmlDeclaration("1.0","utf-8",null); 
++    	    // Create the root element
++	        XmlElement rootNode  = data.CreateElement("DBDesignerDragInfo");
++        	data.InsertBefore(xmlDeclaration, data.DocumentElement); 
++        	data.AppendChild(rootNode);
++			// Create a new <Hash> element and add it to the root node
++        	XmlElement hashNode  = data.CreateElement("Hash");
++	        // Set attribute name and value!
++		    //TODO:set real attributes values
++			hashNode.SetAttribute("TYPE", "SQLite");
++			hashNode.SetAttribute("NAMEDB", "testdata");
++			data.DocumentElement.PrependChild(hashNode);
++			XmlText hashText = data.CreateTextNode(hashCodeDB);
++			hashNode.AppendChild(hashText);
++			// Create a new <Table> element and add it to the root node
++        	XmlElement tableNode  = data.CreateElement("Table");
++			rootNode.AppendChild(tableNode);
++			XmlText tableText = data.CreateTextNode(tableName);
++			tableNode.AppendChild(tableText);	
++			return data;
++		}
 +
 +
 +
  		public override void Initialize (NodeBuilder[] builders, TreePadOption[] options, string contextMenuPath)
  		{
  			base.Initialize (builders, options, contextMenuPath);
-@@ -68,4 +98,4 @@
+@@ -68,4 +135,4 @@
  			get { return vbox; }
  		}
  	}

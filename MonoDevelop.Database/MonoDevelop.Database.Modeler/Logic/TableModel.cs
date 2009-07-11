@@ -66,9 +66,14 @@ namespace MonoDevelop.Database.Modeler
 
 		protected virtual void OnColumnNameChange (object sender, EventArgs args){
 			if(columnModel!=null)
-				this.Text=columnModel.Name+" : "+columnModel.DataTypeName.ToUpper();
+				if(ValidateDataType())
+					this.Text=columnModel.Name+" : "+columnModel.DataTypeName.ToUpper();
 		}
 		
+		//TODO: Create this function
+		protected bool ValidateDataType(){
+			return true;			
+		}
 		
 		private ColumnSchema columnModel;
 	}
@@ -102,6 +107,8 @@ namespace MonoDevelop.Database.Modeler
 			tableContext = context;
 			tableSchemaProvider = schemaProvider;
 			tableSchema = tableSchemaProvider.CreateTableSchema (name);
+			alteredTable=false;
+			newTable=false;
 			Initialize ();
 			//TODO: delete this only for test purpose			
 			indexes.Add (new Index ("DummyIndex2"));
@@ -129,7 +136,9 @@ namespace MonoDevelop.Database.Modeler
 
 		public TableModel (string name)
 		{
-			tableName = name;
+			tableName = name; //TODO: remov this attribute use table model
+			alteredTable=false;
+			newTable=true;
 			tableContext = null;
 			tableSchemaProvider = null;
 			tableSchema = null;
@@ -162,6 +171,8 @@ namespace MonoDevelop.Database.Modeler
 			tableColumns = new ArrayList ();
 			tableIndexes = new ArrayList ();
 			tableTriggers = new ArrayList ();
+			newTable=false;
+			alteredTable=false;			
 			if(tableSchema!=null)
 			{
 				foreach (ColumnSchema col in tableSchema.Columns) {
@@ -211,5 +222,8 @@ namespace MonoDevelop.Database.Modeler
 		private ISchemaProvider tableSchemaProvider;
 		private string tableName;
 		private TableSchema tableSchema;
+		private bool newTable;
+		private bool alteredTable;
+			
 	}
 }

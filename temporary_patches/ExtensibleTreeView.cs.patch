@@ -8,7 +8,7 @@ Index: ExtensibleTreeView.cs
  			new Gtk.TargetEntry ("text/plain", 0, 22),
 -			new Gtk.TargetEntry ("application/x-rootwindow-drop", 0, 33)
 +			new Gtk.TargetEntry ("application/x-rootwindow-drop", 0, 33),
-+			new Gtk.TargetEntry("x-relationship ",0,7777)	//Xiul change this but should be fixed later
++			new Gtk.TargetEntry ("table/relationship", 0, 7777)	//Xiul change this but should be fixed later
  		};
  		
  		public IDictionary<string,string> ContextMenuTypeNameAliases {

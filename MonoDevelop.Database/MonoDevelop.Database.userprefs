@@ -3,18 +3,19 @@
   <MonoDevelop.Ide.DebuggingService>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService>
-  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" ctype="Workbench">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Canvas/ModelerCanvas.cs" ctype="Workbench">
     <Files>
-      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="173" Column="76" />
+      <File FileName="DB Modeler" />
+      <File FileName="MonoDevelop.Database.Modeler/Canvas/ModelerCanvas.cs" Line="151" Column="5" />
+      <File FileName="../../monodevelop/extras/MonoDevelop.Database/MonoDevelop.Database.ConnectionManager/ConnectionManagerPad.cs" Line="92" Column="37" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="MonoDevelop.Database.Modeler" expanded="True">
-            <Node name="Figures" expanded="True">
-              <Node name="TableFigure.cs" selected="True" />
+            <Node name="Canvas" expanded="True">
+              <Node name="ModelerCanvas.cs" selected="True" />
             </Node>
-            <Node name="Logic" expanded="True" />
           </Node>
         </State>
       </Pad>
@@ -29,9 +30,10 @@
       </Pad>
       <Pad Id="ConnectionManagerPad">
         <State expanded="True">
-          <Node name="prueba" expanded="True" />
           <Node name="testdata" expanded="True">
-            <Node name="Tablas" expanded="True" />
+            <Node name="Tablas" expanded="True">
+              <Node name="prueba" selected="True" />
+            </Node>
           </Node>
           <Node name="xiul" expanded="True" />
         </State>

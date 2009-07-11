@@ -27,6 +27,8 @@
 
 using System;
 using System.Text;
+using System.Xml;
+using System.IO;
 using Gtk;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Commands;
@@ -63,9 +65,9 @@ namespace MonoDevelop.Database.Modeler
 			widget.getScroller ().Add ((Widget)View);
 			Tool = new SelectionTool (this);
 			widget.getScroller ().ShowAll ();
-			
+
 			//Add drag and drop support
-			TargetEntry[] te2 = new TargetEntry[] { new Gtk.TargetEntry ("tree3 ", 0, 7777) };
+			TargetEntry[] te2 = new TargetEntry[] { new Gtk.TargetEntry ("table/relationship", 0, 7777) };
 			ScrolledWindow xscroller = widget.getScroller ();
 			Gtk.Drag.DestSet (xscroller, DestDefaults.All, te2, Gdk.DragAction.Copy);
 			xscroller.DragDataReceived += OnDragDataReceived;
@@ -79,11 +81,41 @@ namespace MonoDevelop.Database.Modeler
 		private void OnDragDataReceived (object o, DragDataReceivedArgs args)
 		{
 
-			string hash = Encoding.UTF8.GetString (args.SelectionData.Data).Trim ();
-			
+
+			string dragData = Encoding.UTF8.GetString (args.SelectionData.Data).Trim ();
+			XmlReader reader = XmlTextReader.Create (new StringReader (dragData));
+			string element = "", type = "", database = "", hash = "";
+
+
+			while (reader.Read ()) {
+
+				switch (reader.NodeType) {
+				case XmlNodeType.Text:
+
+					if (element.Contains ("Hash"))
+						hash = reader.Value;
+					if (element.Contains ("Table")) {
+						addDropTable (database, type, hash, reader.Value);
+					}
+					break;
+				case XmlNodeType.Element:
+					element = reader.Name;
+					// Read attributes
+					while (reader.MoveToNextAttribute ()) {
+						if (reader.Name.Contains ("TYPE"))
+							type = reader.Value;
+						if (reader.Name.Contains ("NAMEDB"))
+							database = reader.Value;
+					}
+					break;
+				}
+			}
+
+						/*
 			foreach (DatabaseConnectionContext context in ConnectionContextService.DatabaseConnections) {
 				string hash2 = context.SchemaProvider.ConnectionPool.GetHashCode ().ToString ();
 				//TODO: improve verification process
+				System.Console.WriteLine("tengo:"+hash+"y llego: "+hash2);
 				if (hash.Equals (hash2)) {
 					string hash3 = widget.SelectedConnectionContext.SchemaProvider.ConnectionPool.GetHashCode().ToString();
 					if(hash2.Equals (hash3)){
@@ -96,11 +128,28 @@ namespace MonoDevelop.Database.Modeler
 					}
 				}
 			}
+			*/
 
-			Gtk.Drag.Finish (args.Context, true, false, args.Time);
+Gtk.Drag.Finish (args.Context, true, false, args.Time);
 		}
 
 
+		private void addDropTable (string database, string type, string hash, string table)
+		{
+			foreach (DatabaseConnectionContext context in ConnectionContextService.DatabaseConnections) {
+				string contextHash = context.SchemaProvider.ConnectionPool.GetHashCode ().ToString ();
+				if (hash.Equals (contextHash)) {
+					string canvasSelectedHash = widget.SelectedConnectionContext.SchemaProvider.ConnectionPool.GetHashCode ().ToString ();
+					if (canvasSelectedHash.Equals (contextHash)) {
+						ISchemaProvider Provider = DbFactoryService.CreateSchemaProvider (context, context.ConnectionPool);
+						TableSchema t = Provider.CreateTableSchema (table);
+						_controller.addTable (t.FullName, context, Provider);
+					} else {
+						MonoDevelop.Core.Gui.MessageService.ShowWarning ("Is not possible to add tables from a differente working database, use Combobox to select right database");
+					}
+				}
+			}
+		}
 
 		public override void Dispose ()
 		{
