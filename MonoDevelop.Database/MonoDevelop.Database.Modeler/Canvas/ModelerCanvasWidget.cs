@@ -115,7 +115,14 @@ namespace MonoDevelop.Database.Modeler
 		
 		protected virtual void OnbuttonNewActionActivated (object sender, System.EventArgs e)
 		{
-			_controller.addFigure ("tableNameDummy");
+			if (selectedConnection == null)
+				MonoDevelop.Core.Gui.MessageService.ShowError ("A connection with a database should be established first");
+			else
+			{
+				IEditSchemaProvider provider = (IEditSchemaProvider) SelectedConnectionContext.SchemaProvider;
+				_controller.addNewTable ("newTable", SelectedConnectionContext, provider);
+			}
+			
 		}
 
 		protected virtual void OnbuttonRelationshipActivated (object sender, System.EventArgs e)

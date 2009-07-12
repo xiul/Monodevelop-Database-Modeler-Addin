@@ -26,17 +26,22 @@
 
 
 using System;
+using System.Collections.Generic;
+using Gtk;
 using MonoHotDraw;
 using MonoHotDraw.Figures;
 using System.Collections;
 using MonoDevelop.Database.Sql;
 using MonoDevelop.Database.ConnectionManager;
 
+
+
 namespace MonoDevelop.Database.Modeler
 {
 	/*
 	 * Wrapper classes to integrate monohotdraw with MonoDevelop.Database
 	 */
+	
 	public class Column : SimpleTextFigure
 	{
 
@@ -101,9 +106,11 @@ namespace MonoDevelop.Database.Modeler
 	public class TableModel
 	{
 
+		//TODO: context really needed in every table (I think not then remove later)
+		// this should be available fro all tables of the same diagram without taking care if new or altered  
 		public TableModel (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider)
 		{
-			tableName = name;
+			/*tableName = name;
 			tableContext = context;
 			tableSchemaProvider = schemaProvider;
 			tableSchema = tableSchemaProvider.CreateTableSchema (name);
@@ -112,75 +119,66 @@ namespace MonoDevelop.Database.Modeler
 			Initialize ();
 			//TODO: delete this only for test purpose			
 			indexes.Add (new Index ("DummyIndex2"));
-			triggers.Add (new Trigger ("DummyTrigger1"));
+			triggers.Add (new Trigger ("DummyTrigger1"));*/
 		}
-			/*			
-			columns.Add (new Column ("DummyColumn1"));
-			columns.Add (new Column ("DummyColumn2"));
-			columns.Add (new Column ("DummyColumn3"));
-			columns.Add (new Column ("DummyColumn4"));
-			columns.Add (new Column ("DummyColumn5"));
-			columns.Add (new Column ("DummyColumn6"));
-			columns.Add (new Column ("DummyColumn7"));
-			columns.Add (new Column ("DummyColumn8"));
-			columns.Add (new Column ("DummyColumn9"));
-			columns.Add (new Column ("DC10DoubleClickToEdit"));
 
-			_indexes.Add (new Index ("DummyIndex1"));
-			_indexes.Add (new Index ("DummyIndex2"));
-			_triggers.Add (new Trigger ("DummyTrigger1"));
-			_triggers.Add (new Trigger ("DummyTrigger2"));
-			_triggers.Add (new Trigger ("DummyTrigger3"));
-			_triggers.Add (new Trigger ("DummyTrigger4"));
-			 */
 
-		public TableModel (string name)
+		public TableModel (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider, bool create)
 		{
-			tableName = name; //TODO: remov this attribute use table model
-			alteredTable=false;
-			newTable=true;
-			tableContext = null;
-			tableSchemaProvider = null;
-			tableSchema = null;
-			Initialize ();
-			
-			columns.Add (new Column ());
-			columns.Add (new Column ());
-			columns.Add (new Column ());
-			columns.Add (new Column ());
-			columns.Add (new Column ());
-			columns.Add (new Column ());
-			columns.Add (new Column ());
-			columns.Add (new Column ());
-			columns.Add (new Column ());
-			columns.Add (new Column ());
 
+			//TableSchema newSchema;
+			tableName = name; //TODO: remove this attribute use table model
+			newTable=create;
+			alteredTable=false;
+			tableContext = context;
+			tableSchemaProvider = schemaProvider;
+			tableSchema = schemaProvider.CreateTableSchema (name);
+			Initialize ();
+			//Add a first column
+			if(create){
+				TreeIter iter;
+				ColumnSchema columnSchema = new ColumnSchema (schemaProvider, tableSchema, "newColumn");
+				if (storeTypes.GetIterFirst (out iter))
+					columnSchema.DataTypeName = storeTypes.GetValue (iter, 0) as string;				
+				columns.Add (new Column(columnSchema));
+				tableSchema.Columns.Add(columnSchema);
+			
+			}
+			/*ColumnSchema column = new ColumnSchema (schemaProvider, tableSchema, name);*/
+			//TODO: delete this only for test purpose	
 			indexes.Add (new Index ("DummyIndex1"));
-			indexes.Add (new Index ("DummyIndex2"));
 			triggers.Add (new Trigger ("DummyTrigger1"));
-			triggers.Add (new Trigger ("DummyTrigger2"));
-			triggers.Add (new Trigger ("DummyTrigger3"));
-			triggers.Add (new Trigger ("DummyTrigger4"));
 			
-			
+			System.Console.WriteLine("Tiene Xs: "	+tableSchema.Columns.Count);
+			System.Console.WriteLine(schemaProvider.GetTableCreateStatement (tableSchema));
 			
 		}
+			
+		/*private void AppendColumnSchema (ColumnSchema column)
+		{
+			bool pk = column.Constraints.GetConstraint (ConstraintType.PrimaryKey) != null;
+			storeColumns.AppendValues (pk, column.Name, column.DataType.Name, column.DataType.LengthRange.Default.ToString (), column.IsNullable, column.Comment, column);
+		}*/
 
 		private void Initialize ()
 		{
 			tableColumns = new ArrayList ();
 			tableIndexes = new ArrayList ();
 			tableTriggers = new ArrayList ();
-			newTable=false;
-			alteredTable=false;			
 			if(tableSchema!=null)
 			{
-				if(tableSchema!=null){
+				if(tableSchema.Columns!=null){
 					foreach (ColumnSchema col in tableSchema.Columns) {
 						columns.Add(new Column(col));
 					}
 				}
 			}
+			
+			dataTypes = tableSchemaProvider.GetDataTypes ();
+			storeTypes = new ListStore (typeof (string), typeof (object));
+			storeTypes.SetSortColumnId (0, SortType.Ascending);
+			foreach (DataTypeSchema dataType in dataTypes)
+				storeTypes.AppendValues (dataType.Name, dataType);
 		}
 
 		/*
@@ -226,6 +224,8 @@ namespace MonoDevelop.Database.Modeler
 		private TableSchema tableSchema;
 		private bool newTable;
 		private bool alteredTable;
+		private ListStore storeTypes;  //TODO: get out this variable from every table model
+		private DataTypeSchemaCollection dataTypes;
 			
 	}
 }

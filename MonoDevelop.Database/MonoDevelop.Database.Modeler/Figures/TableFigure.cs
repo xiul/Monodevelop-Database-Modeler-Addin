@@ -269,10 +269,9 @@ namespace MonoDevelop.Database.Modeler
 				y += col.BasicDisplayBox.Height - 4;
 				col.MoveTo ((DisplayBox.X + 5), (DisplayBox.Y + y));
 			}
-			System.Console.WriteLine("TABLE FIGURE: Aqui nahhh");
+
 			//Arrange position for Indexes
 			y = calcIndexLabelHeightPos ();
-			System.Console.WriteLine("TABLE FIGURE: Aqui nooooooooooohhh");
 			_indexLabel.MoveTo ((DisplayBox.X + 20), (DisplayBox.Y + y - 2));
 			foreach (Index indx in _tableModel.indexes) {
 				y += indx.BasicDisplayBox.Height - 4;

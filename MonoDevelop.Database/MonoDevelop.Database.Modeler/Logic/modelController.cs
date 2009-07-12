@@ -44,15 +44,18 @@ namespace MonoDevelop.Database.Modeler
 			//todo: main model should be created here.
 		}
 
-		public void addFigure (string nombre)
+		public void addNewTable (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider)
 		{
-			_model = new TableModel (nombre);
+			//Todo: Validate name not used before
+			//TableSchema table = schemaProvider.CreateTableSchema (name);
+						
+			_model = new TableModel (name,context,schemaProvider,true);
 			_fig = new TableFigure (_model);
 			_view.Drawing.Add (_fig);
 		}
 		
-		public void addTable (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider){
-			_model = new TableModel(name,context,schemaProvider);
+		public void addTable (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider, bool create){
+			_model = new TableModel(name,context,schemaProvider,false);
 			_fig = new TableFigure (_model);
 			_view.Drawing.Add (_fig);			
 		}
@@ -67,7 +70,7 @@ namespace MonoDevelop.Database.Modeler
 				//_tool.Deactivate();
 			}*/
 
-				public void xxxaddColumna ()
+		public void xxxaddColumna ()
 		{
 			if (_model != null) {
 				_fig.AddColumn ("ColumnaX" + System.DateTime.Now.Millisecond);

@@ -111,25 +111,6 @@ namespace MonoDevelop.Database.Modeler
 				}
 			}
 
-						/*
-			foreach (DatabaseConnectionContext context in ConnectionContextService.DatabaseConnections) {
-				string hash2 = context.SchemaProvider.ConnectionPool.GetHashCode ().ToString ();
-				//TODO: improve verification process
-				System.Console.WriteLine("tengo:"+hash+"y llego: "+hash2);
-				if (hash.Equals (hash2)) {
-					string hash3 = widget.SelectedConnectionContext.SchemaProvider.ConnectionPool.GetHashCode().ToString();
-					if(hash2.Equals (hash3)){
-					ISchemaProvider Provider = DbFactoryService.CreateSchemaProvider (context, context.ConnectionPool);
-					TableSchema t = Provider.CreateTableSchema ("prueba");
-					_controller.addTable (t.FullName, context, Provider);						
-					}
-					else{
-						MonoDevelop.Core.Gui.MessageService.ShowWarning("Is not possible to add tables from a differente working database, use Combobox to select right database");
-					}
-				}
-			}
-			*/
-
 Gtk.Drag.Finish (args.Context, true, false, args.Time);
 		}
 
@@ -143,7 +124,7 @@ Gtk.Drag.Finish (args.Context, true, false, args.Time);
 					if (canvasSelectedHash.Equals (contextHash)) {
 						ISchemaProvider Provider = DbFactoryService.CreateSchemaProvider (context, context.ConnectionPool);
 						TableSchema t = Provider.CreateTableSchema (table);
-						_controller.addTable (t.FullName, context, Provider);
+						_controller.addTable (t.FullName, context, Provider,false);
 					} else {
 						MonoDevelop.Core.Gui.MessageService.ShowWarning ("Is not possible to add tables from a differente working database, use Combobox to select right database");
 					}
