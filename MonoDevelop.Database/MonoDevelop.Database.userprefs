@@ -3,23 +3,22 @@
   <MonoDevelop.Ide.DebuggingService>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService>
-  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Canvas/ModelerCanvas.cs" ctype="Workbench">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Logic/modelController.cs" ctype="Workbench">
     <Files>
-      <File FileName="MonoDevelop.Database.Modeler/Canvas/ModelerCanvas.cs" Line="127" Column="64" />
-      <File FileName="MonoDevelop.Database.Modeler/Logic/modelController.cs" Line="47" Column="26" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="273" Column="4" />
-      <File FileName="MonoDevelop.Database.Modeler/Logic/TableModel.cs" Line="153" Column="31" />
+      <File FileName="DB Modeler" />
+      <File FileName="MonoDevelop.Database.Modeler/Logic/DatabaseModel.cs" Line="49" Column="34" />
+      <File FileName="MonoDevelop.Database.Modeler/Logic/modelController.cs" Line="63" Column="33" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="55" Column="4" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="MonoDevelop.Database.Modeler" expanded="True">
-            <Node name="Canvas" expanded="True">
-              <Node name="ModelerCanvas.cs" selected="True" />
-            </Node>
-            <Node name="Commands" expanded="True" />
+            <Node name="Canvas" expanded="True" />
             <Node name="Figures" expanded="True" />
-            <Node name="Logic" expanded="True" />
+            <Node name="Logic" expanded="True">
+              <Node name="modelController.cs" selected="True" />
+            </Node>
           </Node>
         </State>
       </Pad>

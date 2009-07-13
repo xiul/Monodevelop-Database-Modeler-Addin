@@ -27,6 +27,7 @@
 
 using System;
 using MonoHotDraw;
+using MonoHotDraw.Figures;
 using MonoDevelop.Database.Sql;
 using MonoDevelop.Database.ConnectionManager;
 
@@ -40,29 +41,38 @@ namespace MonoDevelop.Database.Modeler
 		//todo: this is not really the controller just a testing class
 		public modelController (IDrawingView view)
 		{
-			_view = view;
-			//todo: main model should be created here.
+			this.view = view;
+			diagram = new DatabaseModel();
 		}
 
 		public void addNewTable (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider)
 		{
-			//Todo: Validate name not used before
-			//TableSchema table = schemaProvider.CreateTableSchema (name);
-						
-			_model = new TableModel (name,context,schemaProvider,true);
-			_fig = new TableFigure (_model);
-			_view.Drawing.Add (_fig);
+			TableModel tableModel  = new TableModel (name,context,schemaProvider,true);
+			TableFigure tableFigure = new TableFigure (tableModel);
+			view.Drawing.Add (tableFigure);
+			diagram.AddTable(tableFigure);
 		}
 		
 		public void addTable (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider, bool create){
-			_model = new TableModel(name,context,schemaProvider,false);
-			_fig = new TableFigure (_model);
-			_view.Drawing.Add (_fig);			
+			TableModel tableModel = new TableModel(name,context,schemaProvider,false);
+			TableFigure tableFigure = new TableFigure (tableModel);
+			view.Drawing.Add (tableFigure);
+			diagram.AddTable(tableFigure);
 		}
+		
+		public void removeSelected (){
+		if(view.SelectionCount>0){
+			foreach ( IFigure fig in view.SelectionEnumerator){
+					if(fig is TableFigure){
+						//TODO: fix bug view not refresh after delete composite figure
+						view.Drawing.Remove(fig as TableFigure);
+						diagram.removeTable(fig as TableFigure);
+					}
+				}
+			}
+		}
+		
 
-		public void xxxremoveColumna ()
-		{
-		}
 			/*		if(_model!=null){
 				Column xy = _model.columns[1] as Column;
 				_view.Drawing.Remove(xy);
@@ -70,7 +80,7 @@ namespace MonoDevelop.Database.Modeler
 				//_tool.Deactivate();
 			}*/
 
-		public void xxxaddColumna ()
+		/*public void xxxaddColumna ()
 		{
 			if (_model != null) {
 				_fig.AddColumn ("ColumnaX" + System.DateTime.Now.Millisecond);
@@ -82,12 +92,13 @@ namespace MonoDevelop.Database.Modeler
 		{
 			//StandardDrawingView x = (StandardDrawingView) _view;
 
-		}
+		}*/
 
-		private IDrawingView _view;
-		private TableModel _model;
+		private IDrawingView view;
+		DatabaseModel diagram;
+	//	private TableModel _model;
 		//todo: this is not really all model only 1 table
-		TableFigure _fig;
+	//	TableFigure _fig;
 
 	}
 }

@@ -85,6 +85,7 @@
     <Compile Include="Canvas\ModelerCanvasWidget.cs" />
     <Compile Include="Canvas\ModelerCanvas.cs" />
     <Compile Include="gtk-gui\MonoDevelop.Database.Modeler.ModelerCanvasWidget.cs" />
+    <Compile Include="Logic\DatabaseModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

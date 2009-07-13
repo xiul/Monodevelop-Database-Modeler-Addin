@@ -94,7 +94,16 @@ namespace MonoDevelop.Database.Modeler
 			buttonRelationship.Clicked += new EventHandler (OnbuttonRelationshipActivated);
 			buttonRelationship.Activate();
 			buttonRelationship.Show();
-			toolbar.Add (buttonRelationship);		
+			toolbar.Add (buttonRelationship);	
+			//Delete Selected Figure(s)
+			buttonDelete = new ToolButton(new Gtk.Image (Gtk.Stock.New, IconSize.Button),"Remove");	                                           
+			buttonDelete.Sensitive = true;
+				buttonDelete.TooltipMarkup = "Remove selected figure(s) from diagram (table or relationship)";
+			buttonDelete.IsImportant = true;
+			buttonDelete.Clicked += new EventHandler (buttonDeleteRelationshipActivated);
+			buttonDelete.Activate();
+			buttonDelete.Show();
+			toolbar.Add (buttonDelete);				
 			//Select Active Database
 			comboConnections = new DatabaseConnectionContextComboBox ();
 			selectedConnection = comboConnections.DatabaseConnection;
@@ -130,6 +139,11 @@ namespace MonoDevelop.Database.Modeler
 			RelationshipFigure rel = new RelationshipFigure ();
 			_owner.Tool = new ConnectionCreationTool (_owner, rel);
 		}
+		
+		//TODO: add keyboard del shortcut
+		protected virtual void buttonDeleteRelationshipActivated (object sender, System.EventArgs e){
+			_controller.removeSelected();
+		}
 
 		public DatabaseConnectionContext SelectedConnectionContext {
 			get { return selectedConnection; }
@@ -154,7 +168,7 @@ namespace MonoDevelop.Database.Modeler
 		private ModelerCanvas _owner;
 		private ScrolledWindow mainScrolledWindow;
 		private DatabaseConnectionContext selectedConnection;
-		private ToolButton buttonNew, buttonRelationship;
+		private ToolButton buttonNew, buttonRelationship, buttonDelete;
 		private DatabaseConnectionContextComboBox comboConnections;
 	}
 }
