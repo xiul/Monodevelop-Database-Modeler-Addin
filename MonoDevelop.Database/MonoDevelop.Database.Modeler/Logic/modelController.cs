@@ -65,6 +65,7 @@ namespace MonoDevelop.Database.Modeler
 			foreach ( IFigure fig in view.SelectionEnumerator){
 					if(fig is TableFigure){
 						//TODO: fix bug view not refresh after delete composite figure
+						(fig as TableFigure).unPopulateTable();
 						view.Drawing.Remove(fig as TableFigure);
 						diagram.removeTable(fig as TableFigure);
 					}

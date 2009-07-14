@@ -110,6 +110,20 @@ namespace MonoDevelop.Database.Modeler
 			}
 		}
 
+		public void unPopulateTable(){
+
+			Model.columns.Clear();
+			Model.triggers.Clear();
+			Model.indexes.Clear();
+			_handles.Clear();
+			
+			while (this.Figures.Count>0){
+				this.Remove(this.Figures[0]);
+			}
+			
+			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
+		}
+		
 		private void populateTable ()
 		{
 			//Create Labels
@@ -130,10 +144,12 @@ namespace MonoDevelop.Database.Modeler
 			foreach (Column col in _tableModel.columns) {
 				this.Add (col);
 			}
-			//Add Table Indexes Label
+			//Add Table Indexes Label (items added at ButtonHandle)
 			this.Add (_indexLabel);
-			//Add Table Triggers Label
+			//Add Table Triggers Label (items added at ButtonHandle)
 			this.Add (_triggerLabel);
+
+			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
 
 		//todo: fix if table columns count=0
