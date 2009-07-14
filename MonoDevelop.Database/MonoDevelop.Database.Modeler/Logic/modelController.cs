@@ -50,6 +50,10 @@ namespace MonoDevelop.Database.Modeler
 			TableModel tableModel  = new TableModel (name,context,schemaProvider,true);
 			TableFigure tableFigure = new TableFigure (tableModel);
 			view.Drawing.Add (tableFigure);
+			System.Console.WriteLine("added table");
+			foreach ( IFigure fig in view.Drawing.FiguresEnumerator){
+				System.Console.WriteLine("figura"+fig.ToString());
+			}
 			diagram.AddTable(tableFigure);
 		}
 		
@@ -57,6 +61,10 @@ namespace MonoDevelop.Database.Modeler
 			TableModel tableModel = new TableModel(name,context,schemaProvider,false);
 			TableFigure tableFigure = new TableFigure (tableModel);
 			view.Drawing.Add (tableFigure);
+			System.Console.WriteLine("added table22222");
+			foreach ( IFigure fig in view.Drawing.FiguresEnumerator){
+				System.Console.WriteLine("figura"+fig.ToString());
+			}
 			diagram.AddTable(tableFigure);
 		}
 		

@@ -1,24 +1,23 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" ctype="Workspace" />
   <MonoDevelop.Ide.DebuggingService>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/home/xiul/Development/trunk/Addin/MonoDevelop.Database/MonoDevelop.Database.Modeler/Canvas/ModelerCanvasWidget.cs" line="132" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService>
-  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" ctype="Workbench">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Logic/TableModel.cs" ctype="Workbench">
     <Files>
-      <File FileName="MonoDevelop.Database.Modeler/Logic/DatabaseModel.cs" Line="49" Column="34" />
-      <File FileName="MonoDevelop.Database.Modeler/Logic/modelController.cs" Line="65" Column="34" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="118" Column="21" />
-      <File FileName="MonoDevelop.Database.Modeler/Logic/TableModel.cs" Line="63" Column="50" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/ButtonHandle.cs" Line="1" Column="1" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="250" Column="4" />
+      <File FileName="MonoDevelop.Database.Modeler/Logic/TableModel.cs" Line="87" Column="81" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="MonoDevelop.Database.Modeler" expanded="True">
-            <Node name="Figures" expanded="True">
-              <Node name="TableFigure.cs" selected="True" />
-            </Node>
             <Node name="Logic" expanded="True" />
+            <Node name="Resources" expanded="True">
+              <Node name="optional.png" selected="True" />
+            </Node>
           </Node>
         </State>
       </Pad>
@@ -33,7 +32,6 @@
       </Pad>
       <Pad Id="ConnectionManagerPad">
         <State expanded="True" selected="True">
-          <Node name="prueba" expanded="True" />
           <Node name="testdata" expanded="True" />
         </State>
       </Pad>

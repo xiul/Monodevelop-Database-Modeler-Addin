@@ -27,6 +27,7 @@
 
 using System;
 using Cairo;
+using Gdk;
 using MonoHotDraw;
 using MonoHotDraw.Commands;
 using MonoHotDraw.Figures;
@@ -35,6 +36,7 @@ using MonoHotDraw.Util;
 using MonoHotDraw.Handles;
 using MonoHotDraw.Locators;
 using System.Collections.Generic;
+
 
 
 
@@ -51,6 +53,8 @@ namespace MonoDevelop.Database.Modeler
 			_showingIndexes = false;
 			populateTable ();
 			syncFigureMetrics ();
+			iconsWidth=IconFactory.GetIcon("Resources.primarykey.png").Width;
+			//TODO: iconfactory should select largest icon and then add not just add first
 			DisplayBox = new RectangleD (0.0, 0.0, _width, _height);
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
@@ -66,7 +70,8 @@ namespace MonoDevelop.Database.Modeler
 				}
 				newHeight += col.BasicDisplayBox.Height - 2;
 			}
-			newWidth += 10.0;
+			newWidth += 10.0+iconsWidth;
+		
 
 			//Add indexes label & components metrics
 			newHeight += _indexLabel.BasicDisplayBox.Height - 2;
@@ -129,14 +134,14 @@ namespace MonoDevelop.Database.Modeler
 			//Create Labels
 			_tableName = new SimpleTextFigure (_tableModel.Name);
 			_tableName.SetAttribute (FigureAttribute.FontSize, 7);
-			_tableName.SetAttribute (FigureAttribute.FontColor, new Color (0, 0, 0.501961));
+			_tableName.SetAttribute (FigureAttribute.FontColor, new Cairo.Color (0, 0, 0.501961));
 
 			_indexLabel = new SimpleTextFigure ("Indexes");
-			_indexLabel.SetAttribute (FigureAttribute.FontColor, new Color (0, 0, 0.501961));
+			_indexLabel.SetAttribute (FigureAttribute.FontColor, new Cairo.Color (0, 0, 0.501961));
 			_indexLabel.SetAttribute (FigureAttribute.FontSize, 6);
 
 			_triggerLabel = new SimpleTextFigure ("Triggers");
-			_triggerLabel.SetAttribute (FigureAttribute.FontColor, new Color (0, 0, 0.501961));
+			_triggerLabel.SetAttribute (FigureAttribute.FontColor, new Cairo.Color (0, 0, 0.501961));
 			_triggerLabel.SetAttribute (FigureAttribute.FontSize, 6);
 			//Add Table Columns & Name
 			this.Add (_tableName);
@@ -179,6 +184,9 @@ namespace MonoDevelop.Database.Modeler
 			if (DisplayBox.Width == 0 || DisplayBox.Height == 0) {
 				return;
 			}
+		
+
+			
 			//Draw table
 			context.LineWidth = 1.0;
 			context.Save ();
@@ -190,19 +198,19 @@ namespace MonoDevelop.Database.Modeler
 			syncFigureMetrics ();
 			//Draw Table name Line
 			PointD start0 = new PointD (DisplayBox.X, DisplayBox.Y+1);
-			context.Color = new Color (0.8, 0.8, 1, 0.7);
+			context.Color = new Cairo.Color (0.8, 0.8, 1, 0.7);
 			context.Rectangle (start0, _width, _tableName.BasicDisplayBox.Height - 5);
 			context.FillPreserve ();
 			context.Stroke ();			
 			//Draw Indexes Line
 			PointD start = new PointD (DisplayBox.X, DisplayBox.Y + calcIndexLabelHeightPos ());
-			context.Color = new Color (0.8, 0.8, 1, 0.7);
+			context.Color = new Cairo.Color (0.8, 0.8, 1, 0.7);
 			context.Rectangle (start, _width, _indexLabel.BasicDisplayBox.Height - 4);
 			context.FillPreserve ();
 			context.Stroke ();
 			//Draw Triggers Line
 			PointD start2 = new PointD (DisplayBox.X, DisplayBox.Y + calcTriggerLabelHeightPos ());
-			context.Color = new Color (0.8, 0.8, 1, 0.7);
+			context.Color = new Cairo.Color (0.8, 0.8, 1, 0.7);
 			context.Rectangle (start2, _width, _triggerLabel.BasicDisplayBox.Height - 4);
 			context.FillPreserve ();
 			context.Stroke ();
@@ -283,7 +291,7 @@ namespace MonoDevelop.Database.Modeler
 			double y = 0.0;
 			foreach (Column col in _tableModel.columns) {
 				y += col.BasicDisplayBox.Height - 4;
-				col.MoveTo ((DisplayBox.X + 5), (DisplayBox.Y + y));
+				col.MoveTo ((DisplayBox.X + 5+iconsWidth), (DisplayBox.Y + y));
 			}
 
 			//Arrange position for Indexes
@@ -388,6 +396,9 @@ namespace MonoDevelop.Database.Modeler
 		private RectangleD _displayBox;
 		private SimpleTextFigure _tableName, _triggerLabel, _indexLabel;
 		private bool _showingTriggers, _showingIndexes;
+		private double iconsWidth;
+
+		
 	}
 
 }

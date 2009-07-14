@@ -28,8 +28,10 @@
 using System;
 using System.Collections.Generic;
 using Gtk;
+using Cairo;
 using MonoHotDraw;
 using MonoHotDraw.Figures;
+using MonoHotDraw.Util;
 using System.Collections;
 using MonoDevelop.Database.Sql;
 using MonoDevelop.Database.ConnectionManager;
@@ -48,6 +50,9 @@ namespace MonoDevelop.Database.Modeler
 		public Column (ColumnSchema column) : base(column.Name)
 		{
 			columnModel=column;
+			primaryIcon = IconFactory.GetIcon("Resources.primarykey.png");
+			mandatoryIcon = IconFactory.GetIcon("Resources.mandatory.png");
+			optionalIcon = IconFactory.GetIcon("Resources.optional.png");
 			Initialize();
 		}
 		
@@ -69,6 +74,22 @@ namespace MonoDevelop.Database.Modeler
 			set { columnModel=schema; }
 		}
 
+		public override void BasicDraw (Cairo.Context context)
+		{
+			base.BasicDraw (context);
+			if(columnModel!=null){
+				if(columnModel.Constraints.GetConstraint (ConstraintType.PrimaryKey) != null){  //Column is pk
+					primaryIcon.Show (context, Math.Round (this.BasicDisplayBox.X-primaryIcon.Width), Math.Round (this.BasicDisplayBox.Y));
+				}
+				else if (columnModel.IsNullable){
+					mandatoryIcon.Show (context, Math.Round (this.BasicDisplayBox.X-mandatoryIcon.Width), Math.Round (this.BasicDisplayBox.Y));
+				}else{
+					optionalIcon.Show (context, Math.Round (this.BasicDisplayBox.X-optionalIcon.Width), Math.Round (this.BasicDisplayBox.Y));
+					}
+			}
+		}
+
+		
 		protected virtual void OnColumnNameChange (object sender, EventArgs args){
 			if(columnModel!=null)
 				if(ValidateDataType())
@@ -81,7 +102,22 @@ namespace MonoDevelop.Database.Modeler
 		}
 		
 		private ColumnSchema columnModel;
+		private ImageSurface primaryIcon, mandatoryIcon, optionalIcon;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	public class Index : SimpleTextFigure
 	{
@@ -92,6 +128,14 @@ namespace MonoDevelop.Database.Modeler
 		//todo: set attributes		
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
 	public class Trigger : SimpleTextFigure
 	{
 		public Trigger (string triggerName) : base(triggerName)
@@ -102,13 +146,22 @@ namespace MonoDevelop.Database.Modeler
 	}
 
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	//Create a wrapper class to MonoDevelop.Database.Sql.Schema.TableSchema
 	public class TableModel
 	{
 
 		//TODO: context really needed in every table (I think not then remove later)
 		// this should be available fro all tables of the same diagram without taking care if new or altered  
-		public TableModel (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider)
+	/*	public TableModel (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider)
 		{
 			/*tableName = name;
 			tableContext = context;
@@ -119,9 +172,9 @@ namespace MonoDevelop.Database.Modeler
 			Initialize ();
 			//TODO: delete this only for test purpose			
 			indexes.Add (new Index ("DummyIndex2"));
-			triggers.Add (new Trigger ("DummyTrigger1"));*/
+			triggers.Add (new Trigger ("DummyTrigger1"));
 		}
-
+	*/
 
 		public TableModel (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider, bool create)
 		{

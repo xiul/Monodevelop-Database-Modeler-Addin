@@ -63,12 +63,12 @@
     <Reference Include="MonoDevelop.Database.Components, Version=2.1.0.0, Culture=neutral">
       <Package>monodevelop-database</Package>
     </Reference>
-    <Reference Include="MonoHotDraw, Version=1.0.3472.31176, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\monohotdraw\MonoHotDraw\bin\Debug\MonoHotDraw.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="Mono.Cairo, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" />
+    <Reference Include="MonoHotDraw, Version=1.0.3482.16494, Culture=neutral, PublicKeyToken=null">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ZMUGRE\monohotdraw2\monohotdraw\MonoHotDraw\bin\Debug\MonoHotDraw.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cairo" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -86,6 +86,7 @@
     <Compile Include="Canvas\ModelerCanvas.cs" />
     <Compile Include="gtk-gui\MonoDevelop.Database.Modeler.ModelerCanvasWidget.cs" />
     <Compile Include="Logic\DatabaseModel.cs" />
+    <Compile Include="Figures\IconFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -94,6 +95,9 @@
     <EmbeddedResource Include="gtk-gui\gui.stetic">
       <LogicalName>gui.stetic</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\optional.png" />
+    <EmbeddedResource Include="Resources\primarykey.png" />
+    <EmbeddedResource Include="Resources\mandatory.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Canvas\" />
