@@ -64,7 +64,7 @@ namespace MonoDevelop.Database.Modeler
 		{
 			double newWidth = 0, newHeight = 10;
 			//Add Columns metrics
-			foreach (Column col in _tableModel.columns) {
+			foreach (ColumnFigure col in _tableModel.columns) {
 				if (col.BasicDisplayBox.Width > newWidth) {
 					newWidth = col.BasicDisplayBox.Width;
 				}
@@ -132,21 +132,21 @@ namespace MonoDevelop.Database.Modeler
 		private void populateTable ()
 		{
 			//Create Labels
-			_tableName = new SimpleTextFigure (_tableModel.Name);
+			_tableName = new PlainSimpleTextFigure (_tableModel.Name);
 			_tableName.SetAttribute (FigureAttribute.FontSize, 7);
 			_tableName.SetAttribute (FigureAttribute.FontColor, new Cairo.Color (0, 0, 0.501961));
 
-			_indexLabel = new SimpleTextFigure ("Indexes");
+			_indexLabel = new PlainSimpleTextFigure ("Indexes");
 			_indexLabel.SetAttribute (FigureAttribute.FontColor, new Cairo.Color (0, 0, 0.501961));
 			_indexLabel.SetAttribute (FigureAttribute.FontSize, 6);
 
-			_triggerLabel = new SimpleTextFigure ("Triggers");
+			_triggerLabel = new PlainSimpleTextFigure ("Triggers");
 			_triggerLabel.SetAttribute (FigureAttribute.FontColor, new Cairo.Color (0, 0, 0.501961));
 			_triggerLabel.SetAttribute (FigureAttribute.FontSize, 6);
 			//Add Table Columns & Name
 			this.Add (_tableName);
 			_tableName.MoveTo (DisplayBox.X + 2, DisplayBox.Y + 2);
-			foreach (Column col in _tableModel.columns) {
+			foreach (ColumnFigure col in _tableModel.columns) {
 				this.Add (col);
 			}
 			//Add Table Indexes Label (items added at ButtonHandle)
@@ -161,7 +161,7 @@ namespace MonoDevelop.Database.Modeler
 		public double calcIndexLabelHeightPos ()
 		{
 			if(_tableModel.columns.Count > 0){
-				Column last = _tableModel.columns[_tableModel.columns.Count - 1] as Column;
+				ColumnFigure last = _tableModel.columns[_tableModel.columns.Count - 1] as ColumnFigure;
 				return ((last.BasicDisplayBox.Y - DisplayBox.Y) + _indexLabel.BasicDisplayBox.Height);
 			}else
 				return ((_tableName.BasicDisplayBox.Y - DisplayBox.Y) + _indexLabel.BasicDisplayBox.Height);
@@ -228,6 +228,15 @@ namespace MonoDevelop.Database.Modeler
 
 		public override void DrawSelected (Context context)
 		{
+
+			context.Save ();
+			context.LineWidth = 1.0;
+			context.Translate (DisplayBox.X, DisplayBox.Y);
+			context.Scale (DisplayBox.Width, DisplayBox.Height);
+			context.Color = new Cairo.Color (0, 0.74902, 1, 0.15);
+			context.Rectangle (0.0, 0.0, 1, 1);
+			context.FillPreserve();
+			context.Restore ();
 			context.Save ();
 			BasicDrawSelected (context);
 			foreach (IFigure fig in FiguresEnumerator) {
@@ -243,7 +252,7 @@ namespace MonoDevelop.Database.Modeler
 
 		public void AddColumn (string Name)
 		{
-			Column newColumn = new Column ();
+			ColumnFigure newColumn = new ColumnFigure ();
 			_tableModel.columns.Add (newColumn);
 			this.Add (newColumn);
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
@@ -289,7 +298,7 @@ namespace MonoDevelop.Database.Modeler
 			//Arrange position for table title and columns
 			_tableName.MoveTo (DisplayBox.X + 2, DisplayBox.Y - 2);
 			double y = 0.0;
-			foreach (Column col in _tableModel.columns) {
+			foreach (ColumnFigure col in _tableModel.columns) {
 				y += col.BasicDisplayBox.Height - 4;
 				col.MoveTo ((DisplayBox.X + 5+iconsWidth), (DisplayBox.Y + y));
 			}

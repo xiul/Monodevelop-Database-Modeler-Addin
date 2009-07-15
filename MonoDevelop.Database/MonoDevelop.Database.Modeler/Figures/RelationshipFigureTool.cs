@@ -30,6 +30,7 @@ using Gtk;
 using MonoHotDraw;
 using MonoHotDraw.Figures;
 using MonoHotDraw.Tools;
+using MonoHotDraw.Util;
 
 namespace MonoDevelop.Database.Modeler
 {
@@ -41,7 +42,7 @@ namespace MonoDevelop.Database.Modeler
 
 		}
 
-		public override void MouseDown (MouseEvent ev)
+	/*	public override void MouseDown (MouseEvent ev)
 		{
 
 			if (Figure is RelationshipFigure)
@@ -51,11 +52,30 @@ namespace MonoDevelop.Database.Modeler
 				DelegateTool.MouseDown (ev);
 			}
 
-		}
+		}*/
 
 		public override void Deactivate ()
 		{
 			base.Deactivate ();
 		}
+		
+		public override void Activate () {
+			base.Activate ();
+			Gtk.Widget widget = Editor.View as Gtk.Widget;
+			
+			widget.GdkWindow.Cursor = CursorFactory.GetCursorFromType (CursorType.Dot);
+		}
+		
+		public override void MouseMove (MouseEvent ev) {
+			Widget widget = (Widget) ev.View;
+			IFigure figure = ev.View.Drawing.FindFigure (ev.X, ev.Y);
+			if (figure != null) {
+				widget.GdkWindow.Cursor = CursorFactory.GetCursorFromType (Gdk.CursorType.Dot);
+			}
+			else {
+				widget.GdkWindow.Cursor = CursorFactory.GetCursorFromType (Gdk.CursorType.Target);
+			}
+		}
+		
 	}
 }

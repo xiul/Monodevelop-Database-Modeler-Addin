@@ -44,66 +44,7 @@ namespace MonoDevelop.Database.Modeler
 	 * Wrapper classes to integrate monohotdraw with MonoDevelop.Database
 	 */
 	
-	public class Column : SimpleTextFigure
-	{
 
-		public Column (ColumnSchema column) : base(column.Name)
-		{
-			columnModel=column;
-			primaryIcon = IconFactory.GetIcon("Resources.primarykey.png");
-			mandatoryIcon = IconFactory.GetIcon("Resources.mandatory.png");
-			optionalIcon = IconFactory.GetIcon("Resources.optional.png");
-			Initialize();
-		}
-		
-		
-		public Column ( ) : base("Column")
-		{
-			columnModel=null;
-			Initialize();
-		}
-		
-		private void Initialize(){
-			this.TextChanged +=  OnColumnNameChange;
-			this.SetAttribute (FigureAttribute.FontSize, 6);
-			OnColumnNameChange(this, new EventArgs ());
-		}
-		
-		public ColumnSchema schema {
-			get { return columnModel; }
-			set { columnModel=schema; }
-		}
-
-		public override void BasicDraw (Cairo.Context context)
-		{
-			base.BasicDraw (context);
-			if(columnModel!=null){
-				if(columnModel.Constraints.GetConstraint (ConstraintType.PrimaryKey) != null){  //Column is pk
-					primaryIcon.Show (context, Math.Round (this.BasicDisplayBox.X-primaryIcon.Width), Math.Round (this.BasicDisplayBox.Y));
-				}
-				else if (columnModel.IsNullable){
-					mandatoryIcon.Show (context, Math.Round (this.BasicDisplayBox.X-mandatoryIcon.Width), Math.Round (this.BasicDisplayBox.Y));
-				}else{
-					optionalIcon.Show (context, Math.Round (this.BasicDisplayBox.X-optionalIcon.Width), Math.Round (this.BasicDisplayBox.Y));
-					}
-			}
-		}
-
-		
-		protected virtual void OnColumnNameChange (object sender, EventArgs args){
-			if(columnModel!=null)
-				if(ValidateDataType())
-					this.Text=columnModel.Name+" : "+columnModel.DataTypeName.ToUpper();
-		}
-		
-		//TODO: Create this function
-		protected bool ValidateDataType(){
-			return true;			
-		}
-		
-		private ColumnSchema columnModel;
-		private ImageSurface primaryIcon, mandatoryIcon, optionalIcon;
-	}
 	
 	
 	
@@ -193,7 +134,7 @@ namespace MonoDevelop.Database.Modeler
 				ColumnSchema columnSchema = new ColumnSchema (schemaProvider, tableSchema, "newColumn");
 				if (storeTypes.GetIterFirst (out iter))
 					columnSchema.DataTypeName = storeTypes.GetValue (iter, 0) as string;				
-				columns.Add (new Column(columnSchema));
+				columns.Add (new ColumnFigure(columnSchema));
 				tableSchema.Columns.Add(columnSchema);
 			
 			}
@@ -224,7 +165,7 @@ namespace MonoDevelop.Database.Modeler
 			{
 				if(tableSchema.Columns!=null){
 					foreach (ColumnSchema col in tableSchema.Columns) {
-						columns.Add(new Column(col));
+						columns.Add(new ColumnFigure(col));
 					}
 				}
 			}

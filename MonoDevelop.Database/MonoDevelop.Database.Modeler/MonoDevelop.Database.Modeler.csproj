@@ -87,6 +87,8 @@
     <Compile Include="gtk-gui\MonoDevelop.Database.Modeler.ModelerCanvasWidget.cs" />
     <Compile Include="Logic\DatabaseModel.cs" />
     <Compile Include="Figures\IconFactory.cs" />
+    <Compile Include="Figures\ColumnFigure.cs" />
+    <Compile Include="Figures\PlainSimpleTextFigure.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
