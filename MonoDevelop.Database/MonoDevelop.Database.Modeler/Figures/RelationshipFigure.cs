@@ -37,14 +37,21 @@ using MonoHotDraw.Util;
 
 namespace MonoDevelop.Database.Modeler
 {
-
+	/* Notation 1 - For crow's foot notation: http://www.gc.maricopa.edu/business/sylvester/cis164/er2b.htm
+	 * http://www.tdan.com/view-articles/7474
+	 * http://folkworm.ceri.memphis.edu/ew/SCHEMA_DOC/comparison/erd.htm
+	 * 
+	 * Notation 2 - http://www.essentialstrategies.com/publications/modeling/barker.htm
+	 *  
+	 */ 
+	
 	public class RelationshipFigure : LineConnection
 	{
 
 		public RelationshipFigure () : base()
 		{
-			StartTerminal = new CrowFootLineTerminal (8.0, 8.0, kindCrowFootTerminal.OneOne);
-			EndTerminal = new CrowFootLineTerminal (8.0, 20.0, kindCrowFootTerminal.OneMore);
+			StartTerminal = new CrowFootLineTerminal (8.0, 8.0, kindCrowFootTerminal.ZeroOne);
+			EndTerminal = new CrowFootLineTerminal (8.0, 20.0, kindCrowFootTerminal.ZeroMore);
 		}
 
 		public override bool CanConnectEnd (IFigure figure)

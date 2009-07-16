@@ -33,6 +33,13 @@ using MonoHotDraw.Figures;
 
 namespace MonoDevelop.Database.Modeler
 {
+	
+	/* Crow's foot notation: 
+	 * http://www.gc.maricopa.edu/business/sylvester/cis164/er2b.htm
+	 * http://www.tdan.com/view-articles/7474
+	 * http://folkworm.ceri.memphis.edu/ew/SCHEMA_DOC/comparison/erd.htm
+	 */
+	
 	public enum kindCrowFootTerminal
 	{
 		ZeroMore,
@@ -40,7 +47,26 @@ namespace MonoDevelop.Database.Modeler
 		OneOne,
 		ZeroOne
 	}
+	
+	/*
+	 * ZeroMore: >o----...
+	 * OneMore:  >|----...
+	 * OneOne:   -||---...
+	 * ZeroOne:  -o|---...
+	 */	
+	
+	public enum kindRelationship
+	{
+		Identify,
+		NonIndentify
+	}
+	
+	/* 
+	 * Indentifiying Relationship (Fk and Pk): Solid Line
+	 * NonIndentifiying Relationship (only Fk): Dashed Line
+	 */
 
+	
 	public class CrowFootLineTerminal : LineTerminal
 	{
 
@@ -59,6 +85,8 @@ namespace MonoDevelop.Database.Modeler
 		//todo: improve terminal this is just a stub not real and final terminal
 		public override PointD Draw (Context context, PointD a, PointD b)
 		{
+			context.Save();
+			
 			//get parallel lines points
 			PointD leftPoint = new PointD ();
 			PointD middlePoint = new PointD ();
@@ -90,6 +118,31 @@ namespace MonoDevelop.Database.Modeler
 				context.LineTo (rightPoint);
 				context.MoveTo (leftPoint2);
 				context.LineTo (rightPoint2);
+			} else if (_kind == kindCrowFootTerminal.ZeroMore) {
+				PointD pointOne, pointTwo;
+				if (Math.Abs (a.X - b.X) > 100) {
+					pointOne = new PointD (a.X, a.Y + 5);
+					pointTwo = new PointD (a.X, a.Y - 5);
+				} else {
+					pointOne = new PointD (a.X + 5, a.Y);
+					pointTwo = new PointD (a.X - 5, a.Y);
+				}
+				context.MoveTo (middlePoint);
+				context.LineTo (pointOne);
+				context.MoveTo (middlePoint);
+				context.LineTo (pointTwo);
+				context.MoveTo (middlePoint);
+				context.LineTo (a);
+				context.Stroke ();
+				//Add circle
+				context.Save();
+      			context.Color = new Color (1, 1, 1);
+      			context.Arc (middlePoint.X, middlePoint.Y,2.0, 0.0, 2.0 * Math.PI);
+      			context.FillPreserve();
+				context.Color = new Color (0, 0, 0);
+				context.LineWidth = 1;
+      			context.Stroke ();
+				context.Restore();
 			} else if (_kind == kindCrowFootTerminal.OneOne) {
 				context.MoveTo (middlePoint);
 				context.LineTo (a);
@@ -97,7 +150,25 @@ namespace MonoDevelop.Database.Modeler
 				context.LineTo (rightPoint);
 				context.MoveTo (leftPoint2);
 				context.LineTo (rightPoint2);
+			} else if (_kind == kindCrowFootTerminal.ZeroOne) {
+				context.MoveTo (middlePoint);
+				context.LineTo (a);
+				context.MoveTo (leftPoint);
+				context.LineTo (rightPoint);
+				context.Stroke ();
+				//Add circle here
+				context.Save();
+      			context.Color = new Color (1, 1, 1);
+      			context.Arc (middlePoint2.X, middlePoint2.Y,2.0, 0.0, 2.0 * Math.PI);
+      			context.FillPreserve();
+				context.Color = new Color (0, 0, 0);
+				context.LineWidth = 1;
+      			context.Stroke ();
+				context.Restore();				
 			}
+			
+			context.Restore();
+			
 			return middlePoint;
 		}
 
