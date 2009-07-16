@@ -230,13 +230,16 @@ namespace MonoDevelop.Database.Modeler
 		{
 
 			context.Save ();
-			context.LineWidth = 1.0;
 			context.Translate (DisplayBox.X, DisplayBox.Y);
 			context.Scale (DisplayBox.Width, DisplayBox.Height);
-			context.Color = new Cairo.Color (0, 0.74902, 1, 0.15);
 			context.Rectangle (0.0, 0.0, 1, 1);
-			context.FillPreserve();
 			context.Restore ();
+			context.Save ();
+			context.LineWidth=3;
+			context.Color = new Cairo.Color (1, 0.0784314, 0.576471, 1);
+			context.Stroke();
+			context.Restore ();
+			
 			context.Save ();
 			BasicDrawSelected (context);
 			foreach (IFigure fig in FiguresEnumerator) {

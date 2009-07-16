@@ -98,6 +98,7 @@ namespace MonoDevelop.Database.Modeler
 
 		public override void Draw (Context context)
 		{
+			context.Save();
 			context.LineWidth = LineWidth;
 			if (!_clicked) {
 				context.MoveTo (DisplayBox.TopLeft);
@@ -117,6 +118,7 @@ namespace MonoDevelop.Database.Modeler
 			context.FillPreserve ();
 			context.Color = LineColor;
 			context.Stroke ();
+			context.Restore();
 		}
 
 		public override void InvokeStart (double x, double y, IDrawingView view)

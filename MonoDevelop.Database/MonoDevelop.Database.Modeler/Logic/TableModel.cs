@@ -43,24 +43,8 @@ namespace MonoDevelop.Database.Modeler
 	/*
 	 * Wrapper classes to integrate monohotdraw with MonoDevelop.Database
 	 */
-	
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	public class Index : SimpleTextFigure
+	public class Index : PlainSimpleTextFigure
 	{
 		public Index (string indexName) : base(indexName)
 		{
@@ -77,7 +61,7 @@ namespace MonoDevelop.Database.Modeler
 	
 	
 	
-	public class Trigger : SimpleTextFigure
+	public class Trigger : PlainSimpleTextFigure
 	{
 		public Trigger (string triggerName) : base(triggerName)
 		{
