@@ -78,7 +78,7 @@
     <Compile Include="Logic\modelController.cs" />
     <Compile Include="Figures\RelationshipFigureTool.cs" />
     <Compile Include="Figures\RelationshipFigure.cs" />
-    <Compile Include="Figures\CrowFootLineTerminal.cs" />
+    <Compile Include="Figures\RelationshipLineTerminal.cs" />
     <Compile Include="Figures\ButtonHandle.cs" />
     <Compile Include="Commands\ModelerCommands.cs" />
     <Compile Include="Logic\TableModel.cs" />

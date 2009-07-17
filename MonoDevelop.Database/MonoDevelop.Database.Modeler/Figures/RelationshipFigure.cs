@@ -50,8 +50,8 @@ namespace MonoDevelop.Database.Modeler
 
 		public RelationshipFigure () : base()
 		{
-			StartTerminal = new CrowFootLineTerminal (8.0, 8.0, kindCrowFootTerminal.ZeroOne);
-			EndTerminal = new CrowFootLineTerminal (8.0, 20.0, kindCrowFootTerminal.ZeroMore);
+			StartTerminal = new RelationshipLineTerminal (8.0, 8.0, kindRelationshipTerminal.ZeroOne, kindNotation.Barker);
+			EndTerminal = new RelationshipLineTerminal (8.0, 20.0, kindRelationshipTerminal.ZeroMore, kindNotation.Barker);
 		}
 
 		public override bool CanConnectEnd (IFigure figure)
