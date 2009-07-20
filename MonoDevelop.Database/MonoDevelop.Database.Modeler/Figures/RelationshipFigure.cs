@@ -52,11 +52,11 @@ namespace MonoDevelop.Database.Modeler
 		{
 			notation = kindNotation.CrowsFoot;
 
-			StartTerminal = new RelationshipLineTerminal (8.0, 8.0, kindRelationshipTerminal.ZeroOne, notation, true);
-			EndTerminal = new RelationshipLineTerminal (8.0, 8.0, kindRelationshipTerminal.OneMore, notation, true);
+			StartTerminal = new RelationshipLineTerminal (8.0, 22.0, kindRelationshipTerminal.ZeroOne, notation, false);
+			EndTerminal = new RelationshipLineTerminal (8.0, 22.0, kindRelationshipTerminal.OneMore, notation, false);
 			start = StartTerminal as RelationshipLineTerminal;
 			end = EndTerminal as RelationshipLineTerminal;
-			identifyRelationship = true;			
+			identifyRelationship = false;			
 		}
 
 		public override bool CanConnectEnd (IFigure figure)
@@ -207,7 +207,7 @@ namespace MonoDevelop.Database.Modeler
 			set{
 				identifying=value;
 				end.terminalIdentifiying=value;
-				 if(identifying && notation== kindNotation.CrowsFoot)
+				 if(!identifying && notation== kindNotation.CrowsFoot)
 					this.Dashes = new Double[] {5,5};
 				else
 					this.Dashes = null;

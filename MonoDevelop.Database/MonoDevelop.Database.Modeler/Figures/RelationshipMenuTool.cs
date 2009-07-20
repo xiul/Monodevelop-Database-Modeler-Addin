@@ -90,7 +90,7 @@ namespace MonoDevelop.Database.Modeler
 						foreach (Gtk.MenuItem item in _figure.MenuItemsEnumeratorStart) {
 							menu.Append (item);
 						}
-					}else if(insideCircle(15,endPoint,ev.X,ev.Y))
+					}else if(insideCircle(25,endPoint,ev.X,ev.Y))
 					{
 						foreach (Gtk.MenuItem item in _figure.MenuItemsEnumeratorEnd) {
 							menu.Append (item);

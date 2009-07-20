@@ -96,6 +96,8 @@ namespace MonoDevelop.Database.Modeler
 		public override PointD Draw (Context context, PointD a, PointD b)
 		{
 			context.Save ();
+			double[] Dashes = new double[] {};
+			context.SetDash (Dashes, 0);
 			PointD[] points = new PointD[8];
 			//a,b,leftPoint1,rightPoint1,middlePoint1,leftPoint2,rightPoint2,middlePoint2
 			//get parallel lines points
@@ -143,6 +145,7 @@ namespace MonoDevelop.Database.Modeler
 		private void DrawCrowFootOneMore (Context context, PointD[] points)
 		{
 			PointD pointOne, pointTwo;
+	
 			if (Math.Abs (points[0].X - points[1].X) > 100) {
 				pointOne = new PointD (points[0].X, points[0].Y + 5);
 				pointTwo = new PointD (points[0].X, points[0].Y - 5);
@@ -160,6 +163,7 @@ namespace MonoDevelop.Database.Modeler
 			context.LineTo (points[3]);
 			context.MoveTo (points[5]);
 			context.LineTo (points[6]);
+			context.Stroke ();
 		}
 
 		private void DrawCrowFootZeroMore (Context context, PointD[] points)
@@ -198,6 +202,7 @@ namespace MonoDevelop.Database.Modeler
 			context.LineTo (points[3]);
 			context.MoveTo (points[5]);
 			context.LineTo (points[6]);
+			context.Stroke ();
 		}
 
 		private void DrawCrowFootZeroOne (Context context, PointD[] points)
@@ -240,6 +245,7 @@ namespace MonoDevelop.Database.Modeler
 				context.MoveTo (points[2]);
 				context.LineTo (points[3]);
 			}
+			context.Stroke ();
 		}
 
 		private void DrawBarkerOne (Context context, PointD[] points)
@@ -251,6 +257,7 @@ namespace MonoDevelop.Database.Modeler
 				context.MoveTo (points[2]);
 				context.LineTo (points[3]);
 			}
+			context.Stroke ();
 		}
 		
 		public kindNotation terminalNotation{

@@ -5,9 +5,9 @@
   </MonoDevelop.Ide.DebuggingService>
   <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" ctype="Workbench">
     <Files>
-      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" Line="119" Column="60" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipMenuTool.cs" Line="42" Column="30" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipLineTerminal.cs" Line="1" Column="1" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" Line="59" Column="31" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipLineTerminal.cs" Line="197" Column="31" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipMenuTool.cs" Line="80" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
