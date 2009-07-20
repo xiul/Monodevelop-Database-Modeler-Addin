@@ -3,10 +3,11 @@
   <MonoDevelop.Ide.DebuggingService>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService>
-  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Figures/RelationshipLineTerminal.cs" ctype="Workbench">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" ctype="Workbench">
     <Files>
-      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" Line="61" Column="18" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipLineTerminal.cs" Line="250" Column="29" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" Line="119" Column="60" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipMenuTool.cs" Line="42" Column="30" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipLineTerminal.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -14,7 +15,7 @@
           <Node name="MonoDevelop.Database.Modeler" expanded="True">
             <Node name="Canvas" expanded="True" />
             <Node name="Figures" expanded="True">
-              <Node name="RelationshipLineTerminal.cs" selected="True" />
+              <Node name="RelationshipFigure.cs" selected="True" />
             </Node>
             <Node name="Logic" expanded="True" />
           </Node>

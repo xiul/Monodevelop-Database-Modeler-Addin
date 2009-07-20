@@ -64,9 +64,9 @@
       <Package>monodevelop-database</Package>
     </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="MonoHotDraw, Version=1.0.3482.16494, Culture=neutral, PublicKeyToken=null">
+    <Reference Include="MonoHotDraw, Version=1.0.3472.31176, Culture=neutral, PublicKeyToken=null">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\ZMUGRE\monohotdraw2\monohotdraw\MonoHotDraw\bin\Debug\MonoHotDraw.dll</HintPath>
+      <HintPath>..\..\..\monohotdraw\MonoHotDraw\bin\Debug\MonoHotDraw.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cairo" />
   </ItemGroup>
@@ -76,7 +76,6 @@
     <Compile Include="Figures\TableFigure.cs" />
     <Compile Include="DatabaseModelerDisplayBinding.cs" />
     <Compile Include="Logic\modelController.cs" />
-    <Compile Include="Figures\RelationshipFigureTool.cs" />
     <Compile Include="Figures\RelationshipFigure.cs" />
     <Compile Include="Figures\RelationshipLineTerminal.cs" />
     <Compile Include="Figures\ButtonHandle.cs" />
@@ -89,6 +88,8 @@
     <Compile Include="Figures\IconFactory.cs" />
     <Compile Include="Figures\ColumnFigure.cs" />
     <Compile Include="Figures\PlainSimpleTextFigure.cs" />
+    <Compile Include="Figures\RelationshipMenuTool.cs" />
+    <Compile Include="Figures\IPopupRelationshipMenu.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

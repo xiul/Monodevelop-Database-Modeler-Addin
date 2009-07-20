@@ -33,20 +33,20 @@ using MonoHotDraw.Figures;
 
 namespace MonoDevelop.Database.Modeler
 {
-	
+
 	/* Crow's foot notation: 
 	 * http://www.gc.maricopa.edu/business/sylvester/cis164/er2b.htm
 	 * http://www.tdan.com/view-articles/7474
 	 * http://folkworm.ceri.memphis.edu/ew/SCHEMA_DOC/comparison/erd.htm
 	 */
-	
+
 	public enum kindNotation
 	{
 		CrowsFoot,
 		Barker
 	}
-	
-	
+
+
 	public enum kindRelationshipTerminal
 	{
 		ZeroMore,
@@ -54,21 +54,22 @@ namespace MonoDevelop.Database.Modeler
 		OneOne,
 		ZeroOne
 	}
-	
+
 	/*
 	 * ZeroMore: >o----...
 	 * OneMore:  >|----...
 	 * OneOne:   -||---...
 	 * ZeroOne:  -o|---...
-	 */	
-	
-	public enum kindRelationship //useful for barker notation only
+	 */
+
+	public enum kindRelationship
 	{
+		//useful for barker notation only
 		Identify,
 		NonIndentify
 	}
-	
-	
+
+
 	/* 
 	 * Indentifiying Relationship (Fk and Pk): Solid Line
 	 * NonIndentifiying Relationship (only Fk): Dashed Line
@@ -78,182 +79,200 @@ namespace MonoDevelop.Database.Modeler
 	public class RelationshipLineTerminal : LineTerminal
 	{
 
-		public RelationshipLineTerminal () : this(10.0, 20.0, kindRelationshipTerminal.OneMore, kindNotation.CrowsFoot)
+		public RelationshipLineTerminal () : this(10.0, 20.0, kindRelationshipTerminal.OneMore, kindNotation.CrowsFoot,false)
 		{
 
 		}
 
-		public RelationshipLineTerminal (double lDistance, double pDistance, kindRelationshipTerminal kind, kindNotation notation) : base()
+		public RelationshipLineTerminal (double lDistance, double pDistance, kindRelationshipTerminal kind, kindNotation notation, bool identifying) : base()
 		{
-			_lineDistance = lDistance;
-			_pointDistance = pDistance;
-			_kind = kind;
-			this.notation=notation;
+			lineDistance = lDistance;
+			pointDistance = pDistance;
+			this.kind = kind;
+			this.Identifying=identifying;
+			this.notation = notation;
 		}
 
-		//todo: improve terminal this is just a stub not real and final terminal
 		public override PointD Draw (Context context, PointD a, PointD b)
 		{
-			context.Save();
-			PointD[] points= new PointD[8];  //a,b,leftPoint1,rightPoint1,middlePoint1,leftPoint2,rightPoint2,middlePoint2
-			
+			context.Save ();
+			PointD[] points = new PointD[8];
+			//a,b,leftPoint1,rightPoint1,middlePoint1,leftPoint2,rightPoint2,middlePoint2
 			//get parallel lines points
-			points[0]=a;
-			points[1]=b;
-			Geometry.GetArrowPoints (points[0], points[1], _lineDistance, _pointDistance, out points[2], out points[3], out points[4]);
-			Geometry.GetArrowPoints (a, b, _lineDistance, _pointDistance + 3, out points[5], out points[6], out points[7]);
+			points[0] = a;
+			points[1] = b;
+			Geometry.GetArrowPoints (points[0], points[1], lineDistance, pointDistance, out points[2], out points[3], out points[4]);
+			Geometry.GetArrowPoints (points[0], points[1], lineDistance, pointDistance + 3, out points[5], out points[6], out points[7]);
 
-		switch(_kind)
-			{
+			switch (kind) {
 			case kindRelationshipTerminal.OneMore:
-				if(notation==kindNotation.CrowsFoot)
-					DrawCrowFootOneMore(context,points);
-				else
-					DrawBarkerMany(context,points);
+				if (notation == kindNotation.CrowsFoot)
+					DrawCrowFootOneMore (context, points); else
+					DrawBarkerMany (context, points);
 				break;
 			case kindRelationshipTerminal.ZeroMore:
-				if(notation==kindNotation.CrowsFoot)
-					DrawCrowFootZeroMore(context,points);
-				else
-					DrawBarkerMany(context,points);
+				if (notation == kindNotation.CrowsFoot)
+					DrawCrowFootZeroMore (context, points); else
+					DrawBarkerMany (context, points);
 				break;
 			case kindRelationshipTerminal.OneOne:
-				if(notation==kindNotation.CrowsFoot)
-					DrawCrowFootOneOne(context,points);
-				else
-					DrawBarkerOne(context,points);
+				if (notation == kindNotation.CrowsFoot)
+					DrawCrowFootOneOne (context, points); else
+					DrawBarkerOne (context, points);
 				break;
 			case kindRelationshipTerminal.ZeroOne:
-				if(notation==kindNotation.CrowsFoot)
-					DrawCrowFootZeroOne(context,points);
-				else
-					DrawBarkerOne(context,points);
-				break;				
+				if (notation == kindNotation.CrowsFoot)
+					DrawCrowFootZeroOne (context, points); else
+					DrawBarkerOne (context, points);
+				break;
 			}
-			context.Restore();
-			
+			context.Restore ();
+
 			return points[4];
 		}
 
 		//todo: fix it
 		public override RectangleD InvalidateRect (PointD b)
 		{
-			double distance = Math.Max (_lineDistance * 2, _pointDistance);
+			double distance = Math.Max (lineDistance * 2, pointDistance);
 			RectangleD r = new RectangleD (b.X, b.Y, 0.0, 0.0);
 			r.Inflate (distance, distance);
 			return r;
 		}
 
-		private void DrawCrowFootOneMore(Context context, PointD[] points)
+		private void DrawCrowFootOneMore (Context context, PointD[] points)
 		{
-				PointD pointOne, pointTwo;
-				if (Math.Abs (points[0].X - points[1].X) > 100) {
-					pointOne = new PointD (points[0].X, points[0].Y + 5);
-					pointTwo = new PointD (points[0].X, points[0].Y - 5);
-				} else {
-					pointOne = new PointD (points[0].X + 5, points[0].Y);
-					pointTwo = new PointD (points[0].X - 5, points[0].Y);
-				}
-				context.MoveTo (points[4]);
-				context.LineTo (pointOne);
-				context.MoveTo (points[4]);
-				context.LineTo (pointTwo);
-				context.MoveTo (points[4]);
-				context.LineTo (points[0]);
-				context.MoveTo (points[2]);
-				context.LineTo (points[3]);
-				context.MoveTo (points[5]);
-				context.LineTo (points[6]);
-		}
-		
-		private void DrawCrowFootZeroMore(Context context, PointD[] points)
-		{
-				PointD pointOne, pointTwo;
-				if (Math.Abs (points[0].X - points[1].X) > 100) {
-					pointOne = new PointD (points[0].X, points[0].Y + 5);
-					pointTwo = new PointD (points[0].X, points[0].Y - 5);
-				} else {
-					pointOne = new PointD (points[0].X + 5, points[0].Y);
-					pointTwo = new PointD (points[0].X - 5, points[0].Y);
-				}
-				context.MoveTo (points[4]);
-				context.LineTo (pointOne);
-				context.MoveTo (points[4]);
-				context.LineTo (pointTwo);
-				context.MoveTo (points[4]);
-				context.LineTo (points[0]);
-				context.Stroke ();
-				//Add circle
-				context.Save();
-      			context.Color = new Color (1, 1, 1);
-      			context.Arc (points[4].X, points[4].Y,2.0, 0.0, 2.0 * Math.PI);
-      			context.FillPreserve();
-				context.Color = new Color (0, 0, 0);
-				context.LineWidth = 1;
-      			context.Stroke ();
-				context.Restore();
-		}
-		
-		private void DrawCrowFootOneOne(Context context, PointD[] points)
-		{
-				context.MoveTo (points[4]);
-				context.LineTo (points[0]);
-				context.MoveTo (points[2]);
-				context.LineTo (points[3]);
-				context.MoveTo (points[5]);
-				context.LineTo (points[6]);
+			PointD pointOne, pointTwo;
+			if (Math.Abs (points[0].X - points[1].X) > 100) {
+				pointOne = new PointD (points[0].X, points[0].Y + 5);
+				pointTwo = new PointD (points[0].X, points[0].Y - 5);
+			} else {
+				pointOne = new PointD (points[0].X + 5, points[0].Y);
+				pointTwo = new PointD (points[0].X - 5, points[0].Y);
+			}
+			context.MoveTo (points[4]);
+			context.LineTo (pointOne);
+			context.MoveTo (points[4]);
+			context.LineTo (pointTwo);
+			context.MoveTo (points[4]);
+			context.LineTo (points[0]);
+			context.MoveTo (points[2]);
+			context.LineTo (points[3]);
+			context.MoveTo (points[5]);
+			context.LineTo (points[6]);
 		}
 
-		private void DrawCrowFootZeroOne(Context context, PointD[] points)
+		private void DrawCrowFootZeroMore (Context context, PointD[] points)
 		{
-				context.MoveTo (points[4]);
-				context.LineTo (points[0]);
-				context.MoveTo (points[2]);
-				context.LineTo (points[3]);
-				context.Stroke ();
-				//Add circle
-				context.Save();
-      			context.Color = new Color (1, 1, 1);
-      			context.Arc (points[7].X, points[7].Y,2.0, 0.0, 2.0 * Math.PI);
-      			context.FillPreserve();
-				context.Color = new Color (0, 0, 0);
-				context.LineWidth = 1;
-      			context.Stroke ();
-				context.Restore();		
+			PointD pointOne, pointTwo;
+			if (Math.Abs (points[0].X - points[1].X) > 100) {
+				pointOne = new PointD (points[0].X, points[0].Y + 5);
+				pointTwo = new PointD (points[0].X, points[0].Y - 5);
+			} else {
+				pointOne = new PointD (points[0].X + 5, points[0].Y);
+				pointTwo = new PointD (points[0].X - 5, points[0].Y);
+			}
+			context.MoveTo (points[4]);
+			context.LineTo (pointOne);
+			context.MoveTo (points[4]);
+			context.LineTo (pointTwo);
+			context.MoveTo (points[4]);
+			context.LineTo (points[0]);
+			context.Stroke ();
+			//Add circle
+			context.Save ();
+			context.Color = new Color (1, 1, 1);
+			context.Arc (points[4].X, points[4].Y, 2.0, 0.0, 2.0 * Math.PI);
+			context.FillPreserve ();
+			context.Color = new Color (0, 0, 0);
+			context.LineWidth = 1;
+			context.Stroke ();
+			context.Restore ();
 		}
 
-		private void DrawBarkerMany(Context context, PointD[] points)
+		private void DrawCrowFootOneOne (Context context, PointD[] points)
 		{
-				PointD pointOne, pointTwo;
-				if (Math.Abs (points[0].X - points[1].X) > 100) {
-					pointOne = new PointD (points[0].X, points[0].Y + 5);
-					pointTwo = new PointD (points[0].X, points[0].Y - 5);
-				} else {
-					pointOne = new PointD (points[0].X + 5, points[0].Y);
-					pointTwo = new PointD (points[0].X - 5, points[0].Y);
-				}
-				context.MoveTo (points[4]);
-				context.LineTo (pointOne);
-				context.MoveTo (points[4]);
-				context.LineTo (pointTwo);
-				context.MoveTo (points[4]);
-				context.LineTo (points[0]);
-				context.Stroke ();
-				//Identifying
+			context.MoveTo (points[4]);
+			context.LineTo (points[0]);
+			context.MoveTo (points[2]);
+			context.LineTo (points[3]);
+			context.MoveTo (points[5]);
+			context.LineTo (points[6]);
+		}
+
+		private void DrawCrowFootZeroOne (Context context, PointD[] points)
+		{
+			context.MoveTo (points[4]);
+			context.LineTo (points[0]);
+			context.MoveTo (points[2]);
+			context.LineTo (points[3]);
+			context.Stroke ();
+			//Add circle
+			context.Save ();
+			context.Color = new Color (1, 1, 1);
+			context.Arc (points[7].X, points[7].Y, 2.0, 0.0, 2.0 * Math.PI);
+			context.FillPreserve ();
+			context.Color = new Color (0, 0, 0);
+			context.LineWidth = 1;
+			context.Stroke ();
+			context.Restore ();
+		}
+
+		private void DrawBarkerMany (Context context, PointD[] points)
+		{
+			PointD pointOne, pointTwo;
+			if (Math.Abs (points[0].X - points[1].X) > 100) {
+				pointOne = new PointD (points[0].X, points[0].Y + 5);
+				pointTwo = new PointD (points[0].X, points[0].Y - 5);
+			} else {
+				pointOne = new PointD (points[0].X + 5, points[0].Y);
+				pointTwo = new PointD (points[0].X - 5, points[0].Y);
+			}
+			context.Stroke ();
+			context.LineTo (points[4]);
+			context.LineTo (pointOne);
+			context.LineTo (pointTwo);
+			context.LineTo (points[4]);
+			context.FillPreserve ();
+			context.Stroke ();
+			//Identifying
+			if (Identifying) {
 				context.MoveTo (points[2]);
 				context.LineTo (points[3]);
+			}
+		}
+
+		private void DrawBarkerOne (Context context, PointD[] points)
+		{
+			context.MoveTo (points[0]);
+			context.LineTo (points[1]);
+			//Identifying
+			if (Identifying) {
+				context.MoveTo (points[2]);
+				context.LineTo (points[3]);
+			}
 		}
 		
-		private void DrawBarkerOne(Context context, PointD[] points)
-		{
-				context.MoveTo (points[0]);
-				context.LineTo (points[1]);
+		public kindNotation terminalNotation{
+			get{return notation;}
+			set{notation=value;}
 		}
-			
-		private double _lineDistance;
-		private double _pointDistance;
-		private kindRelationshipTerminal _kind;
+		
+		public kindRelationshipTerminal terminalKind{
+			get{return kind;}
+			set{kind=value;}
+		}
+		
+		public bool terminalIdentifiying{
+			get{return Identifying;}
+			set{Identifying=value;}
+		}
+
+		private double lineDistance;
+		private double pointDistance;
+		private kindRelationshipTerminal kind;
 		private kindNotation notation;
+		private bool Identifying;
 
 
 	}
