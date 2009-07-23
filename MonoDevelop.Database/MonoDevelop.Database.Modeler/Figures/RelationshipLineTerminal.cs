@@ -55,7 +55,7 @@ namespace MonoDevelop.Database.Modeler
 		ZeroOne,
 	}
 
-	/*
+	/* Crow's Foot:
 	 * ZeroMore: >o----...
 	 * OneMore:  >|----...
 	 * OneOne:   -||---...
@@ -74,24 +74,18 @@ namespace MonoDevelop.Database.Modeler
 		NonIndentify
 	}
 
-
-	/* 
-	 * Indentifiying Relationship (Fk and Pk): Solid Line
-	 * NonIndentifiying Relationship (only Fk): Dashed Line
-	 */
-
-	//TODO improve terminal union with figure at some angles.
 	public class RelationshipLineTerminal : LineTerminal
 	{
 
-		public RelationshipLineTerminal () : this(10.0, 20.0, kindRelationshipTerminal.OneMore, kindNotation.CrowsFoot, false)
+		public RelationshipLineTerminal (RelationshipFigure owner) : this(owner, 10.0, 20.0, kindRelationshipTerminal.OneMore, kindNotation.CrowsFoot, false)
 		{
 		}
 
-		public RelationshipLineTerminal (double lDistance, double pDistance, kindRelationshipTerminal kind, kindNotation notation, bool identifying) : base()
+		public RelationshipLineTerminal (RelationshipFigure owner, double lDistance, double pDistance, kindRelationshipTerminal kind, kindNotation notation, bool identifying) : base()
 		{
 			lineDistance = lDistance;
 			pointDistance = pDistance;
+			parent=owner;
 			this.kind = kind;
 			this.Identifying = identifying;
 			this.notation = notation;
@@ -104,8 +98,7 @@ namespace MonoDevelop.Database.Modeler
 				
 			};
 			context.SetDash (Dashes, 0);
-			PointD[] points = new PointD[8];
-			//a,b,leftPoint1,rightPoint1,middlePoint1,leftPoint2,rightPoint2,middlePoint2
+			PointD[] points = new PointD[8]; //a,b,leftPoint1,rightPoint1,middlePoint1,leftPoint2,rightPoint2,middlePoint2
 			//get parallel lines points
 			points[0] = a;
 			points[1] = b;
@@ -135,7 +128,6 @@ namespace MonoDevelop.Database.Modeler
 				break;
 			}
 			context.Restore ();
-			//context.SetDash (parent.Dashes,0);
 			return points[4];
 		}
 
@@ -150,19 +142,12 @@ namespace MonoDevelop.Database.Modeler
 
 		private void DrawCrowFootOneMore (Context context, PointD[] points)
 		{
-			PointD pointOne, pointTwo;
 
-			if (Math.Abs (points[0].X - points[1].X) > 100) {
-				pointOne = new PointD (points[0].X, points[0].Y + 5);
-				pointTwo = new PointD (points[0].X, points[0].Y - 5);
-			} else {
-				pointOne = new PointD (points[0].X + 5, points[0].Y);
-				pointTwo = new PointD (points[0].X - 5, points[0].Y);
-			}
+			PointD[] anchors=calcAnchorPoints(points[0], points[4]);
 			context.MoveTo (points[4]);
-			context.LineTo (pointOne);
+			context.LineTo (anchors[0]);
 			context.MoveTo (points[4]);
-			context.LineTo (pointTwo);
+			context.LineTo (anchors[1]);
 			context.MoveTo (points[4]);
 			context.LineTo (points[0]);
 			context.MoveTo (points[2]);
@@ -174,18 +159,11 @@ namespace MonoDevelop.Database.Modeler
 
 		private void DrawCrowFootZeroMore (Context context, PointD[] points)
 		{
-			PointD pointOne, pointTwo;
-			if (Math.Abs (points[0].X - points[1].X) > 100) {
-				pointOne = new PointD (points[0].X, points[0].Y + 5);
-				pointTwo = new PointD (points[0].X, points[0].Y - 5);
-			} else {
-				pointOne = new PointD (points[0].X + 5, points[0].Y);
-				pointTwo = new PointD (points[0].X - 5, points[0].Y);
-			}
+			PointD[] anchors=calcAnchorPoints(points[0], points[4]);			
 			context.MoveTo (points[4]);
-			context.LineTo (pointOne);
+			context.LineTo (anchors[0]);
 			context.MoveTo (points[4]);
-			context.LineTo (pointTwo);
+			context.LineTo (anchors[1]);
 			context.MoveTo (points[4]);
 			context.LineTo (points[0]);
 			context.Stroke ();
@@ -231,18 +209,12 @@ namespace MonoDevelop.Database.Modeler
 
 		private void DrawBarkerMany (Context context, PointD[] points)
 		{
-			PointD pointOne, pointTwo;
-			if (Math.Abs (points[0].X - points[1].X) > 100) {
-				pointOne = new PointD (points[0].X, points[0].Y + 5);
-				pointTwo = new PointD (points[0].X, points[0].Y - 5);
-			} else {
-				pointOne = new PointD (points[0].X + 5, points[0].Y);
-				pointTwo = new PointD (points[0].X - 5, points[0].Y);
-			}
+
+			PointD[] anchors=calcAnchorPoints(points[0], points[4]);
 			context.Stroke ();
 			context.LineTo (points[4]);
-			context.LineTo (pointOne);
-			context.LineTo (pointTwo);
+			context.LineTo (anchors[0]);
+			context.LineTo (anchors[1]);
 			context.LineTo (points[4]);
 			context.FillPreserve ();
 			//Identifying
@@ -280,12 +252,33 @@ namespace MonoDevelop.Database.Modeler
 			get { return Identifying; }
 			set { Identifying = value; }
 		}
+		
+		private PointD[] calcAnchorPoints(PointD a, PointD middle){
+			PointD[] anchors = new PointD[2];
+			double distanceYtop=0,distanceYbottom=0;
+			
+			if(parent.EndFigure!=null){
+			 	distanceYtop=parent.EndFigure.DisplayBox.TopLeft.Y - middle.Y;
+				distanceYbottom=parent.EndFigure.DisplayBox.BottomLeft.Y - middle.Y;
+			}
+			
+			if (distanceYtop > 8 || distanceYbottom<-8){
+				anchors[0] = new PointD (a.X + 5, a.Y);
+				anchors[1] = new PointD (a.X - 5, a.Y);
+			}else{
+				anchors[0] = new PointD (a.X, a.Y + 5);
+				anchors[1] = new PointD (a.X, a.Y - 5);
+			} 
 
+			return anchors;
+		}
+		
 		private double lineDistance;
 		private double pointDistance;
 		private kindRelationshipTerminal kind;
 		private kindNotation notation;
 		private bool Identifying;
+		private RelationshipFigure parent;
 
 	}
 }

@@ -52,8 +52,8 @@ namespace MonoDevelop.Database.Modeler
 		{
 			notation = kindNotation.Barker;
 
-			StartTerminal = new RelationshipLineTerminal (8.0, 22.0, kindRelationshipTerminal.OneOne, notation, false);
-			EndTerminal = new RelationshipLineTerminal (8.0, 22.0, kindRelationshipTerminal.OneMore, notation, false);
+			StartTerminal = new RelationshipLineTerminal (this, 8.0, 22.0, kindRelationshipTerminal.OneOne, notation, false);
+			EndTerminal = new RelationshipLineTerminal (this, 8.0, 22.0, kindRelationshipTerminal.OneMore, notation, false);
 			start = StartTerminal as RelationshipLineTerminal;
 			end = EndTerminal as RelationshipLineTerminal;
 			identifyRelationship = false;

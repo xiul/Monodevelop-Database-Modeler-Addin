@@ -3,9 +3,10 @@
   <MonoDevelop.Ide.DebuggingService>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService>
-  <MonoDevelop.Ide.Workbench ctype="Workbench">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" ctype="Workbench">
     <Files>
-      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipLineTerminal.cs" Line="84" Column="54" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" Line="46" Column="5" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipLineTerminal.cs" Line="70" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
