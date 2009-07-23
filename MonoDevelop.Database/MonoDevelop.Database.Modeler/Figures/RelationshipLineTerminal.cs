@@ -52,7 +52,7 @@ namespace MonoDevelop.Database.Modeler
 		ZeroMore,
 		OneMore,
 		OneOne,
-		ZeroOne
+		ZeroOne,
 	}
 
 	/*
@@ -62,9 +62,14 @@ namespace MonoDevelop.Database.Modeler
 	 * ZeroOne:  -o|---...
 	 */
 
+	public enum kindOptionality
+	{
+		optional,
+		mandatory
+	}
+
 	public enum kindRelationship
 	{
-		//useful for barker notation only
 		Identify,
 		NonIndentify
 	}
@@ -79,9 +84,8 @@ namespace MonoDevelop.Database.Modeler
 	public class RelationshipLineTerminal : LineTerminal
 	{
 
-		public RelationshipLineTerminal () : this(10.0, 20.0, kindRelationshipTerminal.OneMore, kindNotation.CrowsFoot,false)
+		public RelationshipLineTerminal () : this(10.0, 20.0, kindRelationshipTerminal.OneMore, kindNotation.CrowsFoot, false)
 		{
-
 		}
 
 		public RelationshipLineTerminal (double lDistance, double pDistance, kindRelationshipTerminal kind, kindNotation notation, bool identifying) : base()
@@ -89,14 +93,16 @@ namespace MonoDevelop.Database.Modeler
 			lineDistance = lDistance;
 			pointDistance = pDistance;
 			this.kind = kind;
-			this.Identifying=identifying;
+			this.Identifying = identifying;
 			this.notation = notation;
 		}
 
 		public override PointD Draw (Context context, PointD a, PointD b)
 		{
 			context.Save ();
-			double[] Dashes = new double[] {};
+			double[] Dashes = new double[] {
+				
+			};
 			context.SetDash (Dashes, 0);
 			PointD[] points = new PointD[8];
 			//a,b,leftPoint1,rightPoint1,middlePoint1,leftPoint2,rightPoint2,middlePoint2
@@ -129,7 +135,7 @@ namespace MonoDevelop.Database.Modeler
 				break;
 			}
 			context.Restore ();
-
+			//context.SetDash (parent.Dashes,0);
 			return points[4];
 		}
 
@@ -145,7 +151,7 @@ namespace MonoDevelop.Database.Modeler
 		private void DrawCrowFootOneMore (Context context, PointD[] points)
 		{
 			PointD pointOne, pointTwo;
-	
+
 			if (Math.Abs (points[0].X - points[1].X) > 100) {
 				pointOne = new PointD (points[0].X, points[0].Y + 5);
 				pointTwo = new PointD (points[0].X, points[0].Y - 5);
@@ -239,7 +245,6 @@ namespace MonoDevelop.Database.Modeler
 			context.LineTo (pointTwo);
 			context.LineTo (points[4]);
 			context.FillPreserve ();
-			context.Stroke ();
 			//Identifying
 			if (Identifying) {
 				context.MoveTo (points[2]);
@@ -250,29 +255,30 @@ namespace MonoDevelop.Database.Modeler
 
 		private void DrawBarkerOne (Context context, PointD[] points)
 		{
-			context.MoveTo (points[0]);
-			context.LineTo (points[1]);
+			context.MoveTo (points[4]);
+			context.LineTo (points[0]);
 			//Identifying
 			if (Identifying) {
 				context.MoveTo (points[2]);
 				context.LineTo (points[3]);
 			}
 			context.Stroke ();
+
 		}
-		
-		public kindNotation terminalNotation{
-			get{return notation;}
-			set{notation=value;}
+
+		public kindNotation terminalNotation {
+			get { return notation; }
+			set { notation = value; }
 		}
-		
-		public kindRelationshipTerminal terminalKind{
-			get{return kind;}
-			set{kind=value;}
+
+		public kindRelationshipTerminal terminalKind {
+			get { return kind; }
+			set { kind = value; }
 		}
-		
-		public bool terminalIdentifiying{
-			get{return Identifying;}
-			set{Identifying=value;}
+
+		public bool terminalIdentifiying {
+			get { return Identifying; }
+			set { Identifying = value; }
 		}
 
 		private double lineDistance;
@@ -280,7 +286,6 @@ namespace MonoDevelop.Database.Modeler
 		private kindRelationshipTerminal kind;
 		private kindNotation notation;
 		private bool Identifying;
-
 
 	}
 }

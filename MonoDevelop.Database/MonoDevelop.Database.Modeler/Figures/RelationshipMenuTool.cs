@@ -37,11 +37,12 @@ using MonoHotDraw.Tools;
 namespace MonoDevelop.Database.Modeler
 {
 
-		public class RelationshipMenuTool : FigureTool {
-		
-		public RelationshipMenuTool (IDrawingEditor editor, IPopupRelationshipMenu figure, ITool defaultTool, ITool delegateTool) 
-			: base (editor, figure, defaultTool) {
-			
+	public class RelationshipMenuTool : FigureTool
+	{
+
+		public RelationshipMenuTool (IDrawingEditor editor, IPopupRelationshipMenu figure, ITool defaultTool, ITool delegateTool) : base(editor, figure, defaultTool)
+		{
+
 			_figure = figure;
 			DelegateTool = delegateTool;
 		}
@@ -52,9 +53,9 @@ namespace MonoDevelop.Database.Modeler
 				if (_delegateTool != null && _delegateTool.Activated) {
 					_delegateTool.Deactivate ();
 				}
-				
+
 				_delegateTool = value;
-				
+
 				if (_delegateTool != null) {
 					_delegateTool.Activate ();
 				}
@@ -72,45 +73,53 @@ namespace MonoDevelop.Database.Modeler
 			set { base.DefaultTool = value; }
 		}
 
-		public override void Activate () {
+		public override void Activate ()
+		{
 			if (DefaultTool != null) {
 				DefaultTool.Activate ();
 			}
 			base.Activate ();
 		}
 
-		public override void MouseUp (MouseEvent ev) {
-			PointD startPoint =(_figure as RelationshipFigure).StartPoint;
-			PointD endPoint =	(_figure as RelationshipFigure).EndPoint;
-			
+		public override void MouseUp (MouseEvent ev)
+		{
+			PointD startPoint = (_figure as RelationshipFigure).StartPoint;
+			PointD endPoint = (_figure as RelationshipFigure).EndPoint;
+
 			Gdk.EventButton gdk_event = ev.GdkEvent as EventButton;
 			if (gdk_event.Button == 3) {
 				using (Gtk.Menu menu = new Gtk.Menu ()) {
-					if(insideCircle(15,startPoint,ev.X,ev.Y)){
+					if (insideCircle (25, startPoint, ev.X, ev.Y)) {
 						foreach (Gtk.MenuItem item in _figure.MenuItemsEnumeratorStart) {
 							menu.Append (item);
 						}
-					}else if(insideCircle(25,endPoint,ev.X,ev.Y))
-					{
+					} else if (insideCircle (25, endPoint, ev.X, ev.Y)) {
 						foreach (Gtk.MenuItem item in _figure.MenuItemsEnumeratorEnd) {
 							menu.Append (item);
-						}						
+						}
+					} else {
+						foreach (Gtk.MenuItem item in _figure.MenuItemsEnumeratorMiddle) {
+							menu.Append (item);
+						}
 					}
-					if (menu.Children.Length > 0)  {
+						
+					
+					if (menu.Children.Length > 0) {
 						menu.ShowAll ();
 						menu.Popup ();
 					}
 				}
-			} 
-			
+			}
+
 			base.MouseUp (ev);
 		}
-		
-		private bool insideCircle(int radius, PointD center, double x, double y){
-			double D = Math.Sqrt(Math.Pow(center.X - x, 2) + Math.Pow(center.Y - y, 2));
+
+		private bool insideCircle (int radius, PointD center, double x, double y)
+		{
+			double D = Math.Sqrt (Math.Pow (center.X - x, 2) + Math.Pow (center.Y - y, 2));
 			return D <= radius;
 		}
-		
+
 		private IPopupRelationshipMenu _figure;
 		private ITool _delegateTool;
 	}

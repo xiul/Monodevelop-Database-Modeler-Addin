@@ -42,5 +42,9 @@ namespace MonoDevelop.Database.Modeler
 		IEnumerable<Gtk.MenuItem> MenuItemsEnumeratorEnd {
 			get;
 		}		
+		
+		IEnumerable<Gtk.MenuItem> MenuItemsEnumeratorMiddle {
+			get;
+		}				
 	}
 }

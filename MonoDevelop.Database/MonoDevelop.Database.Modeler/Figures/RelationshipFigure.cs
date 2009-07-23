@@ -50,13 +50,14 @@ namespace MonoDevelop.Database.Modeler
 
 		public RelationshipFigure () : base()
 		{
-			notation = kindNotation.CrowsFoot;
+			notation = kindNotation.Barker;
 
-			StartTerminal = new RelationshipLineTerminal (8.0, 22.0, kindRelationshipTerminal.ZeroOne, notation, false);
+			StartTerminal = new RelationshipLineTerminal (8.0, 22.0, kindRelationshipTerminal.OneOne, notation, false);
 			EndTerminal = new RelationshipLineTerminal (8.0, 22.0, kindRelationshipTerminal.OneMore, notation, false);
 			start = StartTerminal as RelationshipLineTerminal;
 			end = EndTerminal as RelationshipLineTerminal;
-			identifyRelationship = false;			
+			identifyRelationship = false;
+			optionalityRelationship = kindOptionality.optional;
 		}
 
 		public override bool CanConnectEnd (IFigure figure)
@@ -103,6 +104,8 @@ namespace MonoDevelop.Database.Modeler
 					zeroOne.Active = kindRelationshipTerminal.ZeroOne == end.terminalKind;
 					zeroOne.Activated += delegate {
 						end.terminalKind = kindRelationshipTerminal.ZeroOne;
+						optionalityRelationship = kindOptionality.optional;
+						identifyRelationship = false;
 						OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 					};
 					items.Add (zeroOne);
@@ -111,6 +114,7 @@ namespace MonoDevelop.Database.Modeler
 					one.Active = kindRelationshipTerminal.OneOne == end.terminalKind;
 					one.Activated += delegate {
 						end.terminalKind = kindRelationshipTerminal.OneOne;
+						optionalityRelationship = kindOptionality.mandatory;
 						OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 					};
 					items.Add (one);
@@ -119,6 +123,8 @@ namespace MonoDevelop.Database.Modeler
 					zeroMany.Active = kindRelationshipTerminal.ZeroMore == end.terminalKind;
 					zeroMany.Activated += delegate {
 						end.terminalKind = kindRelationshipTerminal.ZeroMore;
+						optionalityRelationship = kindOptionality.optional;	
+						identifyRelationship = false;
 						OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 					};
 					items.Add (zeroMany);
@@ -127,6 +133,7 @@ namespace MonoDevelop.Database.Modeler
 					oneMany.Active = kindRelationshipTerminal.OneMore == end.terminalKind;
 					oneMany.Activated += delegate {
 						end.terminalKind = kindRelationshipTerminal.OneMore;
+						optionalityRelationship = kindOptionality.mandatory;
 						OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 					};
 					items.Add (oneMany);
@@ -141,18 +148,22 @@ namespace MonoDevelop.Database.Modeler
 					items.Add (one);
 
 					Gtk.CheckMenuItem many = new Gtk.CheckMenuItem ("Many");
-					many.Active = !identifying && (kindRelationshipTerminal.ZeroMore == end.terminalKind || kindRelationshipTerminal.OneMore == end.terminalKind);
+					many.Active = !identifyRelationship && (kindRelationshipTerminal.ZeroMore == end.terminalKind || kindRelationshipTerminal.OneMore == end.terminalKind);
 					many.Activated += delegate {
-						end.terminalKind = kindRelationshipTerminal.ZeroMore;
+						end.terminalKind = kindRelationshipTerminal.OneMore;
+						end.terminalIdentifiying = false;
+						identifyRelationship = false;
 						OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 					};
 					items.Add (many);
 
 					Gtk.CheckMenuItem manyIdentifying = new Gtk.CheckMenuItem ("Many Identifying");
-					manyIdentifying.Active = identifying && (kindRelationshipTerminal.ZeroMore == end.terminalKind || kindRelationshipTerminal.OneMore == end.terminalKind);
+					manyIdentifying.Active = identifyRelationship && (kindRelationshipTerminal.ZeroMore == end.terminalKind || kindRelationshipTerminal.OneMore == end.terminalKind);
 					manyIdentifying.Activated += delegate {
-						end.terminalKind = kindRelationshipTerminal.ZeroMore;
-						end.terminalIdentifiying = !identifying;
+						end.terminalKind = kindRelationshipTerminal.OneMore;
+						end.terminalIdentifiying = true;
+						identifyRelationship = true;
+						optionalityRelationship=kindOptionality.mandatory;
 						OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 					};
 					items.Add (manyIdentifying);
@@ -176,14 +187,6 @@ namespace MonoDevelop.Database.Modeler
 					};
 					items.Add (one);
 
-					Gtk.CheckMenuItem zeroOne = new Gtk.CheckMenuItem ("Zero or One");
-					zeroOne.Active = kindRelationshipTerminal.OneOne == start.terminalKind;
-					zeroOne.Activated += delegate {
-						start.terminalKind = kindRelationshipTerminal.ZeroOne;
-						OnFigureChanged (new FigureEventArgs (this, DisplayBox));
-					};
-					items.Add (zeroOne);
-
 				} else if (notation == kindNotation.Barker) {
 					Gtk.CheckMenuItem one = new Gtk.CheckMenuItem ("One");
 					one.Active = kindRelationshipTerminal.OneOne == start.terminalKind || kindRelationshipTerminal.ZeroOne == start.terminalKind;
@@ -200,23 +203,88 @@ namespace MonoDevelop.Database.Modeler
 			}
 		}
 		
-		public bool identifyRelationship{
-			get{
-				return identifying;
+
+		public IEnumerable<Gtk.MenuItem> MenuItemsEnumeratorMiddle {
+			get {
+				List<Gtk.CheckMenuItem> items = new List<Gtk.CheckMenuItem> ();
+				if (notation == kindNotation.CrowsFoot) {
+
+					Gtk.CheckMenuItem identify = new Gtk.CheckMenuItem ("Identifying");
+					identify.Active = identifyRelationship;
+					identify.Activated += delegate {
+						identifyRelationship = true;
+						optionalityRelationship = kindOptionality.mandatory;
+						OnFigureChanged (new FigureEventArgs (this, DisplayBox));
+					};
+					items.Add (identify);
+
+					Gtk.CheckMenuItem nonidentify = new Gtk.CheckMenuItem ("Non-Identifying");
+					nonidentify.Active = !identifyRelationship;
+					nonidentify.Activated += delegate {
+						identifyRelationship = false;
+						OnFigureChanged (new FigureEventArgs (this, DisplayBox));
+					};
+					items.Add (nonidentify);
+
+
+				} else if (notation == kindNotation.Barker) {
+					if(!identifyRelationship){
+						Gtk.CheckMenuItem optional = new Gtk.CheckMenuItem ("Optional");
+						optional.Active = kindOptionality.optional == optionality;
+						optional.Activated += delegate {
+							optionalityRelationship = kindOptionality.optional;
+							OnFigureChanged (new FigureEventArgs (this, DisplayBox));
+						};
+						items.Add (optional);
+					}
+					Gtk.CheckMenuItem mandatory = new Gtk.CheckMenuItem ("Mandatory");
+					mandatory.Active = kindOptionality.mandatory == optionality;
+					mandatory.Activated += delegate {
+						optionalityRelationship = kindOptionality.mandatory;
+						OnFigureChanged (new FigureEventArgs (this, DisplayBox));
+					};
+					items.Add (mandatory);
+
+				}
+
+				foreach (Gtk.MenuItem item in items) {
+					yield return item;
+				}
 			}
-			set{
-				identifying=value;
-				end.terminalIdentifiying=value;
-				 if(!identifying && notation== kindNotation.CrowsFoot)
-					this.Dashes = new Double[] {5,5};
-				else
-					this.Dashes = null;
-	
+		}
+
+		public bool identifyRelationship {
+			get { return identifying; }
+			set {
+				identifying = value;
+				end.terminalIdentifiying = value;
+				if (notation == kindNotation.CrowsFoot && !identifying)
+					this.Dashes = Dash.ShortDash; 
+				else if (notation == kindNotation.CrowsFoot && identifying)
+					this.Dashes = new Double[] {};
+			}
+		}
+
+		public kindOptionality optionalityRelationship {
+			get { return optionality; }
+			set {
+				optionality = value;
+				if (optionality == kindOptionality.optional && notation == kindNotation.Barker) 
+					this.Dashes = Dash.ShortDash;
+				else if (notation == kindNotation.Barker && optionality == kindOptionality.mandatory)
+					this.Dashes = new Double[] {};
+				else if (notation == kindNotation.CrowsFoot && optionality == kindOptionality.mandatory){
+					if(end.terminalKind==kindRelationshipTerminal.ZeroMore)
+						end.terminalKind=kindRelationshipTerminal.OneMore;
+					else if (end.terminalKind==kindRelationshipTerminal.ZeroOne)
+						end.terminalKind=kindRelationshipTerminal.OneOne;
+				}
 			}
 		}
 
 		private kindNotation notation;
 		private bool identifying;
+		private kindOptionality optionality;
 		private RelationshipLineTerminal start, end;
 	}
 }
