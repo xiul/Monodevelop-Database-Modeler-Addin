@@ -47,6 +47,8 @@ namespace MonoDevelop.Database.Modeler
 			primaryIcon = IconFactory.GetIcon("Resources.primarykey.png");
 			mandatoryIcon = IconFactory.GetIcon("Resources.mandatory.png");
 			optionalIcon = IconFactory.GetIcon("Resources.optional.png");
+			fkUkIcon = IconFactory.GetIcon("Resources.foreign_uk.png");
+			fkIcon = IconFactory.GetIcon("Resources.foreign.png");
 			Initialize();
 		}
 		
@@ -80,6 +82,14 @@ namespace MonoDevelop.Database.Modeler
 				}else{
 					optionalIcon.Show (context, Math.Round (this.BasicDisplayBox.X-optionalIcon.Width), Math.Round (this.BasicDisplayBox.Y));
 					}
+				
+				if(columnModel.Constraints.GetConstraint (ConstraintType.ForeignKey)!=null)
+				{
+					if(columnModel.Constraints.GetConstraint (ConstraintType.Unique)!=null)
+						fkIcon.Show (context, Math.Round (this.BasicDisplayBox.X-(optionalIcon.Width*2+3)), Math.Round (this.BasicDisplayBox.Y));
+					else
+						fkUkIcon.Show (context, Math.Round (this.BasicDisplayBox.X-(optionalIcon.Width*2+3)), Math.Round (this.BasicDisplayBox.Y));
+				}
 			}
 		}
 		
@@ -99,6 +109,6 @@ namespace MonoDevelop.Database.Modeler
 		}
 		
 		private ColumnSchema columnModel;
-		private ImageSurface primaryIcon, mandatoryIcon, optionalIcon;
+		private ImageSurface primaryIcon, mandatoryIcon, optionalIcon, fkUkIcon, fkIcon;
 	}
 }

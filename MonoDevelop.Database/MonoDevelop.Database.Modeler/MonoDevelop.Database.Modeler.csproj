@@ -101,6 +101,8 @@
     <EmbeddedResource Include="Resources\optional.png" />
     <EmbeddedResource Include="Resources\primarykey.png" />
     <EmbeddedResource Include="Resources\mandatory.png" />
+    <EmbeddedResource Include="Resources\foreign.png" />
+    <EmbeddedResource Include="Resources\foreign_uk.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Canvas\" />

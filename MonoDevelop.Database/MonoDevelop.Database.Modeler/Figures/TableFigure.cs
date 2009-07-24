@@ -53,7 +53,7 @@ namespace MonoDevelop.Database.Modeler
 			_showingIndexes = false;
 			populateTable ();
 			syncFigureMetrics ();
-			iconsWidth=IconFactory.GetIcon("Resources.primarykey.png").Width;
+			iconsWidth=IconFactory.GetIcon("Resources.primarykey.png").Width*2;
 			//TODO: iconfactory should select largest icon and then add not just add first
 			DisplayBox = new RectangleD (0.0, 0.0, _width, _height);
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
