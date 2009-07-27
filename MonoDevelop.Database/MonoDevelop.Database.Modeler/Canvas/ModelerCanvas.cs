@@ -123,6 +123,7 @@ Gtk.Drag.Finish (args.Context, true, false, args.Time);
 					string canvasSelectedHash = widget.SelectedConnectionContext.SchemaProvider.ConnectionPool.GetHashCode ().ToString ();
 					if (canvasSelectedHash.Equals (contextHash)) {
 						ISchemaProvider Provider = DbFactoryService.CreateSchemaProvider (context, context.ConnectionPool);
+						//TODO: Improve Factory to allow store collections of tables
 						TableSchema t = Provider.CreateTableSchema (table);
 						_controller.addTable (t.FullName, context, Provider,false);
 					} else {

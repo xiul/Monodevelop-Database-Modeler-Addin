@@ -130,6 +130,7 @@ namespace MonoDevelop.Database.Modeler
 			triggers.Add (new Trigger ("DummyTrigger2"));
 			
 			System.Console.WriteLine("Tiene Xs: "	+tableSchema.Columns.Count);
+
 			System.Console.WriteLine(schemaProvider.GetTableCreateStatement (tableSchema));
 			
 		}

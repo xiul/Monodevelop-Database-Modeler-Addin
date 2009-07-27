@@ -43,72 +43,113 @@ namespace MonoDevelop.Database.Modeler
 
 		public ColumnFigure (ColumnSchema column) : base(column.Name)
 		{
-			columnModel=column;
-			primaryIcon = IconFactory.GetIcon("Resources.primarykey.png");
-			mandatoryIcon = IconFactory.GetIcon("Resources.mandatory.png");
-			optionalIcon = IconFactory.GetIcon("Resources.optional.png");
-			fkUkIcon = IconFactory.GetIcon("Resources.foreign_uk.png");
-			fkIcon = IconFactory.GetIcon("Resources.foreign.png");
-			Initialize();
+			columnModel = column;
+			primaryIcon = IconFactory.GetIcon ("Resources.primarykey.png");
+			mandatoryIcon = IconFactory.GetIcon ("Resources.mandatory.png");
+			optionalIcon = IconFactory.GetIcon ("Resources.optional.png");
+			fkUkIcon = IconFactory.GetIcon ("Resources.foreign_uk.png");
+			fkIcon = IconFactory.GetIcon ("Resources.foreign.png");
+			Initialize ();
 		}
-		
-		
-		public ColumnFigure ( ) : base("Column")
+
+
+		public ColumnFigure () : base("Column")
 		{
-			columnModel=null;
-			Initialize();
+			columnModel = null;
+			Initialize ();
 		}
-		
-		private void Initialize(){
-			this.TextChanged +=  OnColumnNameChange;
+
+		private void Initialize ()
+		{
+			this.TextChanged += OnColumnNameChange;
 			this.SetAttribute (FigureAttribute.FontSize, 6);
-			OnColumnNameChange(this, new EventArgs ());
+			OnColumnNameChange (this, new EventArgs ());
+			isForeignKey ();
+			isUniqueKey ();
 		}
-		
+
 		public ColumnSchema schema {
 			get { return columnModel; }
-			set { columnModel=schema; }
+			set {
+				columnModel = schema;
+				isForeignKey ();
+				isUniqueKey ();
+			}
 		}
 
 		public override void BasicDraw (Cairo.Context context)
 		{
+
 			base.BasicDraw (context);
-			if(columnModel!=null){
-				if(columnModel.Constraints.GetConstraint (ConstraintType.PrimaryKey) != null){  //Column is pk
-					primaryIcon.Show (context, Math.Round (this.BasicDisplayBox.X-primaryIcon.Width), Math.Round (this.BasicDisplayBox.Y));
+			if (columnModel != null) {
+				if (columnModel.Constraints.GetConstraint (ConstraintType.PrimaryKey) != null) {
+					//Column is pk
+					primaryIcon.Show (context, Math.Round (this.BasicDisplayBox.X - primaryIcon.Width), Math.Round (this.BasicDisplayBox.Y));
+				} else if (columnModel.IsNullable) {
+					mandatoryIcon.Show (context, Math.Round (this.BasicDisplayBox.X - mandatoryIcon.Width), Math.Round (this.BasicDisplayBox.Y));
+				} else {
+					optionalIcon.Show (context, Math.Round (this.BasicDisplayBox.X - optionalIcon.Width), Math.Round (this.BasicDisplayBox.Y));
 				}
-				else if (columnModel.IsNullable){
-					mandatoryIcon.Show (context, Math.Round (this.BasicDisplayBox.X-mandatoryIcon.Width), Math.Round (this.BasicDisplayBox.Y));
-				}else{
-					optionalIcon.Show (context, Math.Round (this.BasicDisplayBox.X-optionalIcon.Width), Math.Round (this.BasicDisplayBox.Y));
-					}
-				
-				if(columnModel.Constraints.GetConstraint (ConstraintType.ForeignKey)!=null)
-				{
-					if(columnModel.Constraints.GetConstraint (ConstraintType.Unique)!=null)
-						fkIcon.Show (context, Math.Round (this.BasicDisplayBox.X-(optionalIcon.Width*2+3)), Math.Round (this.BasicDisplayBox.Y));
+
+
+				if (foreignKey) {
+					if (uniqueKey)
+						fkUkIcon.Show (context, Math.Round (this.BasicDisplayBox.X - (optionalIcon.Width * 2 + 3)), Math.Round (this.BasicDisplayBox.Y)); 
 					else
-						fkUkIcon.Show (context, Math.Round (this.BasicDisplayBox.X-(optionalIcon.Width*2+3)), Math.Round (this.BasicDisplayBox.Y));
+						fkIcon.Show (context, Math.Round (this.BasicDisplayBox.X - (optionalIcon.Width * 2 + 3)), Math.Round (this.BasicDisplayBox.Y));
+				}
+			}
+		}
+
+		/*	public override void BasicDrawSelected (Cairo.Context context)
+		{ //do nothing
+		}
+	*/
+		protected virtual void OnColumnNameChange (object sender, EventArgs args)
+		{
+			if (columnModel != null)
+				if (ValidateDataType ())
+					this.Text = columnModel.Name + " : " + columnModel.DataTypeName.ToUpper ();
+		}
+
+		//TODO: Create this function
+		protected bool ValidateDataType ()
+		{
+			return true;
+		}
+
+		private void isForeignKey ()
+		{
+			foreignKey = false;
+			if (columnModel != null) {
+				foreach (ConstraintSchema constraint in (columnModel.Parent as TableSchema).Constraints) {
+					//TODO: why is not working well search function at this collection?
+					if (constraint.ConstraintType == ConstraintType.ForeignKey) {
+						foreach (ColumnSchema col in constraint.Columns)
+							if (columnModel.Name.CompareTo (col.Name) == 0)
+								foreignKey = true;
+					}
 				}
 			}
 		}
 		
-	/*	public override void BasicDrawSelected (Cairo.Context context)
-		{ //do nothing
+		private void isUniqueKey ()
+		{
+			uniqueKey = false;
+			if (columnModel != null) {
+				foreach (ConstraintSchema constraint in (columnModel.Parent as TableSchema).Constraints) {
+					//TODO: why is not working well search function at this collection?
+					if (constraint.ConstraintType == ConstraintType.Unique) {
+						foreach (ColumnSchema col in constraint.Columns)
+							if (columnModel.Name.CompareTo (col.Name) == 0)
+								uniqueKey = true;
+					}
+				}
+			}			
 		}
-	*/	
-		protected virtual void OnColumnNameChange (object sender, EventArgs args){
-			if(columnModel!=null)
-				if(ValidateDataType())
-					this.Text=columnModel.Name+" : "+columnModel.DataTypeName.ToUpper();
-		}
-		
-		//TODO: Create this function
-		protected bool ValidateDataType(){
-			return true;			
-		}
-		
+
 		private ColumnSchema columnModel;
 		private ImageSurface primaryIcon, mandatoryIcon, optionalIcon, fkUkIcon, fkIcon;
+		private bool foreignKey, uniqueKey;
 	}
 }
