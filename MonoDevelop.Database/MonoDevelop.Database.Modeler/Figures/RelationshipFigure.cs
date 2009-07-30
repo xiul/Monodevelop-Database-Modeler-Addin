@@ -33,6 +33,7 @@ using MonoHotDraw.Figures;
 using MonoHotDraw.Handles;
 using MonoHotDraw.Tools;
 using MonoHotDraw.Util;
+using MonoHotDraw.Connectors;
 
 
 namespace MonoDevelop.Database.Modeler
@@ -58,6 +59,7 @@ namespace MonoDevelop.Database.Modeler
 			end = EndTerminal as RelationshipLineTerminal;
 			identifyRelationship = false;
 			optionalityRelationship = kindOptionality.optional;
+			this.ConnectionChanged+=ConnectionChangedHandler;
 		}
 
 		public override bool CanConnectEnd (IFigure figure)
@@ -104,7 +106,7 @@ namespace MonoDevelop.Database.Modeler
 					zeroOne.Active = kindRelationshipTerminal.ZeroOne == end.terminalKind;
 					zeroOne.Activated += delegate {
 						end.terminalKind = kindRelationshipTerminal.ZeroOne;
-						optionalityRelationship = kindOptionality.optional;
+												optionalityRelationship = kindOptionality.optional;
 						identifyRelationship = false;
 						OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 					};
@@ -281,10 +283,61 @@ namespace MonoDevelop.Database.Modeler
 				}
 			}
 		}
+		
+		//TODO erase writes, redo with STARFIGURE and ENDFIGURE
+		private void ConnectionChangedHandler (object sender, EventArgs args){
+			TableFigure oldStart=null, oldEnd=null;
+			//Get Start Figure
+			if(StartConnector!=null){ //TODO: needed StartConnector.Owner is TableFigure?
+				oldStart = figStart;
+				if(StartConnector.Owner!=null)
+					figStart = StartConnector.Owner as TableFigure;
+				else
+					figStart = null;
+				System.Console.WriteLine("Star Figure"+StartConnector.Owner.GetType());
+			}
+			//Get End Figure
+			if(EndConnector!=null){
+				oldEnd = figEnd;
+				if(EndConnector.Owner!=null)
+					figEnd = EndConnector.Owner as TableFigure;
+				else
+					figEnd = null;
+				System.Console.WriteLine("End Figure"+EndConnector.Owner.GetType());
+			}
+			
+			//Notify registration of a tablefigure as user of this tablefigure as foreignkey
+			if(figStart!=null && figEnd!=null){
+				if(oldStart!=figStart){
+					if(oldStart!=null)
+						figStart.RemoveObserver(oldStart);
+					figStart.AddObserver(figEnd);
+				}
+				
+				if(oldEnd!=null && oldEnd!=figEnd){
+					Console.WriteLine("Debo add to lista fk en tabla destino");
+				}
+				figStart.Ring(figStart.Model.Name+" notifica que debe removerse sus fk");
+				
+			}else{
+				figStart=oldStart;
+				figEnd=oldEnd;
+			}
 
+		}
+		
+		public TableFigure StartTable{
+			get { return figStart; }
+		}
+		
+		public TableFigure EndTable{
+			get { return figEnd; }
+		}
+	
 		private kindNotation notation;
 		private bool identifying;
 		private kindOptionality optionality;
 		private RelationshipLineTerminal start, end;
+		private TableFigure figStart, figEnd;
 	}
 }

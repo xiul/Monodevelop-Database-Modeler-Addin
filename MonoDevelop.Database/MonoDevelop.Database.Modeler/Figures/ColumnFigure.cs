@@ -38,11 +38,8 @@ using MonoDevelop.Database.ConnectionManager;
 
 namespace MonoDevelop.Database.Modeler
 {
-	public class ColumnFigure : PlainSimpleTextFigure
-	{
-
-		public ColumnFigure (ColumnSchema column) : base(column.Name)
-		{
+	public abstract class AbstractColumnFigure : PlainSimpleTextFigure{
+		public AbstractColumnFigure (ColumnSchema column) : base(column.Name){
 			columnModel = column;
 			primaryIcon = IconFactory.GetIcon ("Resources.primarykey.png");
 			mandatoryIcon = IconFactory.GetIcon ("Resources.mandatory.png");
@@ -51,38 +48,24 @@ namespace MonoDevelop.Database.Modeler
 			fkIcon = IconFactory.GetIcon ("Resources.foreign.png");
 			Initialize ();
 		}
-
-
-		public ColumnFigure () : base("Column")
-		{
-			columnModel = null;
-			Initialize ();
-		}
-
-		private void Initialize ()
+		
+		protected virtual void Initialize ()
 		{
 			this.TextChanged += OnColumnNameChange;
 			this.SetAttribute (FigureAttribute.FontSize, 6);
 			OnColumnNameChange (this, new EventArgs ());
 			isForeignKey ();
 			isUniqueKey ();
+			isPrimaryKey ();
+			
 		}
-
-		public ColumnSchema schema {
-			get { return columnModel; }
-			set {
-				columnModel = schema;
-				isForeignKey ();
-				isUniqueKey ();
-			}
-		}
-
+		
 		public override void BasicDraw (Cairo.Context context)
 		{
 
 			base.BasicDraw (context);
 			if (columnModel != null) {
-				if (columnModel.Constraints.GetConstraint (ConstraintType.PrimaryKey) != null) {
+				if (primaryKey) {
 					//Column is pk
 					primaryIcon.Show (context, Math.Round (this.BasicDisplayBox.X - primaryIcon.Width), Math.Round (this.BasicDisplayBox.Y));
 				} else if (columnModel.IsNullable) {
@@ -91,7 +74,7 @@ namespace MonoDevelop.Database.Modeler
 					optionalIcon.Show (context, Math.Round (this.BasicDisplayBox.X - optionalIcon.Width), Math.Round (this.BasicDisplayBox.Y));
 				}
 
-
+				//TODO move to fk specify
 				if (foreignKey) {
 					if (uniqueKey)
 						fkUkIcon.Show (context, Math.Round (this.BasicDisplayBox.X - (optionalIcon.Width * 2 + 3)), Math.Round (this.BasicDisplayBox.Y)); 
@@ -99,24 +82,7 @@ namespace MonoDevelop.Database.Modeler
 						fkIcon.Show (context, Math.Round (this.BasicDisplayBox.X - (optionalIcon.Width * 2 + 3)), Math.Round (this.BasicDisplayBox.Y));
 				}
 			}
-		}
-
-		/*	public override void BasicDrawSelected (Cairo.Context context)
-		{ //do nothing
-		}
-	*/
-		protected virtual void OnColumnNameChange (object sender, EventArgs args)
-		{
-			if (columnModel != null)
-				if (ValidateDataType ())
-					this.Text = columnModel.Name + " : " + columnModel.DataTypeName.ToUpper ();
-		}
-
-		//TODO: Create this function
-		protected bool ValidateDataType ()
-		{
-			return true;
-		}
+		}		
 
 		private void isForeignKey ()
 		{
@@ -147,9 +113,71 @@ namespace MonoDevelop.Database.Modeler
 				}
 			}			
 		}
+		
+		//TODO: Create this function
+		protected virtual bool ValidateDataType ()
+		{
+			return true;
+		}
+		
 
-		private ColumnSchema columnModel;
+		protected virtual void OnColumnNameChange (object sender, EventArgs args)
+		{
+			if (columnModel != null)
+				if (ValidateDataType ())
+					this.Text = columnModel.Name + " : " + columnModel.DataTypeName.ToUpper ();
+		}
+		
+		private void isPrimaryKey(){
+			primaryKey = columnModel.Constraints.GetConstraint (ConstraintType.PrimaryKey) != null;
+		}
+		
+		public bool PrimaryKey{
+			get { return primaryKey;}
+		}		
+		
+		public ColumnSchema ColumnModel {
+			get { return columnModel; }
+			set {
+				isForeignKey ();
+				isUniqueKey ();
+				isPrimaryKey ();
+			}
+		}
+
+		private ColumnSchema columnModel;	
 		private ImageSurface primaryIcon, mandatoryIcon, optionalIcon, fkUkIcon, fkIcon;
-		private bool foreignKey, uniqueKey;
+		private bool foreignKey, uniqueKey, primaryKey;		
+		
+	}
+	
+	public class ColumnFkFigure : AbstractColumnFigure{
+	
+		public ColumnFkFigure (ColumnSchema column) : base(column)
+		{
+		}
+
+		
+		/*public ColumnFkFigure () : base("Column")
+		{
+			columnModel = null;
+			Initialize ();
+		}*/
+	}
+	
+	public class ColumnFigure : AbstractColumnFigure
+	{
+
+		public ColumnFigure (ColumnSchema column) : base(column)
+		{
+		}
+
+		
+	/*	public ColumnFigure () : base("Column")
+		{
+			columnModel = null;
+			Initialize ();
+		}*/
+
 	}
 }

@@ -42,7 +42,24 @@ using System.Collections.Generic;
 
 namespace MonoDevelop.Database.Modeler
 {
-	public class TableFigure : CompositeFigure
+
+	public delegate void NotifyObserverEventHandler (string Message);
+
+	public interface IRelationshipNotifier
+	{
+		event NotifyObserverEventHandler NotifyChanged;
+		void AddObserver (IRelationshipObserver observer);
+		void RemoveObserver (IRelationshipObserver observer);
+	}
+
+
+	public interface IRelationshipObserver
+	{
+		void Update (string Message);
+		//TODO: change string for correct one
+	}
+
+	public class TableFigure : CompositeFigure, IRelationshipObserver, IRelationshipNotifier
 	{
 		public TableFigure (TableModel metadata)
 		{
@@ -53,7 +70,7 @@ namespace MonoDevelop.Database.Modeler
 			_showingIndexes = false;
 			populateTable ();
 			syncFigureMetrics ();
-			iconsWidth=IconFactory.GetIcon("Resources.primarykey.png").Width*2;
+			iconsWidth = IconFactory.GetIcon ("Resources.primarykey.png").Width * 2;
 			//TODO: iconfactory should select largest icon and then add not just add first
 			DisplayBox = new RectangleD (0.0, 0.0, _width, _height);
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
@@ -70,8 +87,8 @@ namespace MonoDevelop.Database.Modeler
 				}
 				newHeight += col.BasicDisplayBox.Height - 2;
 			}
-			newWidth += 10.0+iconsWidth;
-		
+			newWidth += 10.0 + iconsWidth;
+
 
 			//Add indexes label & components metrics
 			newHeight += _indexLabel.BasicDisplayBox.Height - 2;
@@ -96,10 +113,10 @@ namespace MonoDevelop.Database.Modeler
 			}
 
 			//Set default width
-			if(newWidth<100)
-				newWidth=100;
-			
-			
+			if (newWidth < 100)
+				newWidth = 100;
+
+
 			RectangleD r = DisplayBox;
 			if (newWidth != _width) {
 				r.Width = newWidth;
@@ -115,20 +132,21 @@ namespace MonoDevelop.Database.Modeler
 			}
 		}
 
-		public void unPopulateTable(){
+		public void unPopulateTable ()
+		{
 
-			Model.columns.Clear();
-			Model.triggers.Clear();
-			Model.indexes.Clear();
-			_handles.Clear();
-			
-			while (this.Figures.Count>0){
-				this.Remove(this.Figures[0]);
+			Model.columns.Clear ();
+			Model.triggers.Clear ();
+			Model.indexes.Clear ();
+			_handles.Clear ();
+
+			while (this.Figures.Count > 0) {
+				this.Remove (this.Figures[0]);
 			}
-			
+
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
-		
+
 		private void populateTable ()
 		{
 			//Create Labels
@@ -149,6 +167,9 @@ namespace MonoDevelop.Database.Modeler
 			foreach (ColumnFigure col in _tableModel.columns) {
 				this.Add (col);
 			}
+			
+			//TODO: Add Foreign Keys that table model have
+			
 			//Add Table Indexes Label (items added at ButtonHandle)
 			this.Add (_indexLabel);
 			//Add Table Triggers Label (items added at ButtonHandle)
@@ -160,21 +181,20 @@ namespace MonoDevelop.Database.Modeler
 		//todo: fix if table columns count=0
 		public double calcIndexLabelHeightPos ()
 		{
-			if(_tableModel.columns.Count > 0){
+			if (_tableModel.columns.Count > 0) {
 				ColumnFigure last = _tableModel.columns[_tableModel.columns.Count - 1] as ColumnFigure;
 				return ((last.BasicDisplayBox.Y - DisplayBox.Y) + _indexLabel.BasicDisplayBox.Height);
-			}else
+			} else
 				return ((_tableName.BasicDisplayBox.Y - DisplayBox.Y) + _indexLabel.BasicDisplayBox.Height);
 		}
 
 		//todo: fix if table indexes count=0
 		public double calcTriggerLabelHeightPos ()
 		{
-			if(_tableModel.indexes.Count > 0 && showIndexes){
+			if (_tableModel.indexes.Count > 0 && showIndexes) {
 				Index last = _tableModel.indexes[_tableModel.indexes.Count - 1] as Index;
-				return ((last.BasicDisplayBox.Y - DisplayBox.Y) + _triggerLabel.BasicDisplayBox.Height); 
-			}				
-			else
+				return ((last.BasicDisplayBox.Y - DisplayBox.Y) + _triggerLabel.BasicDisplayBox.Height);
+			} else
 				return ((_indexLabel.BasicDisplayBox.Y - DisplayBox.Y) + _triggerLabel.BasicDisplayBox.Height);
 		}
 
@@ -184,9 +204,9 @@ namespace MonoDevelop.Database.Modeler
 			if (DisplayBox.Width == 0 || DisplayBox.Height == 0) {
 				return;
 			}
-		
 
-			
+
+
 			//Draw table
 			context.LineWidth = 1.0;
 			context.Save ();
@@ -197,11 +217,11 @@ namespace MonoDevelop.Database.Modeler
 			_tableName.BasicDraw (context);
 			syncFigureMetrics ();
 			//Draw Table name Line
-			PointD start0 = new PointD (DisplayBox.X, DisplayBox.Y+1);
+			PointD start0 = new PointD (DisplayBox.X, DisplayBox.Y + 1);
 			context.Color = new Cairo.Color (0.8, 0.8, 1, 0.7);
 			context.Rectangle (start0, _width, _tableName.BasicDisplayBox.Height - 5);
 			context.FillPreserve ();
-			context.Stroke ();			
+			context.Stroke ();
 			//Draw Indexes Line
 			PointD start = new PointD (DisplayBox.X, DisplayBox.Y + calcIndexLabelHeightPos ());
 			context.Color = new Cairo.Color (0.8, 0.8, 1, 0.7);
@@ -235,11 +255,11 @@ namespace MonoDevelop.Database.Modeler
 			context.Rectangle (0.0, 0.0, 1, 1);
 			context.Restore ();
 			context.Save ();
-			context.LineWidth=3;
+			context.LineWidth = 3;
 			context.Color = new Cairo.Color (1, 0.0784314, 0.576471, 1);
-			context.Stroke();
+			context.Stroke ();
 			context.Restore ();
-			
+
 			context.Save ();
 			BasicDrawSelected (context);
 			foreach (IFigure fig in FiguresEnumerator) {
@@ -253,13 +273,13 @@ namespace MonoDevelop.Database.Modeler
 			return DisplayBox.Contains (x, y);
 		}
 
-		public void AddColumn (string Name)
+	/*	public void AddColumn (string Name)
 		{
 			ColumnFigure newColumn = new ColumnFigure ();
 			_tableModel.columns.Add (newColumn);
 			this.Add (newColumn);
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
-		}
+		}*/
 
 		//This is useful for?
 		public override RectangleD InvalidateDisplayBox {
@@ -303,7 +323,7 @@ namespace MonoDevelop.Database.Modeler
 			double y = 0.0;
 			foreach (ColumnFigure col in _tableModel.columns) {
 				y += col.BasicDisplayBox.Height - 4;
-				col.MoveTo ((DisplayBox.X + 5+iconsWidth), (DisplayBox.Y + y));
+				col.MoveTo ((DisplayBox.X + 5 + iconsWidth), (DisplayBox.Y + y));
 			}
 
 			//Arrange position for Indexes
@@ -399,6 +419,44 @@ namespace MonoDevelop.Database.Modeler
 			}
 		}
 
+		
+		//add foreign key to this table figure
+		public void addFkConstraint(RelationshipFigure r){
+			//TODO: implement multiple fk between tables
+			Model.addFkConstraint(r.StartTable.Model);
+			//Add all new FK Columns to this table
+			
+		}
+		
+		public event NotifyObserverEventHandler NotifyChanged;
+
+		public void Update(string Message)
+		{
+			Console.WriteLine();
+			Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			Console.WriteLine(Message);
+		}		
+		
+		public void AddObserver(IRelationshipObserver observer)
+		{
+			this.NotifyChanged += observer.Update;
+		}
+
+		public void RemoveObserver(IRelationshipObserver observer)
+		{
+			this.NotifyChanged -= observer.Update;
+		}
+		
+		public void Ring(string Message)
+		{
+			if(NotifyChanged!=null)
+			{
+				NotifyChanged(Message);
+			}
+		}
+				
+		
+		
 		//todo: eliminate variables redundancy later and fix visibility
 		private List<IHandle> _handles;
 		private TableModel _tableModel;
@@ -410,7 +468,7 @@ namespace MonoDevelop.Database.Modeler
 		private bool _showingTriggers, _showingIndexes;
 		private double iconsWidth;
 
-		
+
 	}
 
 }

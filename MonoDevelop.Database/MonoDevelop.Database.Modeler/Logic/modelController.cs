@@ -77,6 +77,10 @@ namespace MonoDevelop.Database.Modeler
 						view.Drawing.Remove(fig as TableFigure);
 						diagram.removeTable(fig as TableFigure);
 					}
+					if(fig is RelationshipFigure){
+						//TODO: implement (fig as RelationshipFigure) unconnect
+						view.Drawing.Remove(fig as RelationshipFigure);
+					}
 				}
 			}
 		}

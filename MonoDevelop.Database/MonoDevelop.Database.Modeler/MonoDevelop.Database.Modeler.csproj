@@ -64,9 +64,9 @@
       <Package>monodevelop-database</Package>
     </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="MonoHotDraw, Version=1.0.3472.31176, Culture=neutral, PublicKeyToken=null">
+    <Reference Include="MonoHotDraw, Version=1.0.3495.40539, Culture=neutral, PublicKeyToken=null">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\monohotdraw\MonoHotDraw\bin\Debug\MonoHotDraw.dll</HintPath>
+      <HintPath>..\..\..\ZMUGRE\monohotdraw2\monohotdraw\MonoHotDraw\bin\Debug\MonoHotDraw.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cairo" />
   </ItemGroup>

@@ -72,12 +72,7 @@ namespace MonoDevelop.Database.Modeler
 
 
 	
-	
-	
-	
-	
-	
-	
+
 	
 	
 	//Create a wrapper class to MonoDevelop.Database.Sql.Schema.TableSchema
@@ -146,6 +141,7 @@ namespace MonoDevelop.Database.Modeler
 			tableColumns = new ArrayList ();
 			tableIndexes = new ArrayList ();
 			tableTriggers = new ArrayList ();
+			tableFkColumns = new ArrayList ();
 			if(tableSchema!=null)
 			{
 				if(tableSchema.Columns!=null){
@@ -162,18 +158,18 @@ namespace MonoDevelop.Database.Modeler
 				storeTypes.AppendValues (dataType.Name, dataType);
 		}
 
-		/*
-		//observer is table that uses this table as Foreign Key (FK)
-		public ArrayList observers {
-			get { return _relationships; }
+		public void addFkConstraint(TableModel source){
+			ForeignKeyConstraintSchema fkc = new ForeignKeyConstraintSchema (source.schema.SchemaProvider);
+			fkc.ReferenceTableName = source.Name;
+			foreach(ColumnFigure col in source.columns){
+				if(col.PrimaryKey){
+					fkc.Columns.Add(col.ColumnModel);
+					//fkColumns.Add(new ColumnFigure(col));
+				}
+			}
 		}
-
-		//relations (FK) from this table to others
-		public ArrayList relationships {
-			get { return _observers; }
-		}
-		 */
-
+		
+		//TODO: shouldn't allow this kind of access... must protected which kind of files to store in collections
 		public ArrayList columns {
 			get { return tableColumns; }
 		}
@@ -182,6 +178,10 @@ namespace MonoDevelop.Database.Modeler
 			get { return tableIndexes; }
 		}
 
+		public ArrayList fkColumns{
+			get { return tableFkColumns; }
+		}
+		
 		public ArrayList triggers {
 			get { return tableTriggers; }
 		}
@@ -189,15 +189,17 @@ namespace MonoDevelop.Database.Modeler
 		public string Name {
 			get { return tableName; }
 		}
-
+		
+		public TableSchema schema {
+			get { return tableSchema;}
+		}
+		
 		//todo: use non-generic arrays?
 		private ArrayList tableColumns;
 		private ArrayList tableIndexes;
 		private ArrayList tableTriggers;
-		/*
-		private ArrayList observers;
-		private ArrayList relationships;
-		*/
+		private ArrayList tableFkColumns;
+
 
 		private DatabaseConnectionContext tableContext;
 		private ISchemaProvider tableSchemaProvider;
@@ -210,3 +212,4 @@ namespace MonoDevelop.Database.Modeler
 			
 	}
 }
+
