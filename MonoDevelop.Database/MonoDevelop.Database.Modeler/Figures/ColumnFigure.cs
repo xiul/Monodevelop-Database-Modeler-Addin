@@ -84,7 +84,7 @@ namespace MonoDevelop.Database.Modeler
 			}
 		}		
 
-		private void isForeignKey ()
+		protected virtual bool isForeignKey ()
 		{
 			foreignKey = false;
 			if (columnModel != null) {
@@ -97,9 +97,10 @@ namespace MonoDevelop.Database.Modeler
 					}
 				}
 			}
+			return foreignKey;
 		}
 		
-		private void isUniqueKey ()
+		protected virtual bool isUniqueKey ()
 		{
 			uniqueKey = false;
 			if (columnModel != null) {
@@ -112,7 +113,13 @@ namespace MonoDevelop.Database.Modeler
 					}
 				}
 			}			
+			return uniqueKey;
 		}
+		
+		protected virtual bool isPrimaryKey(){
+			return primaryKey = columnModel.Constraints.GetConstraint (ConstraintType.PrimaryKey) != null;
+		}
+				
 		
 		//TODO: Create this function
 		protected virtual bool ValidateDataType ()
@@ -128,10 +135,7 @@ namespace MonoDevelop.Database.Modeler
 					this.Text = columnModel.Name + " : " + columnModel.DataTypeName.ToUpper ();
 		}
 		
-		private void isPrimaryKey(){
-			primaryKey = columnModel.Constraints.GetConstraint (ConstraintType.PrimaryKey) != null;
-		}
-		
+
 		public bool PrimaryKey{
 			get { return primaryKey;}
 		}		
@@ -147,9 +151,14 @@ namespace MonoDevelop.Database.Modeler
 
 		private ColumnSchema columnModel;	
 		private ImageSurface primaryIcon, mandatoryIcon, optionalIcon, fkUkIcon, fkIcon;
-		private bool foreignKey, uniqueKey, primaryKey;		
+		protected bool foreignKey, uniqueKey, primaryKey;		
 		
 	}
+	
+	/********************************************************
+	 ********************************************************
+	 ********************************************************
+	 ********************************************************/	
 	
 	public class ColumnFkFigure : AbstractColumnFigure{
 	
@@ -157,13 +166,27 @@ namespace MonoDevelop.Database.Modeler
 		{
 		}
 
+		protected virtual bool isPrimaryKey(){
+			return primaryKey=false;
+		}
 		
-		/*public ColumnFkFigure () : base("Column")
+				protected virtual bool isForeignKey ()
 		{
-			columnModel = null;
-			Initialize ();
-		}*/
+
+			return foreignKey=true;
+		}
+		
+		private ForeignKeyConstraintSchema owner;
 	}
+	
+	
+	
+	
+	/*********************************************************
+	 *********************************************************
+	 *********************************************************
+	 *********************************************************/
+	
 	
 	public class ColumnFigure : AbstractColumnFigure
 	{

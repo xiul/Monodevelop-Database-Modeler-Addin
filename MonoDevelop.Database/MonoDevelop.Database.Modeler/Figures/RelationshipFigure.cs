@@ -34,6 +34,7 @@ using MonoHotDraw.Handles;
 using MonoHotDraw.Tools;
 using MonoHotDraw.Util;
 using MonoHotDraw.Connectors;
+using MonoDevelop.Database.Sql;
 
 
 namespace MonoDevelop.Database.Modeler
@@ -52,7 +53,7 @@ namespace MonoDevelop.Database.Modeler
 		public RelationshipFigure () : base()
 		{
 			notation = kindNotation.Barker;
-
+			fkConstraint=null;
 			StartTerminal = new RelationshipLineTerminal (this, 8.0, 22.0, kindRelationshipTerminal.OneOne, notation, false);
 			EndTerminal = new RelationshipLineTerminal (this, 8.0, 22.0, kindRelationshipTerminal.OneMore, notation, false);
 			start = StartTerminal as RelationshipLineTerminal;
@@ -314,8 +315,9 @@ namespace MonoDevelop.Database.Modeler
 					figStart.AddObserver(figEnd);
 				}
 				
-				if(oldEnd!=null && oldEnd!=figEnd){
-					Console.WriteLine("Debo add to lista fk en tabla destino");
+				if(oldEnd!=figEnd){
+					//if oldEnd!=null what to do?
+					figEnd.addFkConstraint(this);
 				}
 				figStart.Ring(figStart.Model.Name+" notifica que debe removerse sus fk");
 				
@@ -334,10 +336,16 @@ namespace MonoDevelop.Database.Modeler
 			get { return figEnd; }
 		}
 	
+		public ForeignKeyConstraintSchema ForeignKeyConstraintScheme{
+			get {return fkConstraint;}
+			set {fkConstraint=value;}
+		}
+		
 		private kindNotation notation;
 		private bool identifying;
 		private kindOptionality optionality;
 		private RelationshipLineTerminal start, end;
 		private TableFigure figStart, figEnd;
+		private ForeignKeyConstraintSchema fkConstraint;
 	}
 }

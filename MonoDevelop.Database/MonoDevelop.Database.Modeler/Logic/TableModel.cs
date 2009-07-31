@@ -141,7 +141,6 @@ namespace MonoDevelop.Database.Modeler
 			tableColumns = new ArrayList ();
 			tableIndexes = new ArrayList ();
 			tableTriggers = new ArrayList ();
-			tableFkColumns = new ArrayList ();
 			if(tableSchema!=null)
 			{
 				if(tableSchema.Columns!=null){
@@ -158,15 +157,22 @@ namespace MonoDevelop.Database.Modeler
 				storeTypes.AppendValues (dataType.Name, dataType);
 		}
 
-		public void addFkConstraint(TableModel source){
-			ForeignKeyConstraintSchema fkc = new ForeignKeyConstraintSchema (source.schema.SchemaProvider);
+		//TODO: change for IEnumerable?
+		public List<AbstractColumnFigure> addFkConstraint(TableModel source){
+			List<AbstractColumnFigure> items = new List<AbstractColumnFigure> ();
+			ForeignKeyConstraintSchema fkc = new ForeignKeyConstraintSchema (source.TableSchema.SchemaProvider);
+			TableSchema.Constraints.Add(fkc);
 			fkc.ReferenceTableName = source.Name;
 			foreach(ColumnFigure col in source.columns){
-				if(col.PrimaryKey){
+				if(col.PrimaryKey){	
 					fkc.Columns.Add(col.ColumnModel);
-					//fkColumns.Add(new ColumnFigure(col));
+					ColumnFkFigure fk=new ColumnFkFigure(col.ColumnModel);
+					this.columns.Add(fk);	
+					//TODO add constraint to each fk and set attribute from relationship
+					items.Add(fk);
 				}
 			}
+		return items;
 		}
 		
 		//TODO: shouldn't allow this kind of access... must protected which kind of files to store in collections
@@ -178,10 +184,6 @@ namespace MonoDevelop.Database.Modeler
 			get { return tableIndexes; }
 		}
 
-		public ArrayList fkColumns{
-			get { return tableFkColumns; }
-		}
-		
 		public ArrayList triggers {
 			get { return tableTriggers; }
 		}
@@ -190,7 +192,7 @@ namespace MonoDevelop.Database.Modeler
 			get { return tableName; }
 		}
 		
-		public TableSchema schema {
+		public TableSchema TableSchema {
 			get { return tableSchema;}
 		}
 		
@@ -198,7 +200,6 @@ namespace MonoDevelop.Database.Modeler
 		private ArrayList tableColumns;
 		private ArrayList tableIndexes;
 		private ArrayList tableTriggers;
-		private ArrayList tableFkColumns;
 
 
 		private DatabaseConnectionContext tableContext;

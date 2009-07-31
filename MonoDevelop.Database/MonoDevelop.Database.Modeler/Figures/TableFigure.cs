@@ -81,7 +81,7 @@ namespace MonoDevelop.Database.Modeler
 		{
 			double newWidth = 0, newHeight = 10;
 			//Add Columns metrics
-			foreach (ColumnFigure col in _tableModel.columns) {
+			foreach (AbstractColumnFigure col in _tableModel.columns) {
 				if (col.BasicDisplayBox.Width > newWidth) {
 					newWidth = col.BasicDisplayBox.Width;
 				}
@@ -164,7 +164,7 @@ namespace MonoDevelop.Database.Modeler
 			//Add Table Columns & Name
 			this.Add (_tableName);
 			_tableName.MoveTo (DisplayBox.X + 2, DisplayBox.Y + 2);
-			foreach (ColumnFigure col in _tableModel.columns) {
+			foreach (AbstractColumnFigure col in _tableModel.columns) {
 				this.Add (col);
 			}
 			
@@ -178,11 +178,12 @@ namespace MonoDevelop.Database.Modeler
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
 
+		
 		//todo: fix if table columns count=0
 		public double calcIndexLabelHeightPos ()
 		{
 			if (_tableModel.columns.Count > 0) {
-				ColumnFigure last = _tableModel.columns[_tableModel.columns.Count - 1] as ColumnFigure;
+				AbstractColumnFigure last = _tableModel.columns[_tableModel.columns.Count - 1] as AbstractColumnFigure;
 				return ((last.BasicDisplayBox.Y - DisplayBox.Y) + _indexLabel.BasicDisplayBox.Height);
 			} else
 				return ((_tableName.BasicDisplayBox.Y - DisplayBox.Y) + _indexLabel.BasicDisplayBox.Height);
@@ -321,7 +322,7 @@ namespace MonoDevelop.Database.Modeler
 			//Arrange position for table title and columns
 			_tableName.MoveTo (DisplayBox.X + 2, DisplayBox.Y - 2);
 			double y = 0.0;
-			foreach (ColumnFigure col in _tableModel.columns) {
+			foreach (AbstractColumnFigure col in _tableModel.columns) {
 				y += col.BasicDisplayBox.Height - 4;
 				col.MoveTo ((DisplayBox.X + 5 + iconsWidth), (DisplayBox.Y + y));
 			}
@@ -423,9 +424,10 @@ namespace MonoDevelop.Database.Modeler
 		//add foreign key to this table figure
 		public void addFkConstraint(RelationshipFigure r){
 			//TODO: implement multiple fk between tables
-			Model.addFkConstraint(r.StartTable.Model);
-			//Add all new FK Columns to this table
-			
+			List<AbstractColumnFigure> y= Model.addFkConstraint(r.StartTable.Model);
+			foreach(AbstractColumnFigure c in y){
+				this.Add(c);
+			}
 		}
 		
 		public event NotifyObserverEventHandler NotifyChanged;
