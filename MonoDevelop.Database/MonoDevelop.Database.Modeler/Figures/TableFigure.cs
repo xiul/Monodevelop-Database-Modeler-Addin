@@ -409,14 +409,19 @@ namespace MonoDevelop.Database.Modeler
 			{
 				IDrawingView view = ev.View;
 				SimpleTextFigure figure = ((TableFigure)Figure).FindTextFigure (ev.X, ev.Y);
-
-				if (figure != null && view.IsFigureSelected (Figure)) {
-					DelegateTool = new SimpleTextTool (Editor, figure, DefaultTool);
-				} else {
-					DelegateTool = DefaultTool;
-				}
-
-				DelegateTool.MouseDown (ev);
+				Gdk.EventButton gdk_event = ev.GdkEvent as EventButton;
+				
+				if (figure != null && view.IsFigureSelected (Figure) && gdk_event.Button==3) {
+					ColumnFigure cfigure = figure is ColumnFigure ? figure as ColumnFigure : null;
+					if(cfigure!=null)
+						DelegateTool = new PopupMenuTool (Editor, cfigure, DefaultTool, DefaultTool);
+					} else if (figure != null && view.IsFigureSelected (Figure) && gdk_event.Button==1) {
+						DelegateTool = new SimpleTextTool (Editor, figure, DefaultTool);
+					} else {
+						DelegateTool = DefaultTool;
+					}
+				if(DelegateTool!=null)
+					DelegateTool.MouseDown (ev);
 			}
 		}
 

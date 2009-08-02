@@ -286,6 +286,7 @@ namespace MonoDevelop.Database.Modeler
 		}
 		
 		//TODO erase writes, redo with STARFIGURE and ENDFIGURE
+		//TODO2 Validate FK from not fk tables, if change PK Columns, etc.
 		private void ConnectionChangedHandler (object sender, EventArgs args){
 			TableFigure oldStart=null, oldEnd=null;
 			//Get Start Figure

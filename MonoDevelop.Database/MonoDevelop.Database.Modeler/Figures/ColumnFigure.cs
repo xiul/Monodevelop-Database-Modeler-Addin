@@ -2,7 +2,7 @@
 // ColumnFigure.cs
 //  
 // Author:
-//       xiul <${AuthorEmail}>
+//       Luis Ochoa <ziul1979@gmail.com>
 // 
 // Copyright (c) 2009 xiul
 // 
@@ -31,6 +31,7 @@ using Cairo;
 using MonoHotDraw;
 using MonoHotDraw.Figures;
 using MonoHotDraw.Util;
+using MonoHotDraw.Tools;
 using System.Collections;
 using MonoDevelop.Database.Sql;
 using MonoDevelop.Database.ConnectionManager;
@@ -38,9 +39,11 @@ using MonoDevelop.Database.ConnectionManager;
 
 namespace MonoDevelop.Database.Modeler
 {
-	public abstract class AbstractColumnFigure : PlainSimpleTextFigure{
+	public abstract class AbstractColumnFigure : PlainSimpleTextFigure
+	{
 		public AbstractColumnFigure (ColumnSchema column) : base(column.Name){
 			columnModel = column;
+			dataType=null;
 			primaryIcon = IconFactory.GetIcon ("Resources.primarykey.png");
 			mandatoryIcon = IconFactory.GetIcon ("Resources.mandatory.png");
 			optionalIcon = IconFactory.GetIcon ("Resources.optional.png");
@@ -127,12 +130,15 @@ namespace MonoDevelop.Database.Modeler
 			return true;
 		}
 		
-
 		protected virtual void OnColumnNameChange (object sender, EventArgs args)
 		{
 			if (columnModel != null)
-				if (ValidateDataType ())
-					this.Text = columnModel.Name + " : " + columnModel.DataTypeName.ToUpper ();
+				if (ValidateDataType ()) //TODO: implement validate
+					if(dataType!=null)
+						this.Text = columnModel.Name + dataType.Name;
+					else
+						this.Text = columnModel.Name;
+			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
 		
 
@@ -151,7 +157,8 @@ namespace MonoDevelop.Database.Modeler
 
 		private ColumnSchema columnModel;	
 		private ImageSurface primaryIcon, mandatoryIcon, optionalIcon, fkUkIcon, fkIcon;
-		protected bool foreignKey, uniqueKey, primaryKey;		
+		protected bool foreignKey, uniqueKey, primaryKey;
+		protected DataTypeSchema dataType;
 		
 	}
 	
@@ -188,19 +195,57 @@ namespace MonoDevelop.Database.Modeler
 	 *********************************************************/
 	
 	
-	public class ColumnFigure : AbstractColumnFigure
+	public class ColumnFigure : AbstractColumnFigure, IPopupMenuFigure
 	{
 
-		public ColumnFigure (ColumnSchema column) : base(column)
+		public ColumnFigure (ColumnSchema column, SortedList<string, DataTypeSchema> DataTypes) : base(column)
 		{
+			dataTypes=DataTypes;
+			lastActiveItem=null; 				//TODO: mark active datatype item at beginning
 		}
-
 		
 	/*	public ColumnFigure () : base("Column")
 		{
 			columnModel = null;
 			Initialize ();
-		}*/
+		}*/		
 
+		public virtual IEnumerable<Gtk.MenuItem> MenuItemsEnumerator {
+		get {
+			List<Gtk.CheckMenuItem> items = new List<Gtk.CheckMenuItem> ();
+				if(dataTypes!=null)
+				{
+				foreach(KeyValuePair<string, DataTypeSchema> data in dataTypes){
+					Gtk.CheckMenuItem item = new Gtk.CheckMenuItem (data.Key);
+					item.Active = item == lastActiveItem ? true : false;
+					item.Activated += delegate {
+							
+						/*lastActiveItem = item;
+						dataType = item.Data as DataTypeSchema;
+						*/
+						//TODO: finish this
+					};
+					items.Add (item);
+											}
+				}
+				
+					foreach (Gtk.MenuItem item in items) {
+						yield return item;
+					}
+				}
+		}
+		/*
+		public override ITool CreateFigureTool (IDrawingEditor editor, ITool defaultTool)
+		{
+			return new PopupMenuTool (editor, this, defaultTool, base.CreateFigureTool (editor, defaultTool));
+		}
+		*/
+		
+		
+
+		//(ISchemaProvider provider)
+		protected SortedList<string, DataTypeSchema> dataTypes;
+		private Gtk.CheckMenuItem lastActiveItem;
 	}
+
 }

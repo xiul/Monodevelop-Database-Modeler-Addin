@@ -49,7 +49,6 @@ namespace MonoDevelop.Database.Modeler
 			databaseTables.Remove(figure);
 		}
 		
-		
 		private ArrayList databaseTables;
 	}
 }

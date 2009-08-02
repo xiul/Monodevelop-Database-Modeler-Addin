@@ -111,11 +111,13 @@ namespace MonoDevelop.Database.Modeler
 			if(create){
 				TreeIter iter;
 				ColumnSchema columnSchema = new ColumnSchema (schemaProvider, tableSchema, "newColumn");
-				if (storeTypes.GetIterFirst (out iter))
-					columnSchema.DataTypeName = storeTypes.GetValue (iter, 0) as string;				
-				columns.Add (new ColumnFigure(columnSchema));
-				tableSchema.Columns.Add(columnSchema);
-			
+				if(storeTypes.Count>0){
+					columnSchema.DataTypeName=storeTypes.Keys[0];
+					columns.Add (new ColumnFigure(columnSchema,storeTypes));
+					tableSchema.Columns.Add(columnSchema);					
+				}else{
+					throw new NotImplementedException ();
+				}
 			}
 			/*ColumnSchema column = new ColumnSchema (schemaProvider, tableSchema, name);*/
 			//TODO: delete this only for test purpose	
@@ -141,20 +143,20 @@ namespace MonoDevelop.Database.Modeler
 			tableColumns = new ArrayList ();
 			tableIndexes = new ArrayList ();
 			tableTriggers = new ArrayList ();
+			//Initialize Datatypes
+			dataTypes = tableSchemaProvider.GetDataTypes ();
+			storeTypes = new SortedList<string, DataTypeSchema> ();
+			foreach (DataTypeSchema dataType in dataTypes)
+				storeTypes.Add (dataType.Name, dataType);
+			//Create a text figure for each column in model
 			if(tableSchema!=null)
 			{
 				if(tableSchema.Columns!=null){
 					foreach (ColumnSchema col in tableSchema.Columns) {
-						columns.Add(new ColumnFigure(col));
+						columns.Add(new ColumnFigure(col,storeTypes));
 					}
 				}
 			}
-			
-			dataTypes = tableSchemaProvider.GetDataTypes ();
-			storeTypes = new ListStore (typeof (string), typeof (object));
-			storeTypes.SetSortColumnId (0, SortType.Ascending);
-			foreach (DataTypeSchema dataType in dataTypes)
-				storeTypes.AppendValues (dataType.Name, dataType);
 		}
 
 		//TODO: change for IEnumerable?
@@ -196,6 +198,10 @@ namespace MonoDevelop.Database.Modeler
 			get { return tableSchema;}
 		}
 		
+		public ISchemaProvider SchemaProvider {
+			get { return tableSchemaProvider;}
+		}
+		
 		//todo: use non-generic arrays?
 		private ArrayList tableColumns;
 		private ArrayList tableIndexes;
@@ -208,7 +214,8 @@ namespace MonoDevelop.Database.Modeler
 		private TableSchema tableSchema;
 		private bool newTable;
 		private bool alteredTable;
-		private ListStore storeTypes;  //TODO: get out this variable from every table model
+
+		private SortedList<string, DataTypeSchema> storeTypes;  //TODO: Move to DATABASE model because it should be share between all models
 		private DataTypeSchemaCollection dataTypes;
 			
 	}
