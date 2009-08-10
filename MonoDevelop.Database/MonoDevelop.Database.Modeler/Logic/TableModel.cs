@@ -169,11 +169,12 @@ namespace MonoDevelop.Database.Modeler
 				if(col.PrimaryKey){	
 					fkc.Columns.Add(col.ColumnModel);
 					ColumnFkFigure fk=new ColumnFkFigure(col.ColumnModel);
-					this.columns.Add(fk);	
+					this.columns.Add(fk);
 					//TODO add constraint to each fk and set attribute from relationship
 					items.Add(fk);
 				}
 			}
+			this.TableSchema.Constraints.Add(fkc);
 		return items;
 		}
 		

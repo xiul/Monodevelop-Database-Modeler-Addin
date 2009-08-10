@@ -68,8 +68,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\ZMUGRE\monohotdraw2\monohotdraw\MonoHotDraw\bin\Debug\MonoHotDraw.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cairo" />
     <Reference Include="pango-sharp, Version=2.14.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="Mono.Cairo" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />

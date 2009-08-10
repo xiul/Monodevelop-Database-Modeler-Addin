@@ -26,6 +26,7 @@
 
 
 using System;
+using System.Collections;
 using MonoHotDraw;
 using MonoHotDraw.Figures;
 using MonoDevelop.Database.Sql;
@@ -67,6 +68,15 @@ namespace MonoDevelop.Database.Modeler
 			}
 			diagram.AddTable(tableFigure);
 		}
+		
+		public virtual IEnumerable ModelTablesNames {
+			get{
+				foreach(TableFigure f in diagram.TableFiguresInModel){
+					yield return f.Model.Name;
+				}
+			}
+		}
+		
 		
 		public void removeSelected (){
 		if(view.SelectionCount>0){

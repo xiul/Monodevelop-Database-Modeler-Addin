@@ -49,6 +49,14 @@ namespace MonoDevelop.Database.Modeler
 			databaseTables.Remove(figure);
 		}
 		
+		public virtual IEnumerable TableFiguresInModel {
+			get{
+					foreach(TableFigure f in databaseTables){
+						yield return f;
+				}
+			}
+		}
+		
 		private ArrayList databaseTables;
 	}
 }

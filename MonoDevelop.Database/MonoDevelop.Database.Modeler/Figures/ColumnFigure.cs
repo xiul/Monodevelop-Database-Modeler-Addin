@@ -171,13 +171,14 @@ namespace MonoDevelop.Database.Modeler
 	
 		public ColumnFkFigure (ColumnSchema column) : base(column)
 		{
+			foreignKey=true;
 		}
 
 		protected virtual bool isPrimaryKey(){
 			return primaryKey=false;
 		}
 		
-				protected virtual bool isForeignKey ()
+		protected virtual bool isForeignKey ()
 		{
 
 			return foreignKey=true;

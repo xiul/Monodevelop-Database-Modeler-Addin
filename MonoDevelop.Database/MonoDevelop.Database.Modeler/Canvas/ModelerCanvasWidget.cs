@@ -129,7 +129,33 @@ namespace MonoDevelop.Database.Modeler
 			else
 			{
 				IEditSchemaProvider provider = (IEditSchemaProvider) SelectedConnectionContext.SchemaProvider;
-				_controller.addNewTable ("newTable", SelectedConnectionContext, provider);
+				const string initialName="newTable";
+				string usedName=initialName;
+				int number=1;
+				bool canUseit;
+				do{
+					canUseit=true;
+					foreach(TableSchema ts in provider.GetTables()){
+						if (ts.Name.ToLower().CompareTo(usedName.ToLower())==0){
+							canUseit=false;
+							usedName=initialName+number;
+							number++;
+							break;
+						}
+					}
+					
+					foreach(string name in _controller.ModelTablesNames ){
+						if (name.ToLower().CompareTo(usedName.ToLower())==0){
+							canUseit=false;
+							usedName=initialName+number;
+							number++;
+							break;
+						}
+					}
+					
+				}while(!canUseit);
+				Console.WriteLine("Usando Nombre: " + usedName);
+				_controller.addNewTable (usedName, SelectedConnectionContext, provider);
 			}
 			
 		}
