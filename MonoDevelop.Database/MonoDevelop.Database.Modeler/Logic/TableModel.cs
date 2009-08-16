@@ -95,7 +95,6 @@ namespace MonoDevelop.Database.Modeler
 			triggers.Add (new Trigger ("DummyTrigger1"));
 		}
 	*/
-
 		public TableModel (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider, bool create)
 		{
 
@@ -113,7 +112,7 @@ namespace MonoDevelop.Database.Modeler
 				ColumnSchema columnSchema = new ColumnSchema (schemaProvider, tableSchema, "newColumn");
 				if(storeTypes.Count>0){
 					columnSchema.DataTypeName=storeTypes.Keys[0];
-					columns.Add (new ColumnFigure(columnSchema,storeTypes));
+					columns.Add (new ColumnFigure(columnSchema,storeTypes,null));
 					tableSchema.Columns.Add(columnSchema);					
 				}else{
 					throw new NotImplementedException ();
@@ -153,7 +152,7 @@ namespace MonoDevelop.Database.Modeler
 			{
 				if(tableSchema.Columns!=null){
 					foreach (ColumnSchema col in tableSchema.Columns) {
-						columns.Add(new ColumnFigure(col,storeTypes));
+						columns.Add(new ColumnFigure(col,storeTypes,null));
 					}
 				}
 			}
@@ -168,7 +167,7 @@ namespace MonoDevelop.Database.Modeler
 			foreach(ColumnFigure col in source.columns){
 				if(col.PrimaryKey){	
 					fkc.Columns.Add(col.ColumnModel);
-					ColumnFkFigure fk=new ColumnFkFigure(col.ColumnModel);
+					ColumnFkFigure fk=new ColumnFkFigure(col.ColumnModel,FigureOwner);
 					this.columns.Add(fk);
 					//TODO add constraint to each fk and set attribute from relationship
 					items.Add(fk);
@@ -206,6 +205,22 @@ namespace MonoDevelop.Database.Modeler
 			get { return tableSchemaProvider;}
 		}
 		
+		//TODO: this variable should be force to be not null to allow continue with operation but cannot be in constructor
+		public IFigure FigureOwner {
+			get { 	if(tableFigureOwner==null)
+						throw new NotImplementedException ();
+					return tableFigureOwner; }
+			set { 
+				foreach (ColumnFigure colf in columns) {
+					colf.FigureOwner=value;
+				}
+				
+				tableFigureOwner=value; 
+			}
+		}
+		
+		
+		
 		//todo: use non-generic arrays?
 		private ArrayList tableColumns;
 		private ArrayList tableIndexes;
@@ -218,6 +233,7 @@ namespace MonoDevelop.Database.Modeler
 		private TableSchema tableSchema;
 		private bool newTable;
 		private bool alteredTable;
+		private IFigure tableFigureOwner;
 
 		private SortedList<string, DataTypeSchema> storeTypes;  //TODO: Move to DATABASE model because it should be share between all models
 		private DataTypeSchemaCollection dataTypes;

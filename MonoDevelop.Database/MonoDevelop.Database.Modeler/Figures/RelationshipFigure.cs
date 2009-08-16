@@ -320,7 +320,7 @@ namespace MonoDevelop.Database.Modeler
 					//if oldEnd!=null what to do?
 					figEnd.addFkConstraint(this);
 				}
-				figStart.Ring(figStart.Model.Name+" notifica que debe removerse sus fk");
+				figStart.RefreshRelationships(false,true);
 				
 			}else{
 				figStart=oldStart;

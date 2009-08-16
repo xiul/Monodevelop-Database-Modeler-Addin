@@ -43,7 +43,7 @@ using System.Collections.Generic;
 namespace MonoDevelop.Database.Modeler
 {
 
-	public delegate void NotifyObserverEventHandler (string Message);
+	public delegate void NotifyObserverEventHandler (bool refresh, bool changeConnection);
 
 	public interface IRelationshipNotifier
 	{
@@ -55,7 +55,7 @@ namespace MonoDevelop.Database.Modeler
 
 	public interface IRelationshipObserver
 	{
-		void Update (string Message);
+		void Update (bool refresh, bool changeConnection);
 		//TODO: change string for correct one
 	}
 
@@ -462,11 +462,13 @@ namespace MonoDevelop.Database.Modeler
 		
 		public event NotifyObserverEventHandler NotifyChanged;
 
-		public void Update(string Message)
+		public void Update(bool refresh, bool changeConnection)
 		{
 			Console.WriteLine();
-			Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			Console.WriteLine(Message);
+			if(refresh)
+				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de REFRESCAR!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			else if(changeConnection)
+				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de CAMBIO DE CONEXION!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}		
 		
 		public void AddObserver(IRelationshipObserver observer)
@@ -479,11 +481,14 @@ namespace MonoDevelop.Database.Modeler
 			this.NotifyChanged -= observer.Update;
 		}
 		
-		public void Ring(string Message)
+		public void RefreshRelationships(bool refresh, bool changeConnection)
 		{
+			if(refresh && changeConnection)
+				throw new NotImplementedException ();
+			
 			if(NotifyChanged!=null)
 			{
-				NotifyChanged(Message);
+				NotifyChanged(refresh,changeConnection);
 			}
 		}
 				

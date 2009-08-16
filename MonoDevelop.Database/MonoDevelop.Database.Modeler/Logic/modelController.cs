@@ -47,9 +47,10 @@ namespace MonoDevelop.Database.Modeler
 		}
 
 		public void addNewTable (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider)
-		{
+		{	//TODO: improve way of assing last parameter
 			TableModel tableModel  = new TableModel (name,context,schemaProvider,true);
 			TableFigure tableFigure = new TableFigure (tableModel);
+			tableModel.FigureOwner = tableFigure;
 			view.Drawing.Add (tableFigure);
 			System.Console.WriteLine("added table");
 			foreach ( IFigure fig in view.Drawing.FiguresEnumerator){
@@ -61,6 +62,7 @@ namespace MonoDevelop.Database.Modeler
 		public void addTable (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider, bool create){
 			TableModel tableModel = new TableModel(name,context,schemaProvider,false);
 			TableFigure tableFigure = new TableFigure (tableModel);
+			tableModel.FigureOwner=tableFigure;
 			view.Drawing.Add (tableFigure);
 			System.Console.WriteLine("added table22222");
 			foreach ( IFigure fig in view.Drawing.FiguresEnumerator){

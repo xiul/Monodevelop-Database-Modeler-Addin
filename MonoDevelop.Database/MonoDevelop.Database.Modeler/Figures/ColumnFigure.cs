@@ -41,9 +41,10 @@ namespace MonoDevelop.Database.Modeler
 {
 	public abstract class AbstractColumnFigure : PlainSimpleTextFigure
 	{
-		public AbstractColumnFigure (ColumnSchema column) : base(column.Name)
+		public AbstractColumnFigure (ColumnSchema column, IFigure owner) : base(column.Name)
 		{
 			columnModel = column;
+			tableFigureOwner = owner;
 			dataType = null;
 			primaryIcon = IconFactory.GetIcon ("Resources.primarykey.png");
 			mandatoryIcon = IconFactory.GetIcon ("Resources.mandatory.png");
@@ -169,12 +170,17 @@ namespace MonoDevelop.Database.Modeler
 				isPrimaryKey ();
 			}
 		}
+		
+		public IFigure FigureOwner {
+			get { return tableFigureOwner;}
+			set { tableFigureOwner=value;}
+		}
 
-		protected ColumnSchema columnModel;
 		private ImageSurface primaryIcon, mandatoryIcon, optionalIcon, fkUkIcon, fkIcon;
+		protected ColumnSchema columnModel;
 		protected bool foreignKey, uniqueKey, primaryKey;
 		protected DataTypeSchema dataType;
-
+		protected IFigure tableFigureOwner;
 	}
 
 	/********************************************************
@@ -185,7 +191,7 @@ namespace MonoDevelop.Database.Modeler
 	public class ColumnFkFigure : AbstractColumnFigure
 	{
 
-		public ColumnFkFigure (ColumnSchema column) : base(column)
+		public ColumnFkFigure (ColumnSchema column, IFigure owner) : base(column,owner)
 		{
 			foreignKey = true;
 		}
@@ -214,7 +220,7 @@ namespace MonoDevelop.Database.Modeler
 	public class ColumnFigure : AbstractColumnFigure, IPopupMenuFigure
 	{
 
-		public ColumnFigure (ColumnSchema column, SortedList<string, DataTypeSchema> DataTypes) : base(column)
+		public ColumnFigure (ColumnSchema column, SortedList<string, DataTypeSchema> DataTypes, IFigure owner) : base(column,owner)
 		{
 			dataTypes = DataTypes;
 			columnDataType = null;
@@ -367,6 +373,12 @@ namespace MonoDevelop.Database.Modeler
 				}else{
 					throw new NotImplementedException ();
 				}
+			}
+			
+			if(tableFigureOwner is TableFigure){
+				(tableFigureOwner as TableFigure).RefreshRelationships(true,false);
+			}else if (tableFigureOwner==null){
+				throw new NotImplementedException ();
 			}
 		}
 
