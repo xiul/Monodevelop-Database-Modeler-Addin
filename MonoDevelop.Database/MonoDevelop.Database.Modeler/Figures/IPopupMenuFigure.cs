@@ -32,5 +32,6 @@ namespace MonoDevelop.Database.Modeler {
 
 	public interface IPopupMenuFigure : IFigure {
 		IEnumerable <Gtk.MenuItem> MenuItemsEnumerator { get; }
+		IEnumerable <Gtk.MenuItem> MenuItemsEnumerator2 { get; }
 	}
 }

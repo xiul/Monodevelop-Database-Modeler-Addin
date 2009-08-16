@@ -143,7 +143,6 @@ namespace MonoDevelop.Database.Modeler
 							break;
 						}
 					}
-					
 					foreach(string name in _controller.ModelTablesNames ){
 						if (name.ToLower().CompareTo(usedName.ToLower())==0){
 							canUseit=false;
@@ -152,12 +151,9 @@ namespace MonoDevelop.Database.Modeler
 							break;
 						}
 					}
-					
 				}while(!canUseit);
-				Console.WriteLine("Usando Nombre: " + usedName);
 				_controller.addNewTable (usedName, SelectedConnectionContext, provider);
 			}
-			
 		}
 
 		protected virtual void OnbuttonRelationshipActivated (object sender, System.EventArgs e)

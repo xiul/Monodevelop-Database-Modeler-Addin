@@ -34,11 +34,12 @@ namespace MonoDevelop.Database.Modeler {
 	
 	public class PopupMenuTool : FigureTool {
 		
-		public PopupMenuTool (IDrawingEditor editor, IPopupMenuFigure figure, ITool defaultTool, ITool delegateTool) 
+		public PopupMenuTool (IDrawingEditor editor, IPopupMenuFigure figure, ITool defaultTool, ITool delegateTool, bool mainMenu) 
 			: base (editor, figure, defaultTool) {
 			
 			_figure = figure;
 			DelegateTool = delegateTool;
+			primaryMenu = mainMenu;
 		}
 
 		public ITool DelegateTool {
@@ -89,9 +90,14 @@ namespace MonoDevelop.Database.Modeler {
 					menu.ModifyFont(newfont);
 					*/
 
-
-					foreach (Gtk.MenuItem item in _figure.MenuItemsEnumerator) {
-						menu.Append (item);
+					if(primaryMenu){
+						foreach (Gtk.MenuItem item in _figure.MenuItemsEnumerator) {
+							menu.Append (item);
+						}
+					}else{
+						foreach (Gtk.MenuItem item in _figure.MenuItemsEnumerator2) {
+							menu.Append (item);
+						}						
 					}
 					if (menu.Children.Length > 0)  {
 						menu.ShowAll ();
@@ -102,7 +108,7 @@ namespace MonoDevelop.Database.Modeler {
 			base.MouseUp (ev);
 		}
 		
-
+		private bool primaryMenu;
 		private IPopupMenuFigure _figure;
 		private ITool _delegateTool;
 	}

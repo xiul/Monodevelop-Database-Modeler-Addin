@@ -153,6 +153,8 @@ namespace MonoDevelop.Database.Modeler
 			_tableName = new PlainSimpleTextFigure (_tableModel.Name);
 			_tableName.SetAttribute (FigureAttribute.FontSize, 7);
 			_tableName.SetAttribute (FigureAttribute.FontColor, new Cairo.Color (0, 0, 0.501961));
+			//TODO: don't change name at each letter changed
+			_tableName.TextChanged += delegate { Model.Name = _tableName.Text;};
 
 			_indexLabel = new PlainSimpleTextFigure ("Indexes");
 			_indexLabel.SetAttribute (FigureAttribute.FontColor, new Cairo.Color (0, 0, 0.501961));
@@ -389,6 +391,21 @@ namespace MonoDevelop.Database.Modeler
 
 			return null;
 		}
+		
+		public SimpleTextFigure FindIconTextFigure (double x, double y)
+		{	//Adjust X axis to get related TextFigure (Column)
+			IFigure fig = FindFigure (x+(iconsWidth/2), y);
+			if ((fig != null) && (fig is SimpleTextFigure))
+			{
+			Console.WriteLine("Icons Width="+ iconsWidth);
+			Console.WriteLine("X="+ x);
+			Console.WriteLine("XFig= "+fig.DisplayBox.X);
+			Console.WriteLine("XCal="+(x-iconsWidth));
+				return (SimpleTextFigure)fig;	
+			}
+			
+			return null;
+		}
 
 		public TableModel Model {
 			get { return _tableModel; }
@@ -414,7 +431,7 @@ namespace MonoDevelop.Database.Modeler
 				if (figure != null && view.IsFigureSelected (Figure) && gdk_event.Button==3) {
 					ColumnFigure cfigure = figure is ColumnFigure ? figure as ColumnFigure : null;
 					if(cfigure!=null)
-						DelegateTool = new PopupMenuTool (Editor, cfigure, DefaultTool, DefaultTool);
+						DelegateTool = new PopupMenuTool (Editor, cfigure, DefaultTool, DefaultTool, true);
 					} else if (figure != null && view.IsFigureSelected (Figure) && gdk_event.Button==1) {
 						DelegateTool = new SimpleTextTool (Editor, figure, DefaultTool);
 					} else {
@@ -422,6 +439,14 @@ namespace MonoDevelop.Database.Modeler
 					}
 				if(DelegateTool!=null)
 					DelegateTool.MouseDown (ev);
+				
+				if(figure==null){
+					figure = ((TableFigure)Figure).FindIconTextFigure (ev.X, ev.Y);
+					if(figure!=null){
+						ColumnFigure cfigure = figure is ColumnFigure ? figure as ColumnFigure : null;
+						DelegateTool = new PopupMenuTool (Editor, cfigure, DefaultTool, DefaultTool, false);
+					}
+				}
 			}
 		}
 

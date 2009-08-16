@@ -193,6 +193,9 @@ namespace MonoDevelop.Database.Modeler
 
 		public string Name {
 			get { return tableName; }
+			set { tableName = value;
+				  tableSchema.Name = value;	
+			}
 		}
 		
 		public TableSchema TableSchema {
