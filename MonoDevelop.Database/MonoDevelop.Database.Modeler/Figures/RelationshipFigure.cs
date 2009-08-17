@@ -236,6 +236,7 @@ namespace MonoDevelop.Database.Modeler
 						optional.Active = kindOptionality.optional == optionality;
 						optional.Activated += delegate {
 							optionalityRelationship = kindOptionality.optional;
+							UpdateOptionalityFk(figStart.Model,kindOptionality.optional);
 							OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 						};
 						items.Add (optional);
@@ -244,6 +245,7 @@ namespace MonoDevelop.Database.Modeler
 					mandatory.Active = kindOptionality.mandatory == optionality;
 					mandatory.Activated += delegate {
 						optionalityRelationship = kindOptionality.mandatory;
+						UpdateOptionalityFk(figStart.Model,kindOptionality.mandatory);
 						OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 					};
 					items.Add (mandatory);
@@ -286,7 +288,6 @@ namespace MonoDevelop.Database.Modeler
 		}
 		
 		//TODO erase writes, redo with STARFIGURE and ENDFIGURE
-		//TODO2 Validate FK from not fk tables, if change PK Columns, etc.
 		private void ConnectionChangedHandler (object sender, EventArgs args){
 			TableFigure oldStart=null, oldEnd=null;
 			//Get Start Figure
@@ -318,15 +319,21 @@ namespace MonoDevelop.Database.Modeler
 				
 				if(oldEnd!=figEnd){
 					//if oldEnd!=null what to do?
-					figEnd.addFkConstraint(this);
+					figEnd.addFkConstraint(this, optionality);
 				}
-				figStart.RefreshRelationships(false,true,figStart);
+				figStart.RefreshRelationships(false,true,figStart,optionality);
 				
 			}else{
 				figStart=oldStart;
 				figEnd=oldEnd;
 			}
 
+		}
+		
+		private void UpdateOptionalityFk(TableModel sourceTable, kindOptionality optionality){
+			if(figEnd!=null){
+				figEnd.UpdateOptionalityFk(sourceTable, optionality);
+			}
 		}
 		
 		public TableFigure StartTable{

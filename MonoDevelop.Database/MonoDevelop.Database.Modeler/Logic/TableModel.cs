@@ -158,7 +158,7 @@ namespace MonoDevelop.Database.Modeler
 		}
 
 		//TODO: change for IEnumerable?
-		public List<ColumnFkFigure> addFkConstraint (TableModel source)
+		public List<ColumnFkFigure> addFkConstraint (TableModel source, kindOptionality optionality)
 		{
 			List<ColumnFkFigure> items = new List<ColumnFkFigure> ();
 			ForeignKeyConstraintSchema fkc = new ForeignKeyConstraintSchema (source.TableSchema.SchemaProvider);
@@ -178,6 +178,10 @@ namespace MonoDevelop.Database.Modeler
 					//TODO: create a function that just get three letters from table name using a standard
 					fkCol.Name = fkCol.Name + "_" + (col.ColumnModel.Parent as TableSchema).Name + "_fk"; //TODO: should be checked that this name doesn't exists at table yet
 					fkCol.Parent = TableSchema;
+					if(optionality==kindOptionality.optional)
+						fkCol.IsNullable=false;
+					else
+						fkCol.IsNullable=true;
 					fkc.Columns.Add (fkCol);
 					fkc.ReferenceColumns.Add (col.ColumnModel);
 					ColumnFkFigure fk = new ColumnFkFigure (fkCol, FigureOwner, col.ColumnModel.Name , (col.ColumnModel.Parent as TableSchema).Name);
@@ -193,7 +197,7 @@ namespace MonoDevelop.Database.Modeler
 				return null;
 		}
 
-		public AbstractColumnFigure addFkConstraintColumn (ColumnSchema sourceCol){
+		public AbstractColumnFigure addFkConstraintColumn (ColumnSchema sourceCol, kindOptionality optionality){
 			if(sourceCol.Parent is TableSchema){
 				ForeignKeyConstraintSchema fkc = null;
 				//Add this column to a constraint or create a new one					
@@ -202,9 +206,16 @@ namespace MonoDevelop.Database.Modeler
 						fkc = (cs as ForeignKeyConstraintSchema);
 					}
 				}
-				if(fkc==null)
-				   fkc = new ForeignKeyConstraintSchema ((sourceCol.Parent as TableSchema).SchemaProvider);
+				if(fkc==null){
+				   	fkc = new ForeignKeyConstraintSchema ((sourceCol.Parent as TableSchema).SchemaProvider);
+					fkc.ReferenceTableName = (sourceCol.Parent as TableSchema).Name;
+					fkc.ReferenceTable = (sourceCol.Parent as TableSchema);					
+				}
 				ColumnSchema fkCol = new ColumnSchema(sourceCol);
+				if(optionality==kindOptionality.optional)
+					fkCol.IsNullable=false;
+				else
+					fkCol.IsNullable=true;				
 				//Remove column level pk if any
 					ConstraintSchema tmp=null;
 					foreach(ConstraintSchema cs in fkCol.Constraints)
@@ -222,6 +233,22 @@ namespace MonoDevelop.Database.Modeler
 			}
 			return null;
 		}
+		
+		public void UpdateOptionalityFk(TableModel sourceTable, kindOptionality optionality){
+			foreach(ConstraintSchema cs in TableSchema.Constraints){
+				if(cs is ForeignKeyConstraintSchema && (cs as ForeignKeyConstraintSchema).ReferenceTableName==sourceTable.Name){
+					ForeignKeyConstraintSchema fkc = (cs as ForeignKeyConstraintSchema);
+					foreach(ColumnSchema fkCol in fkc.Columns){
+						if(optionality==kindOptionality.optional)
+							fkCol.IsNullable=false;
+						else
+							fkCol.IsNullable=true;				
+					}
+				}
+			}
+
+		}
+		
 		
 		//TODO: shouldn't allow this kind of access... must protected which kind of files to store in collections
 		public ArrayList columns {

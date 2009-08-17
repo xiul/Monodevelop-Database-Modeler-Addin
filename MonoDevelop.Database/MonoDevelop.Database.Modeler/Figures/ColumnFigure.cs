@@ -393,8 +393,14 @@ namespace MonoDevelop.Database.Modeler
 				}
 			}
 			
+			Console.WriteLine("Tipos dentro de la figura");
+			foreach(IFigure f in (tableFigureOwner as TableFigure).FiguresEnumerator){
+				Console.WriteLine("TIPO: " + f.GetType());
+			}
+			//TODO: fix when multiple fk between same tables
 			if(tableFigureOwner is TableFigure){
-				(tableFigureOwner as TableFigure).RefreshRelationships(true,false,tableFigureOwner as TableFigure);
+				 //TODO: VERY IMPORTANT KIND OPTIONALITY IS RIGHT NOW FIXED, FIND A WAY OF GET REAL VALUE
+				(tableFigureOwner as TableFigure).RefreshRelationships(true,false,tableFigureOwner as TableFigure,kindOptionality.optional);
 			}else if (tableFigureOwner==null){
 				throw new NotImplementedException ();
 			}

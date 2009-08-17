@@ -44,7 +44,7 @@ using MonoDevelop.Database.Sql;
 namespace MonoDevelop.Database.Modeler
 {
 
-	public delegate void NotifyObserverEventHandler (bool refresh, bool changeConnection, TableFigure notifier);
+	public delegate void NotifyObserverEventHandler (bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality);
 
 	public interface IRelationshipNotifier
 	{
@@ -56,7 +56,7 @@ namespace MonoDevelop.Database.Modeler
 
 	public interface IRelationshipObserver
 	{
-		void Update (bool refresh, bool changeConnection, TableFigure notifier);
+		void Update (bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality);
 		//TODO: change string for correct one
 	}
 
@@ -280,18 +280,18 @@ namespace MonoDevelop.Database.Modeler
 		
 		
 		//add foreign key to this table figure
-		public void addFkConstraint(RelationshipFigure r){
+		public void addFkConstraint(RelationshipFigure r, kindOptionality optionality){
 			//TODO: implement more than one fk between same tables [multiple times same fk column is used].
-			List<ColumnFkFigure> tmp= Model.addFkConstraint(r.StartTable.Model);
+			List<ColumnFkFigure> tmp= Model.addFkConstraint(r.StartTable.Model, optionality);
 			foreach(ColumnFkFigure c in tmp){
 				this.Add(c);
 			}
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}		
 		
-		public void AddFkConstraintColumn (ColumnSchema sourceCol)
+		public void AddFkConstraintColumn (ColumnSchema sourceCol, kindOptionality optionality)
 		{
-			AbstractColumnFigure tmp = Model.addFkConstraintColumn(sourceCol);
+			AbstractColumnFigure tmp = Model.addFkConstraintColumn(sourceCol, optionality);
 			this.Add(tmp);
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
@@ -465,12 +465,12 @@ namespace MonoDevelop.Database.Modeler
 
 		public event NotifyObserverEventHandler NotifyChanged;
 
-		public void Update(bool refresh, bool changeConnection, TableFigure notifier)
+		public void Update(bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality)
 		{
 			Console.WriteLine();
 			if(refresh){
 				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de REFRESCAR!!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:" + notifier.Model.Name);
-				refreshForeignKeys(notifier);
+				refreshForeignKeys(notifier, optionality);
 			}
 			else if(changeConnection)
 				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de CAMBIO DE CONEXION!!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:"+ notifier.Model.Name);
@@ -480,7 +480,7 @@ namespace MonoDevelop.Database.Modeler
 			
 		}		
 		
-		public void refreshForeignKeys(TableFigure sourceFk){
+		public void refreshForeignKeys(TableFigure sourceFk, kindOptionality optionality){
 			PrimaryKeyConstraintSchema fkConsColumns=null;
 			//Lookup for pk at table level at reference table
 			foreach(ConstraintSchema cs in sourceFk.Model.TableSchema.Constraints){
@@ -515,13 +515,16 @@ namespace MonoDevelop.Database.Modeler
 						}
 					}
 					if(!exists){
-						this.AddFkConstraintColumn(colfk);
+						this.AddFkConstraintColumn(colfk,optionality);
 					}
 				}
 			}
 		}
 		
-		
+		public void UpdateOptionalityFk(TableModel sourceTable, kindOptionality optionality){
+			Model.UpdateOptionalityFk(sourceTable ,optionality);		
+		}
+
 		public void AddObserver(IRelationshipObserver observer)
 		{
 			this.NotifyChanged += observer.Update;
@@ -532,14 +535,14 @@ namespace MonoDevelop.Database.Modeler
 			this.NotifyChanged -= observer.Update;
 		}
 		
-		public void RefreshRelationships(bool refresh, bool changeConnection, TableFigure notifier)
+		public void RefreshRelationships(bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality)
 		{
 			if(refresh && changeConnection)
 				throw new NotImplementedException ();
 			
 			if(NotifyChanged!=null)
 			{
-				NotifyChanged(refresh,changeConnection, notifier);
+				NotifyChanged(refresh,changeConnection, notifier, optionality);
 			}
 		}
 				
