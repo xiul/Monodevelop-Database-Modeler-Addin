@@ -320,7 +320,7 @@ namespace MonoDevelop.Database.Modeler
 					//if oldEnd!=null what to do?
 					figEnd.addFkConstraint(this);
 				}
-				figStart.RefreshRelationships(false,true);
+				figStart.RefreshRelationships(false,true,figStart);
 				
 			}else{
 				figStart=oldStart;

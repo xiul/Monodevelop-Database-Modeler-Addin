@@ -53,14 +53,14 @@ namespace MonoDevelop.Database.Modeler
 		//todo: set attributes		
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
 	public class Trigger : PlainSimpleTextFigure
 	{
 		public Trigger (string triggerName) : base(triggerName)
@@ -71,17 +71,17 @@ namespace MonoDevelop.Database.Modeler
 	}
 
 
-	
 
-	
-	
+
+
+
 	//Create a wrapper class to MonoDevelop.Database.Sql.Schema.TableSchema
 	public class TableModel
 	{
 
 		//TODO: context really needed in every table (I think not then remove later)
 		// this should be available fro all tables of the same diagram without taking care if new or altered  
-	/*	public TableModel (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider)
+/*	public TableModel (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider)
 		{
 			/*tableName = name;
 			tableContext = context;
@@ -99,22 +99,22 @@ namespace MonoDevelop.Database.Modeler
 		{
 
 			//TableSchema newSchema;
-			tableName = name; //TODO: remove this attribute use table model
-			newTable=create;
-			alteredTable=false;
+			tableName = name;
+			//TODO: remove this attribute use table model
+			newTable = create;
+			alteredTable = false;
 			tableContext = context;
 			tableSchemaProvider = schemaProvider;
 			tableSchema = schemaProvider.CreateTableSchema (name);
 			Initialize ();
 			//Add a first column
-			if(create){
-				TreeIter iter;
+			if (create) {
 				ColumnSchema columnSchema = new ColumnSchema (schemaProvider, tableSchema, "newColumn");
-				if(storeTypes.Count>0){
-					columnSchema.DataTypeName=storeTypes.Keys[0];
-					columns.Add (new ColumnFigure(columnSchema,storeTypes,null));
-					tableSchema.Columns.Add(columnSchema);					
-				}else{
+				if (storeTypes.Count > 0) {
+					columnSchema.DataTypeName = storeTypes.Keys[0];
+					columns.Add (new ColumnFigure (columnSchema, storeTypes, null));
+					tableSchema.Columns.Add (columnSchema);
+				} else {
 					throw new NotImplementedException ();
 				}
 			}
@@ -124,13 +124,13 @@ namespace MonoDevelop.Database.Modeler
 			indexes.Add (new Index ("DummyIndex2"));
 			triggers.Add (new Trigger ("DummyTrigger1"));
 			triggers.Add (new Trigger ("DummyTrigger2"));
-			
-			System.Console.WriteLine("Tiene Xs: "	+tableSchema.Columns.Count);
 
-			System.Console.WriteLine(schemaProvider.GetTableCreateStatement (tableSchema));
-			
+			System.Console.WriteLine ("Tiene Xs: " + tableSchema.Columns.Count);
+
+			System.Console.WriteLine (schemaProvider.GetTableCreateStatement (tableSchema));
+
 		}
-			
+
 		/*private void AppendColumnSchema (ColumnSchema column)
 		{
 			bool pk = column.Constraints.GetConstraint (ConstraintType.PrimaryKey) != null;
@@ -148,33 +148,79 @@ namespace MonoDevelop.Database.Modeler
 			foreach (DataTypeSchema dataType in dataTypes)
 				storeTypes.Add (dataType.Name, dataType);
 			//Create a text figure for each column in model
-			if(tableSchema!=null)
-			{
-				if(tableSchema.Columns!=null){
+			if (tableSchema != null) {
+				if (tableSchema.Columns != null) {
 					foreach (ColumnSchema col in tableSchema.Columns) {
-						columns.Add(new ColumnFigure(col,storeTypes,null));
+						columns.Add (new ColumnFigure (col, storeTypes, null));
 					}
 				}
 			}
 		}
 
 		//TODO: change for IEnumerable?
-		public List<AbstractColumnFigure> addFkConstraint(TableModel source){
-			List<AbstractColumnFigure> items = new List<AbstractColumnFigure> ();
+		public List<ColumnFkFigure> addFkConstraint (TableModel source)
+		{
+			List<ColumnFkFigure> items = new List<ColumnFkFigure> ();
 			ForeignKeyConstraintSchema fkc = new ForeignKeyConstraintSchema (source.TableSchema.SchemaProvider);
-			TableSchema.Constraints.Add(fkc);
+			//TableSchema.Constraints.Add (fkc);
 			fkc.ReferenceTableName = source.Name;
-			foreach(ColumnFigure col in source.columns){
-				if(col.PrimaryKey){	
-					fkc.Columns.Add(col.ColumnModel);
-					ColumnFkFigure fk=new ColumnFkFigure(col.ColumnModel,FigureOwner);
-					this.columns.Add(fk);
-					//TODO add constraint to each fk and set attribute from relationship
-					items.Add(fk);
+			fkc.ReferenceTable = source.TableSchema;
+			foreach (ColumnFigure col in source.columns) {
+				if (col.PrimaryKey) {
+					ColumnSchema fkCol = new ColumnSchema (col.ColumnModel);
+					//Remove column level pk if any
+					ConstraintSchema tmp=null;
+					foreach(ConstraintSchema cs in fkCol.Constraints)
+						if(cs is PrimaryKeyConstraintSchema)
+							tmp=cs;
+					if(tmp!=null)
+						fkCol.Constraints.Remove(tmp);
+					//TODO: create a function that just get three letters from table name using a standard
+					fkCol.Name = fkCol.Name + "_" + (col.ColumnModel.Parent as TableSchema).Name + "_fk"; //TODO: should be checked that this name doesn't exists at table yet
+					fkCol.Parent = TableSchema;
+					fkc.Columns.Add (fkCol);
+					fkc.ReferenceColumns.Add (col.ColumnModel);
+					ColumnFkFigure fk = new ColumnFkFigure (fkCol, FigureOwner, col.ColumnModel.Name , (col.ColumnModel.Parent as TableSchema).Name);
+					this.columns.Add (fk);
+					items.Add (fk);
+					Console.WriteLine("NO JODA 555 666:" + source.Name + " Tabla: "+ (col.ColumnModel.Parent as TableSchema).Name);
 				}
 			}
-			this.TableSchema.Constraints.Add(fkc);
-		return items;
+			if(fkc.Columns.Count > 0){
+				TableSchema.Constraints.Add (fkc);
+				return items;
+			}else
+				return null;
+		}
+
+		public AbstractColumnFigure addFkConstraintColumn (ColumnSchema sourceCol){
+			if(sourceCol.Parent is TableSchema){
+				ForeignKeyConstraintSchema fkc = null;
+				//Add this column to a constraint or create a new one					
+				foreach(ConstraintSchema cs in TableSchema.Constraints){
+					if(cs is ForeignKeyConstraintSchema && (cs as ForeignKeyConstraintSchema).ReferenceTableName==(sourceCol.Parent as TableSchema).Name){
+						fkc = (cs as ForeignKeyConstraintSchema);
+					}
+				}
+				if(fkc==null)
+				   fkc = new ForeignKeyConstraintSchema ((sourceCol.Parent as TableSchema).SchemaProvider);
+				ColumnSchema fkCol = new ColumnSchema(sourceCol);
+				//Remove column level pk if any
+					ConstraintSchema tmp=null;
+					foreach(ConstraintSchema cs in fkCol.Constraints)
+						if(cs is PrimaryKeyConstraintSchema)
+							tmp=cs;
+					if(tmp!=null)
+						fkCol.Constraints.Remove(tmp);
+				fkCol.Name = fkCol.Name + "_" + (sourceCol.Parent as TableSchema).Name + "_fk"; //TODO: should be checked that this name doesn't exists at table yet
+				fkCol.Parent = TableSchema;
+				fkc.Columns.Add (fkCol);
+				fkc.ReferenceColumns.Add (sourceCol);
+				ColumnFkFigure fk = new ColumnFkFigure (fkCol, FigureOwner, sourceCol.Name, (sourceCol.Parent as TableSchema).Name);
+				this.columns.Add (fk);
+				return fk;
+			}
+			return null;
 		}
 		
 		//TODO: shouldn't allow this kind of access... must protected which kind of files to store in collections
@@ -192,35 +238,38 @@ namespace MonoDevelop.Database.Modeler
 
 		public string Name {
 			get { return tableName; }
-			set { tableName = value;
-				  tableSchema.Name = value;	
+			set {
+				tableName = value;
+				tableSchema.Name = value;
 			}
 		}
-		
+
 		public TableSchema TableSchema {
-			get { return tableSchema;}
+			get { return tableSchema; }
 		}
-		
+
 		public ISchemaProvider SchemaProvider {
-			get { return tableSchemaProvider;}
+			get { return tableSchemaProvider; }
 		}
-		
+
 		//TODO: this variable should be force to be not null to allow continue with operation but cannot be in constructor
 		public IFigure FigureOwner {
-			get { 	if(tableFigureOwner==null)
-						throw new NotImplementedException ();
-					return tableFigureOwner; }
-			set { 
+			get {
+				if (tableFigureOwner == null)
+					throw new NotImplementedException ();
+				return tableFigureOwner;
+			}
+			set {
 				foreach (ColumnFigure colf in columns) {
-					colf.FigureOwner=value;
+					colf.FigureOwner = value;
 				}
-				
-				tableFigureOwner=value; 
+
+				tableFigureOwner = value;
 			}
 		}
-		
-		
-		
+
+
+
 		//todo: use non-generic arrays?
 		private ArrayList tableColumns;
 		private ArrayList tableIndexes;
@@ -235,9 +284,10 @@ namespace MonoDevelop.Database.Modeler
 		private bool alteredTable;
 		private IFigure tableFigureOwner;
 
-		private SortedList<string, DataTypeSchema> storeTypes;  //TODO: Move to DATABASE model because it should be share between all models
+		private SortedList<string, DataTypeSchema> storeTypes;
+		//TODO: Move to DATABASE model because it should be share between all models
 		private DataTypeSchemaCollection dataTypes;
-			
+
 	}
 }
 

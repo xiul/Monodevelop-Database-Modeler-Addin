@@ -36,6 +36,7 @@ using MonoHotDraw.Util;
 using MonoHotDraw.Handles;
 using MonoHotDraw.Locators;
 using System.Collections.Generic;
+using MonoDevelop.Database.Sql;
 
 
 
@@ -43,7 +44,7 @@ using System.Collections.Generic;
 namespace MonoDevelop.Database.Modeler
 {
 
-	public delegate void NotifyObserverEventHandler (bool refresh, bool changeConnection);
+	public delegate void NotifyObserverEventHandler (bool refresh, bool changeConnection, TableFigure notifier);
 
 	public interface IRelationshipNotifier
 	{
@@ -55,7 +56,7 @@ namespace MonoDevelop.Database.Modeler
 
 	public interface IRelationshipObserver
 	{
-		void Update (bool refresh, bool changeConnection);
+		void Update (bool refresh, bool changeConnection, TableFigure notifier);
 		//TODO: change string for correct one
 	}
 
@@ -276,13 +277,25 @@ namespace MonoDevelop.Database.Modeler
 			return DisplayBox.Contains (x, y);
 		}
 
-	/*	public void AddColumn (string Name)
-		{
-			ColumnFigure newColumn = new ColumnFigure ();
-			_tableModel.columns.Add (newColumn);
-			this.Add (newColumn);
+		
+		
+		//add foreign key to this table figure
+		public void addFkConstraint(RelationshipFigure r){
+			//TODO: implement more than one fk between same tables [multiple times same fk column is used].
+			List<ColumnFkFigure> tmp= Model.addFkConstraint(r.StartTable.Model);
+			foreach(ColumnFkFigure c in tmp){
+				this.Add(c);
+			}
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
-		}*/
+		}		
+		
+		public void AddFkConstraintColumn (ColumnSchema sourceCol)
+		{
+			AbstractColumnFigure tmp = Model.addFkConstraintColumn(sourceCol);
+			this.Add(tmp);
+			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
+		}
+
 
 		//This is useful for?
 		public override RectangleD InvalidateDisplayBox {
@@ -450,26 +463,64 @@ namespace MonoDevelop.Database.Modeler
 			}
 		}
 
+		public event NotifyObserverEventHandler NotifyChanged;
+
+		public void Update(bool refresh, bool changeConnection, TableFigure notifier)
+		{
+			Console.WriteLine();
+			if(refresh){
+				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de REFRESCAR!!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:" + notifier.Model.Name);
+				refreshForeignKeys(notifier);
+			}
+			else if(changeConnection)
+				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de CAMBIO DE CONEXION!!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:"+ notifier.Model.Name);
+			else if(!changeConnection && !refresh){
+				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de ELIMINAR FK !!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:"+ notifier.Model.Name);
+			}
+			
+		}		
 		
-		//add foreign key to this table figure
-		public void addFkConstraint(RelationshipFigure r){
-			//TODO: implement multiple fk between tables
-			List<AbstractColumnFigure> y= Model.addFkConstraint(r.StartTable.Model);
-			foreach(AbstractColumnFigure c in y){
-				this.Add(c);
+		public void refreshForeignKeys(TableFigure sourceFk){
+			PrimaryKeyConstraintSchema fkConsColumns=null;
+			//Lookup for pk at table level at reference table
+			foreach(ConstraintSchema cs in sourceFk.Model.TableSchema.Constraints){
+				if(cs is PrimaryKeyConstraintSchema){
+					fkConsColumns=cs as PrimaryKeyConstraintSchema;
+					break;
+				}
+			}
+			
+			//Lookup for pk at column level at reference table
+			if(fkConsColumns==null){
+				foreach(ColumnSchema col in sourceFk.Model.TableSchema.Columns){
+					fkConsColumns = col.Constraints.GetConstraint (ConstraintType.PrimaryKey) as PrimaryKeyConstraintSchema;
+					if(fkConsColumns!=null)
+						break;
+				}
+			}
+			
+			//Add new fk(s) column to table
+			if(fkConsColumns!=null){
+				foreach(ColumnSchema colfk in fkConsColumns.Columns){
+					bool exists=false;
+					foreach(AbstractColumnFigure cf in Model.columns){
+						if(cf is ColumnFkFigure )
+						{
+							ColumnFkFigure cfk = cf as ColumnFkFigure;
+							Console.WriteLine("NO JODA 666 COMPARO:" + cfk.originalTableName + "." + cfk.originalColumnName + " CON " + colfk.Name+"."+colfk.Parent.Name);
+							if(cfk.sameForeignKey(colfk.Parent.Name,colfk.Name)){
+								exists=true;
+								Console.Write(" !!!!!!!!! MATCHES");
+							}
+						}
+					}
+					if(!exists){
+						this.AddFkConstraintColumn(colfk);
+					}
+				}
 			}
 		}
 		
-		public event NotifyObserverEventHandler NotifyChanged;
-
-		public void Update(bool refresh, bool changeConnection)
-		{
-			Console.WriteLine();
-			if(refresh)
-				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de REFRESCAR!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			else if(changeConnection)
-				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de CAMBIO DE CONEXION!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		}		
 		
 		public void AddObserver(IRelationshipObserver observer)
 		{
@@ -481,14 +532,14 @@ namespace MonoDevelop.Database.Modeler
 			this.NotifyChanged -= observer.Update;
 		}
 		
-		public void RefreshRelationships(bool refresh, bool changeConnection)
+		public void RefreshRelationships(bool refresh, bool changeConnection, TableFigure notifier)
 		{
 			if(refresh && changeConnection)
 				throw new NotImplementedException ();
 			
 			if(NotifyChanged!=null)
 			{
-				NotifyChanged(refresh,changeConnection);
+				NotifyChanged(refresh,changeConnection, notifier);
 			}
 		}
 				

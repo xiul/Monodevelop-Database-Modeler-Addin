@@ -82,7 +82,8 @@ namespace MonoDevelop.Database.Modeler
 				//TODO move to fk specify
 				if (foreignKey) {
 					if (uniqueKey)
-						fkUkIcon.Show (context, Math.Round (this.BasicDisplayBox.X - (optionalIcon.Width * 2 + 3)), Math.Round (this.BasicDisplayBox.Y)); else
+						fkUkIcon.Show (context, Math.Round (this.BasicDisplayBox.X - (optionalIcon.Width * 2 + 3)), Math.Round (this.BasicDisplayBox.Y)); 
+					else
 						fkIcon.Show (context, Math.Round (this.BasicDisplayBox.X - (optionalIcon.Width * 2 + 3)), Math.Round (this.BasicDisplayBox.Y));
 				}
 			}
@@ -191,21 +192,38 @@ namespace MonoDevelop.Database.Modeler
 	public class ColumnFkFigure : AbstractColumnFigure
 	{
 
-		public ColumnFkFigure (ColumnSchema column, IFigure owner) : base(column,owner)
+		public ColumnFkFigure (ColumnSchema column, IFigure owner, string sourceColumnName, string sourceTableName) : base(column,owner)
 		{
-			foreignKey = true;
+			fkSourceColName = sourceColumnName;
+			fkSourceTableName = sourceTableName;
+			foreignKey=true;
 		}
 
-		/*	protected virtual bool isPrimaryKey(){
-			return primaryKey=false;
-		}*/		//TODO: should allow fk and pk at the same time
-
-		protected virtual bool isForeignKey ()
-		{
-			return foreignKey = true;
+	
+		public bool sameForeignKey(string referenceTableName, string referenceColumnName){
+			if(fkSourceColName==referenceColumnName && fkSourceTableName==referenceTableName)
+				return true;
+			else
+				return false;
+		}
+		
+		public bool sameReferenceTable(string referenceTableName){
+			if(fkSourceTableName==referenceTableName)
+				return true;
+			else
+				return false;			
+		}
+		
+		public string originalColumnName{
+			get{return fkSourceColName;}
 		}
 
-		private ForeignKeyConstraintSchema owner;
+		public string originalTableName{
+			get{return fkSourceTableName;}
+		}
+		
+		private string fkSourceColName;
+		private string fkSourceTableName;
 	}
 
 
@@ -376,7 +394,7 @@ namespace MonoDevelop.Database.Modeler
 			}
 			
 			if(tableFigureOwner is TableFigure){
-				(tableFigureOwner as TableFigure).RefreshRelationships(true,false);
+				(tableFigureOwner as TableFigure).RefreshRelationships(true,false,tableFigureOwner as TableFigure);
 			}else if (tableFigureOwner==null){
 				throw new NotImplementedException ();
 			}
