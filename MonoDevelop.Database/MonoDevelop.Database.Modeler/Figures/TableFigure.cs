@@ -209,8 +209,6 @@ namespace MonoDevelop.Database.Modeler
 				return;
 			}
 
-
-
 			//Draw table
 			context.LineWidth = 1.0;
 			context.Save ();
@@ -534,26 +532,28 @@ namespace MonoDevelop.Database.Modeler
 			}
 			
 		  //Remove not existing fk(s) to table
-			if(fkConsColumns!=null){
+			//if(fkConsColumns!=null){
 				bool remove = true;
 				ColumnFkFigure removeCfk = null;
-				ColumnFkFigure cfk = null;
+				ColumnFkFigure colFigFk = null;
 				foreach(AbstractColumnFigure cf in Model.columns){
 						if(cf is ColumnFkFigure )
 						{
 						Console.WriteLine("Busco si elimino a: " + cf.ColumnModel.Name);
-							cfk = cf as ColumnFkFigure;
-							remove = true;			
-							foreach(ColumnSchema colfk in fkConsColumns.Columns){	
-								Console.WriteLine("		Comparo con: " + colfk.Name);
-								if(cfk.sameForeignKey(colfk.Parent.Name,colfk.Name)){
-									remove=false;
-									Console.WriteLine("			No la debo remover tiene columna en el fkconstraint " + colfk.Name);
+							colFigFk = cf as ColumnFkFigure;
+							remove = true;
+							if(fkConsColumns!=null){
+								foreach(ColumnSchema colfk in fkConsColumns.Columns){	
+									Console.WriteLine("		Comparo con: " + colfk.Name);
+									if(colFigFk.sameForeignKey(colfk.Parent.Name,colfk.Name)){
+										remove=false;
+										Console.WriteLine("			No la debo remover tiene columna en el fkconstraint " + colfk.Name);
+									}
 								}
 							}
 							if(remove){
-								removeCfk=cfk;
-								Console.WriteLine("PORQ ENTRO AQUI CON: " + cfk.originalColumnName +"   " + cfk.ColumnModel.Name);
+								removeCfk=colFigFk;
+								Console.WriteLine("PORQ ENTRO AQUI CON: " + colFigFk.originalColumnName +"   " + colFigFk.ColumnModel.Name);
 								}
 						}
 				}
@@ -562,7 +562,7 @@ namespace MonoDevelop.Database.Modeler
 					Console.WriteLine("Mando a eliminar "+removeCfk.originalTableName+"."+removeCfk.originalColumnName);
 					this.removeFkConstraintColumn(removeCfk);
 				}
-			}
+			//}
 			
 		}
 		
