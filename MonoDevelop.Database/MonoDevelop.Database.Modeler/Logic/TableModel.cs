@@ -120,10 +120,8 @@ namespace MonoDevelop.Database.Modeler
 			}
 			/*ColumnSchema column = new ColumnSchema (schemaProvider, tableSchema, name);*/
 			//TODO: delete this only for test purpose	
-			indexes.Add (new Index ("DummyIndex1"));
-			indexes.Add (new Index ("DummyIndex2"));
-			triggers.Add (new Trigger ("DummyTrigger1"));
-			triggers.Add (new Trigger ("DummyTrigger2"));
+			indexes.Add (new Index ("NotImplementedYet"));
+			triggers.Add (new Trigger ("NotImplementedYet"));
 
 			System.Console.WriteLine ("Tiene Xs: " + tableSchema.Columns.Count);
 

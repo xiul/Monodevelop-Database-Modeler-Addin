@@ -428,6 +428,7 @@ namespace MonoDevelop.Database.Modeler
 		/*
 		 * Text Editor Figure Tool for Columns
 		 */
+		
 		public class TableTextFigureTool : CompositeFigureTool
 		{
 
@@ -446,7 +447,12 @@ namespace MonoDevelop.Database.Modeler
 					if(cfigure!=null)
 						DelegateTool = new PopupMenuTool (Editor, cfigure, DefaultTool, DefaultTool, true);
 					} else if (figure != null && view.IsFigureSelected (Figure) && gdk_event.Button==1) {
-						DelegateTool = new SimpleTextTool (Editor, figure, DefaultTool);
+						if(figure is AbstractColumnFigure){
+							AbstractColumnFigure column = figure as AbstractColumnFigure;
+/*							Console.WriteLine("EN EL MODELO EL NOMBRE ES: "+column.ColumnModel.Name);
+							Console.WriteLine("El nombre ahora es: "+(figure as PlainSimpleTextFigure).Text);*/
+							DelegateTool = new ColumnTextTool (Editor, column, DefaultTool);
+						}
 					} else {
 						DelegateTool = DefaultTool;
 					}

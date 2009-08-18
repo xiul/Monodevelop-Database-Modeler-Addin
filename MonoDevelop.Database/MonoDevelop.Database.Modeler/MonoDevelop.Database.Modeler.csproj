@@ -93,6 +93,7 @@
     <Compile Include="Figures\IPopupRelationshipMenu.cs" />
     <Compile Include="Figures\PopupMenuTool.cs" />
     <Compile Include="Figures\IPopupMenuFigure.cs" />
+    <Compile Include="Figures\ColumnTextTool.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

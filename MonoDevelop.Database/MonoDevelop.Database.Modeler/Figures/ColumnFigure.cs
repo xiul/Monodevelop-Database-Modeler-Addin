@@ -41,11 +41,11 @@ namespace MonoDevelop.Database.Modeler
 {
 	public abstract class AbstractColumnFigure : PlainSimpleTextFigure
 	{
-		public AbstractColumnFigure (ColumnSchema column, IFigure owner) : base(column.Name)
+		public AbstractColumnFigure (ColumnSchema column, IFigure owner) : base(column.Name+" ")  //white space allow later to allow showing datatype at first column creation at newTable
 		{
 			columnModel = column;
 			tableFigureOwner = owner;
-			dataType = null;
+			columnDataType = null;
 			primaryIcon = IconFactory.GetIcon ("Resources.primarykey.png");
 			mandatoryIcon = IconFactory.GetIcon ("Resources.mandatory.png");
 			optionalIcon = IconFactory.GetIcon ("Resources.optional.png");
@@ -64,7 +64,38 @@ namespace MonoDevelop.Database.Modeler
 			isPrimaryKey ();
 
 		}
+		
+		public override string Text {
+			get {	
+					return base.Text;
+				}
+			set {
+				if (base.Text == value) {
+					return;
+				}
+				
+			
+				columnModel.Name = value;
+				string nameWithDatatype;
+				if(columnDataType!=null)
+					nameWithDatatype = columnModel.Name + " : " + columnDataType.Name;
+				else
+					nameWithDatatype = columnModel.Name;
+				
+				Console.WriteLine(" PASO es shits por aqui 666: "+nameWithDatatype);
+				
+				base.Text = nameWithDatatype;
 
+				WillChange ();
+				if (base.Text != null && base.Text.Length > 0)
+					PangoLayout.SetText (nameWithDatatype);
+				RecalculateDisplayBox ();
+				Changed ();	
+								
+				OnTextChanged ();
+			}
+		}		
+		
 		public override void BasicDraw (Cairo.Context context)
 		{
 
@@ -148,13 +179,14 @@ namespace MonoDevelop.Database.Modeler
 		}
 
 		protected virtual void OnColumnNameChange (object sender, EventArgs args)
-		{
+		{ //TODO: improve this function
 			if (columnModel != null)
 				if (ValidateDataType ())
-					//TODO: implement validate
-					if (dataType != null)
-						this.Text = columnModel.Name + dataType.Name; else
-						this.Text = columnModel.Name;
+/*					//TODO: implement validate
+					if (columnDataType != null)
+						this.Text = columnModel.Name + dataType.Name; 
+					else
+						this.Text = columnModel.Name;*/
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
 
@@ -180,7 +212,7 @@ namespace MonoDevelop.Database.Modeler
 		private ImageSurface primaryIcon, mandatoryIcon, optionalIcon, fkUkIcon, fkIcon;
 		protected ColumnSchema columnModel;
 		protected bool foreignKey, uniqueKey, primaryKey;
-		protected DataTypeSchema dataType;
+		protected DataTypeSchema columnDataType;
 		protected IFigure tableFigureOwner;
 	}
 
@@ -211,7 +243,7 @@ namespace MonoDevelop.Database.Modeler
 			if(fkSourceTableName==referenceTableName)
 				return true;
 			else
-				return false;			
+				return false;
 		}
 		
 		public string originalColumnName{
@@ -224,6 +256,7 @@ namespace MonoDevelop.Database.Modeler
 		
 		private string fkSourceColName;
 		private string fkSourceTableName;
+		
 	}
 
 
@@ -241,15 +274,12 @@ namespace MonoDevelop.Database.Modeler
 		public ColumnFigure (ColumnSchema column, SortedList<string, DataTypeSchema> DataTypes, IFigure owner) : base(column,owner)
 		{
 			dataTypes = DataTypes;
-			columnDataType = null;
-			//TODO: mark active datatype item at beginning
+			if(dataTypes.Values.Count>0)
+				columnDataType = dataTypes.Values[0];
+			else
+				columnDataType = null;
+			Text = ColumnModel.Name; //force to redraw text with new datatype
 		}
-
-		/*	public ColumnFigure () : base("Column")
-		{
-			columnModel = null;
-			Initialize ();
-		}*/
 
 		public virtual IEnumerable<Gtk.MenuItem> MenuItemsEnumerator2 {
 			get {
@@ -430,6 +460,9 @@ namespace MonoDevelop.Database.Modeler
 				Gtk.CheckMenuItem tmp = sender as Gtk.CheckMenuItem;
 				dataTypes.TryGetValue (tmp.TooltipText, out columnDataType);
 				columnModel.DataTypeName = columnDataType.Name;
+				Text = ColumnModel.Name; //force to redraw text with new datatype
+				OnColumnNameChange (this, new EventArgs ());
+				OnTextChanged ();
 			}
 			//columnModel.
 			//LengthEdited: column.DataType.LengthRange.Default
@@ -437,9 +470,7 @@ namespace MonoDevelop.Database.Modeler
 			//Scale: column.DataType.LengthRange.Default.ToString ()
 		}
 
-		//(ISchemaProvider provider)
 		protected SortedList<string, DataTypeSchema> dataTypes;
-		private DataTypeSchema columnDataType;
 	}
 
 }
