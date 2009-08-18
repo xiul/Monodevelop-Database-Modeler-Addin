@@ -229,6 +229,8 @@ namespace MonoDevelop.Database.Modeler
 			fkSourceColName = sourceColumnName;
 			fkSourceTableName = sourceTableName;
 			foreignKey=true;
+			columnDataType = column.DataType;
+			Text = ColumnModel.Name; //force to redraw text with new datatype
 		}
 
 	
