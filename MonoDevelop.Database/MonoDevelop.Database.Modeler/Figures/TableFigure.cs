@@ -44,7 +44,7 @@ using MonoDevelop.Database.Sql;
 namespace MonoDevelop.Database.Modeler
 {
 
-	public delegate void NotifyObserverEventHandler (bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality);
+	public delegate void NotifyObserverEventHandler (bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality, bool changeDatatype, ColumnSchema notifierColumn);
 
 	public interface IRelationshipNotifier
 	{
@@ -56,8 +56,7 @@ namespace MonoDevelop.Database.Modeler
 
 	public interface IRelationshipObserver
 	{
-		void Update (bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality);
-		//TODO: change string for correct one
+		void Update (bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality, bool changeDatatype, ColumnSchema notifierColumn);
 	}
 
 	public class TableFigure : CompositeFigure, IRelationshipObserver, IRelationshipNotifier
@@ -473,20 +472,38 @@ namespace MonoDevelop.Database.Modeler
 
 		public event NotifyObserverEventHandler NotifyChanged;
 
-		public void Update(bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality)
+		
+		//This functions works as dispatcher to correct one functions
+		//TODO: improve this implementation of data interchange to propagate changes
+		public void Update(bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality, bool changeDatatype, ColumnSchema notifierColumn)
 		{
-			Console.WriteLine();
 			if(refresh){
 				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de REFRESCAR!!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:" + notifier.Model.Name);
 				refreshForeignKeys(notifier, optionality);
 			}
 			else if(changeConnection)
 				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de CAMBIO DE CONEXION!!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:"+ notifier.Model.Name);
-			else if(!changeConnection && !refresh){
+			else if(changeDatatype){
+				changeFkColumnDatatype(notifierColumn);
+				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de Cambio de tipo de dato en columna !!!!!!!!!!!!!!!!!!!!!!!!!!!"+ notifierColumn.Name);
+			}
+			else if(!changeConnection && !refresh && !changeDatatype){
 				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de ELIMINAR FK !!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:"+ notifier.Model.Name);
 			}
 			
 		}		
+		
+		public void changeFkColumnDatatype(ColumnSchema newColumn){
+			foreach(AbstractColumnFigure cf in Model.columns){
+				if(cf is ColumnFkFigure){
+					if((cf as ColumnFkFigure).sameForeignKey(newColumn.Parent.Name,newColumn.Name)){
+						cf.ColumnModel.DataTypeName = newColumn.DataTypeName;
+						(cf as ColumnFkFigure).fkDataType = newColumn.DataType;
+						cf.Text = (cf as ColumnFkFigure).originalColumnName+ "_" + (cf as ColumnFkFigure).originalTableName+ "_fk";  //to force redraw of column name
+					}
+				}
+			}
+		}
 		
 		public void refreshForeignKeys(TableFigure sourceFk, kindOptionality optionality){
 			PrimaryKeyConstraintSchema fkConsColumns=null;
@@ -580,14 +597,14 @@ namespace MonoDevelop.Database.Modeler
 			this.NotifyChanged -= observer.Update;
 		}
 		
-		public void RefreshRelationships(bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality)
+		public void RefreshRelationships(bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality, bool changeDatatype, ColumnSchema notifierColumn)
 		{
 			if(refresh && changeConnection)
 				throw new NotImplementedException ();
 			
 			if(NotifyChanged!=null)
 			{
-				NotifyChanged(refresh,changeConnection, notifier, optionality);
+				NotifyChanged(refresh,changeConnection, notifier, optionality,changeDatatype,notifierColumn);
 			}
 		}
 				

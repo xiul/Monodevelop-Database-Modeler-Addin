@@ -256,6 +256,10 @@ namespace MonoDevelop.Database.Modeler
 			get{return fkSourceTableName;}
 		}
 		
+		public DataTypeSchema fkDataType{
+			set {columnDataType=value;}
+		}
+		
 		private string fkSourceColName;
 		private string fkSourceTableName;
 		
@@ -432,7 +436,7 @@ namespace MonoDevelop.Database.Modeler
 			//TODO: fix when multiple fk between same tables
 			if(tableFigureOwner is TableFigure){
 				 //TODO: VERY IMPORTANT KIND OPTIONALITY IS RIGHT NOW FIXED, FIND A WAY OF GET REAL VALUE
-				(tableFigureOwner as TableFigure).RefreshRelationships(true,false,tableFigureOwner as TableFigure,kindOptionality.optional);
+				(tableFigureOwner as TableFigure).RefreshRelationships(true,false,tableFigureOwner as TableFigure,kindOptionality.optional,false,null);
 			}else if (tableFigureOwner==null){
 				throw new NotImplementedException ();
 			}
@@ -465,6 +469,9 @@ namespace MonoDevelop.Database.Modeler
 				Text = ColumnModel.Name; //force to redraw text with new datatype
 				OnColumnNameChange (this, new EventArgs ());
 				OnTextChanged ();
+				if(PrimaryKey){
+					(tableFigureOwner as TableFigure).RefreshRelationships(false,false,null,kindOptionality.optional,true,columnModel);
+				}
 			}
 			//columnModel.
 			//LengthEdited: column.DataType.LengthRange.Default
