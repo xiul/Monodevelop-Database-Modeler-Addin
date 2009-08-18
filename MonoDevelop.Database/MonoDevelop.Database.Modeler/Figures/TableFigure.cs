@@ -154,7 +154,7 @@ namespace MonoDevelop.Database.Modeler
 			_tableName.SetAttribute (FigureAttribute.FontSize, 7);
 			_tableName.SetAttribute (FigureAttribute.FontColor, new Cairo.Color (0, 0, 0.501961));
 			//TODO: don't change name at each letter changed
-			_tableName.TextChanged += delegate { Model.Name = _tableName.Text;};
+			_tableName.TextChanged += delegate { Model.Name = _tableName.Text; };
 
 			_indexLabel = new PlainSimpleTextFigure ("Indexes");
 			_indexLabel.SetAttribute (FigureAttribute.FontColor, new Cairo.Color (0, 0, 0.501961));
@@ -169,9 +169,9 @@ namespace MonoDevelop.Database.Modeler
 			foreach (AbstractColumnFigure col in _tableModel.columns) {
 				this.Add (col);
 			}
-			
+
 			//TODO: Add Foreign Keys that table model have
-			
+
 			//Add Table Indexes Label (items added at ButtonHandle)
 			this.Add (_indexLabel);
 			//Add Table Triggers Label (items added at ButtonHandle)
@@ -180,7 +180,7 @@ namespace MonoDevelop.Database.Modeler
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
 
-		
+
 		//todo: fix if table columns count=0
 		public double calcIndexLabelHeightPos ()
 		{
@@ -274,32 +274,34 @@ namespace MonoDevelop.Database.Modeler
 			return DisplayBox.Contains (x, y);
 		}
 
-		
-		
+
+
 		//add foreign key to this table figure
-		public void addFkConstraint(RelationshipFigure r, kindOptionality optionality){
-			//TODO: implement more than one fk between same tables [multiple times same fk column is used].
-			List<ColumnFkFigure> tmp= Model.addFkConstraint(r.StartTable.Model, optionality);
-			foreach(ColumnFkFigure c in tmp){
-				this.Add(c);
-			}
-			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
-		}		
-		
-		public void AddFkConstraintColumn (ColumnSchema sourceCol, kindOptionality optionality)
+		public void addFkConstraint (RelationshipFigure r, kindOptionality optionality)
 		{
-			AbstractColumnFigure tmp = Model.addFkConstraintColumn(sourceCol, optionality);
-			this.Add(tmp);
+			//TODO: implement more than one fk between same tables [multiple times same fk column is used].
+			List<ColumnFkFigure> tmp = Model.addFkConstraint (r.StartTable.Model, optionality);
+			foreach (ColumnFkFigure c in tmp) {
+				this.Add (c);
+			}
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
 
-		public void removeFkConstraintColumn (ColumnFkFigure column){
-			Console.WriteLine("Eliminando FkFigure: "+column.originalTableName+"."+ column.originalColumnName);
-			Model.removeFkConstraintColumn(column);
-			this.Remove(column);
+		public void AddFkConstraintColumn (ColumnSchema sourceCol, kindOptionality optionality)
+		{
+			AbstractColumnFigure tmp = Model.addFkConstraintColumn (sourceCol, optionality);
+			this.Add (tmp);
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
-		
+
+		public void removeFkConstraintColumn (ColumnFkFigure column)
+		{
+			Console.WriteLine ("Eliminando FkFigure: " + column.originalTableName + "." + column.originalColumnName);
+			Model.removeFkConstraintColumn (column);
+			this.Remove (column);
+			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
+		}
+
 		//This is useful for?
 		public override RectangleD InvalidateDisplayBox {
 			get {
@@ -407,19 +409,19 @@ namespace MonoDevelop.Database.Modeler
 
 			return null;
 		}
-		
+
 		public SimpleTextFigure FindIconTextFigure (double x, double y)
-		{	//Adjust X axis to get related TextFigure (Column)
-			IFigure fig = FindFigure (x+(iconsWidth/2), y);
-			if ((fig != null) && (fig is SimpleTextFigure))
-			{
-			Console.WriteLine("Icons Width="+ iconsWidth);
-			Console.WriteLine("X="+ x);
-			Console.WriteLine("XFig= "+fig.DisplayBox.X);
-			Console.WriteLine("XCal="+(x-iconsWidth));
-				return (SimpleTextFigure)fig;	
+		{
+			//Adjust X axis to get related TextFigure (Column)
+			IFigure fig = FindFigure (x + (iconsWidth / 2), y);
+			if ((fig != null) && (fig is SimpleTextFigure)) {
+				Console.WriteLine ("Icons Width=" + iconsWidth);
+				Console.WriteLine ("X=" + x);
+				Console.WriteLine ("XFig= " + fig.DisplayBox.X);
+				Console.WriteLine ("XCal=" + (x - iconsWidth));
+				return (SimpleTextFigure)fig;
 			}
-			
+
 			return null;
 		}
 
@@ -431,7 +433,7 @@ namespace MonoDevelop.Database.Modeler
 		/*
 		 * Text Editor Figure Tool for Columns
 		 */
-		
+
 		public class TableTextFigureTool : CompositeFigureTool
 		{
 
@@ -444,25 +446,27 @@ namespace MonoDevelop.Database.Modeler
 				IDrawingView view = ev.View;
 				SimpleTextFigure figure = ((TableFigure)Figure).FindTextFigure (ev.X, ev.Y);
 				Gdk.EventButton gdk_event = ev.GdkEvent as EventButton;
-				
-				if (figure != null && view.IsFigureSelected (Figure) && gdk_event.Button==3) {
+
+				if (figure != null && view.IsFigureSelected (Figure) && gdk_event.Button == 3) {
 					ColumnFigure cfigure = figure is ColumnFigure ? figure as ColumnFigure : null;
-					if(cfigure!=null)
+					if (cfigure != null)
 						DelegateTool = new PopupMenuTool (Editor, cfigure, DefaultTool, DefaultTool, true);
-					} else if (figure != null && view.IsFigureSelected (Figure) && gdk_event.Button==1) {
-						if(figure is AbstractColumnFigure){
-							AbstractColumnFigure column = figure as AbstractColumnFigure;
-							DelegateTool = new ColumnTextTool (Editor, column, DefaultTool);
-						}
-					} else {
-						DelegateTool = DefaultTool;
+				} else if (figure != null && view.IsFigureSelected (Figure) && gdk_event.Button == 1) {
+					if (figure is AbstractColumnFigure) {
+						AbstractColumnFigure column = figure as AbstractColumnFigure;
+						DelegateTool = new ColumnTextTool (Editor, column, DefaultTool);
+					}else{
+						DelegateTool = new SimpleTextTool (Editor, figure, DefaultTool);
 					}
-				if(DelegateTool!=null)
+				} else {
+					DelegateTool = DefaultTool;
+				}
+				if (DelegateTool != null)
 					DelegateTool.MouseDown (ev);
-				
-				if(figure==null){
+
+				if (figure == null) {
 					figure = ((TableFigure)Figure).FindIconTextFigure (ev.X, ev.Y);
-					if(figure!=null){
+					if (figure != null) {
 						ColumnFigure cfigure = figure is ColumnFigure ? figure as ColumnFigure : null;
 						DelegateTool = new PopupMenuTool (Editor, cfigure, DefaultTool, DefaultTool, false);
 					}
@@ -472,144 +476,142 @@ namespace MonoDevelop.Database.Modeler
 
 		public event NotifyObserverEventHandler NotifyChanged;
 
-		
+
 		//This functions works as dispatcher to correct one functions
 		//TODO: improve this implementation of data interchange to propagate changes
-		public void Update(bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality, bool changeDatatype, ColumnSchema notifierColumn)
+		public void Update (bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality, bool changeDatatype, ColumnSchema notifierColumn)
 		{
-			if(refresh){
-				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de REFRESCAR!!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:" + notifier.Model.Name);
-				refreshForeignKeys(notifier, optionality);
+			if (refresh) {
+				Console.WriteLine ("La tabla " + this.Model.Name + " ya fue Avisada de REFRESCAR!!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:" + notifier.Model.Name);
+				refreshForeignKeys (notifier, optionality);
+			} else if (changeConnection)
+				Console.WriteLine ("La tabla " + this.Model.Name + " ya fue Avisada de CAMBIO DE CONEXION!!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:" + notifier.Model.Name); else if (changeDatatype) {
+				changeFkColumnDatatype (notifierColumn);
+				Console.WriteLine ("La tabla " + this.Model.Name + " ya fue Avisada de Cambio de tipo de dato en columna !!!!!!!!!!!!!!!!!!!!!!!!!!!" + notifierColumn.Name);
+			} else if (!changeConnection && !refresh && !changeDatatype) {
+				Console.WriteLine ("La tabla " + this.Model.Name + " ya fue Avisada de ELIMINAR FK !!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:" + notifier.Model.Name);
 			}
-			else if(changeConnection)
-				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de CAMBIO DE CONEXION!!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:"+ notifier.Model.Name);
-			else if(changeDatatype){
-				changeFkColumnDatatype(notifierColumn);
-				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de Cambio de tipo de dato en columna !!!!!!!!!!!!!!!!!!!!!!!!!!!"+ notifierColumn.Name);
-			}
-			else if(!changeConnection && !refresh && !changeDatatype){
-				Console.WriteLine("La tabla "+this.Model.Name+" ya fue Avisada de ELIMINAR FK !!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:"+ notifier.Model.Name);
-			}
-			
-		}		
-		
-		public void changeFkColumnDatatype(ColumnSchema newColumn){
-			foreach(AbstractColumnFigure cf in Model.columns){
-				if(cf is ColumnFkFigure){
-					if((cf as ColumnFkFigure).sameForeignKey(newColumn.Parent.Name,newColumn.Name)){
+
+		}
+
+		public void changeFkColumnDatatype (ColumnSchema newColumn)
+		{
+			foreach (AbstractColumnFigure cf in Model.columns) {
+				if (cf is ColumnFkFigure) {
+					if ((cf as ColumnFkFigure).sameForeignKey (newColumn.Parent.Name, newColumn.Name)) {
 						cf.ColumnModel.DataTypeName = newColumn.DataTypeName;
 						(cf as ColumnFkFigure).fkDataType = newColumn.DataType;
-						cf.Text = (cf as ColumnFkFigure).originalColumnName+ "_" + (cf as ColumnFkFigure).originalTableName+ "_fk";  //to force redraw of column name
+						cf.Text = (cf as ColumnFkFigure).originalColumnName + "_" + (cf as ColumnFkFigure).originalTableName + "_fk";
+						//to force redraw of column name
 					}
 				}
 			}
 		}
-		
-		public void refreshForeignKeys(TableFigure sourceFk, kindOptionality optionality){
-			PrimaryKeyConstraintSchema fkConsColumns=null;
+
+		public void refreshForeignKeys (TableFigure sourceFk, kindOptionality optionality)
+		{
+			PrimaryKeyConstraintSchema fkConsColumns = null;
 			//Lookup for pk at table level at reference table
-			foreach(ConstraintSchema cs in sourceFk.Model.TableSchema.Constraints){
-				if(cs is PrimaryKeyConstraintSchema){
-					fkConsColumns=cs as PrimaryKeyConstraintSchema;
+			foreach (ConstraintSchema cs in sourceFk.Model.TableSchema.Constraints) {
+				if (cs is PrimaryKeyConstraintSchema) {
+					fkConsColumns = cs as PrimaryKeyConstraintSchema;
 					break;
 				}
 			}
-			
+
 			//Lookup for pk at column level at reference table
-			if(fkConsColumns==null){
-				foreach(ColumnSchema col in sourceFk.Model.TableSchema.Columns){
+			if (fkConsColumns == null) {
+				foreach (ColumnSchema col in sourceFk.Model.TableSchema.Columns) {
 					fkConsColumns = col.Constraints.GetConstraint (ConstraintType.PrimaryKey) as PrimaryKeyConstraintSchema;
-					if(fkConsColumns!=null)
+					if (fkConsColumns != null)
 						break;
 				}
 			}
-			
-			
-			
+
+
+
 			//Add new fk(s) column to table
-			if(fkConsColumns!=null){
-				foreach(ColumnSchema colfk in fkConsColumns.Columns){
-					bool exists=false;
-					Console.WriteLine("comienzo a buscar :"+colfk.Parent.Name+"."+colfk.Name);
-					foreach(AbstractColumnFigure cf in Model.columns){
-						if(cf is ColumnFkFigure )
-						{
+			if (fkConsColumns != null) {
+				foreach (ColumnSchema colfk in fkConsColumns.Columns) {
+					bool exists = false;
+					Console.WriteLine ("comienzo a buscar :" + colfk.Parent.Name + "." + colfk.Name);
+					foreach (AbstractColumnFigure cf in Model.columns) {
+						if (cf is ColumnFkFigure) {
 							ColumnFkFigure cfk = cf as ColumnFkFigure;
-							Console.WriteLine("		NO JODA 666 COMPARO:" + cfk.originalTableName + "." + cfk.originalColumnName + " CON " + colfk.Parent.Name+"."+colfk.Name);
-							if(cfk.sameForeignKey(colfk.Parent.Name,colfk.Name)){
-								exists=true;
-								Console.WriteLine(" 		!!!!!!!!! MATCHES: " + colfk.Name);
+							Console.WriteLine ("\t\tNO JODA 666 COMPARO:" + cfk.originalTableName + "." + cfk.originalColumnName + " CON " + colfk.Parent.Name + "." + colfk.Name);
+							if (cfk.sameForeignKey (colfk.Parent.Name, colfk.Name)) {
+								exists = true;
+								Console.WriteLine (" \t\t!!!!!!!!! MATCHES: " + colfk.Name);
 							}
 						}
 					}
-					if(!exists){
-						this.AddFkConstraintColumn(colfk,optionality);
+					if (!exists) {
+						this.AddFkConstraintColumn (colfk, optionality);
 					}
 				}
 			}
-			
-		  //Remove not existing fk(s) to table
+
+			//Remove not existing fk(s) to table
 			//if(fkConsColumns!=null){
-				bool remove = true;
-				ColumnFkFigure removeCfk = null;
-				ColumnFkFigure colFigFk = null;
-				foreach(AbstractColumnFigure cf in Model.columns){
-						if(cf is ColumnFkFigure )
-						{
-						Console.WriteLine("Busco si elimino a: " + cf.ColumnModel.Name);
-							colFigFk = cf as ColumnFkFigure;
-							remove = true;
-							if(fkConsColumns!=null){
-								foreach(ColumnSchema colfk in fkConsColumns.Columns){	
-									Console.WriteLine("		Comparo con: " + colfk.Name);
-									if(colFigFk.sameForeignKey(colfk.Parent.Name,colfk.Name)){
-										remove=false;
-										Console.WriteLine("			No la debo remover tiene columna en el fkconstraint " + colfk.Name);
-									}
-								}
+			bool @remove = true;
+			ColumnFkFigure removeCfk = null;
+			ColumnFkFigure colFigFk = null;
+			foreach (AbstractColumnFigure cf in Model.columns) {
+				if (cf is ColumnFkFigure) {
+					Console.WriteLine ("Busco si elimino a: " + cf.ColumnModel.Name);
+					colFigFk = cf as ColumnFkFigure;
+					@remove = true;
+					if (fkConsColumns != null) {
+						foreach (ColumnSchema colfk in fkConsColumns.Columns) {
+							Console.WriteLine ("\t\tComparo con: " + colfk.Name);
+							if (colFigFk.sameForeignKey (colfk.Parent.Name, colfk.Name)) {
+								@remove = false;
+								Console.WriteLine ("\t\t\tNo la debo remover tiene columna en el fkconstraint " + colfk.Name);
 							}
-							if(remove){
-								removeCfk=colFigFk;
-								Console.WriteLine("PORQ ENTRO AQUI CON: " + colFigFk.originalColumnName +"   " + colFigFk.ColumnModel.Name);
-								}
 						}
+					}
+					if (@remove) {
+						removeCfk = colFigFk;
+						Console.WriteLine ("PORQ ENTRO AQUI CON: " + colFigFk.originalColumnName + "   " + colFigFk.ColumnModel.Name);
+					}
 				}
-				
-				if(removeCfk!=null){
-					Console.WriteLine("Mando a eliminar "+removeCfk.originalTableName+"."+removeCfk.originalColumnName);
-					this.removeFkConstraintColumn(removeCfk);
-				}
+			}
+
+			if (removeCfk != null) {
+				Console.WriteLine ("Mando a eliminar " + removeCfk.originalTableName + "." + removeCfk.originalColumnName);
+				this.removeFkConstraintColumn (removeCfk);
+			}
 			//}
-			
-		}
-		
-		public void UpdateOptionalityFk(TableModel sourceTable, kindOptionality optionality){
-			Model.UpdateOptionalityFk(sourceTable ,optionality);		
+
 		}
 
-		public void AddObserver(IRelationshipObserver observer)
+		public void UpdateOptionalityFk (TableModel sourceTable, kindOptionality optionality)
+		{
+			Model.UpdateOptionalityFk (sourceTable, optionality);
+		}
+
+		public void AddObserver (IRelationshipObserver observer)
 		{
 			this.NotifyChanged += observer.Update;
 		}
 
-		public void RemoveObserver(IRelationshipObserver observer)
+		public void RemoveObserver (IRelationshipObserver observer)
 		{
 			this.NotifyChanged -= observer.Update;
 		}
-		
-		public void RefreshRelationships(bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality, bool changeDatatype, ColumnSchema notifierColumn)
+
+		public void RefreshRelationships (bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality, bool changeDatatype, ColumnSchema notifierColumn)
 		{
-			if(refresh && changeConnection)
+			if (refresh && changeConnection)
 				throw new NotImplementedException ();
-			
-			if(NotifyChanged!=null)
-			{
-				NotifyChanged(refresh,changeConnection, notifier, optionality,changeDatatype,notifierColumn);
+
+			if (NotifyChanged != null) {
+				NotifyChanged (refresh, changeConnection, notifier, optionality, changeDatatype, notifierColumn);
 			}
 		}
-				
-		
-		
+
+
+
 		//todo: eliminate variables redundancy later and fix visibility
 		private List<IHandle> _handles;
 		private TableModel _tableModel;
