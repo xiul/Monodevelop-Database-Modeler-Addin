@@ -99,7 +99,7 @@ namespace MonoDevelop.Database.Modeler
 		{
 
 			//TableSchema newSchema;
-			tableName = name;
+			modelTableName = name;
 			//TODO: remove this attribute use table model
 			newTable = create;
 			alteredTable = false;
@@ -160,9 +160,9 @@ namespace MonoDevelop.Database.Modeler
 		{
 			List<ColumnFkFigure> items = new List<ColumnFkFigure> ();
 			ForeignKeyConstraintSchema fkc = new ForeignKeyConstraintSchema (source.TableSchema.SchemaProvider);
-			//TableSchema.Constraints.Add (fkc);
 			fkc.ReferenceTableName = source.Name;
 			fkc.ReferenceTable = source.TableSchema;
+			fkc.Name = source.Name + "_" + TableSchema.Name + "_fk";
 			foreach (ColumnFigure col in source.columns) {
 				if (col.PrimaryKey) {
 					ColumnSchema fkCol = new ColumnSchema (col.ColumnModel);
@@ -181,11 +181,12 @@ namespace MonoDevelop.Database.Modeler
 					else
 						fkCol.IsNullable=true;
 					fkc.Columns.Add (fkCol);
+					TableSchema.Columns.Add (fkCol);
 					fkc.ReferenceColumns.Add (col.ColumnModel);
+					Console.WriteLine("NO JODA 555 666 CREE Fk figure con:" + " Tabla: "+(col.ColumnModel.Parent as TableSchema).Name +"." +col.ColumnModel.Name);
 					ColumnFkFigure fk = new ColumnFkFigure (fkCol, FigureOwner, col.ColumnModel.Name , (col.ColumnModel.Parent as TableSchema).Name);
 					this.columns.Add (fk);
 					items.Add (fk);
-					Console.WriteLine("NO JODA 555 666:" + source.Name + " Tabla: "+ (col.ColumnModel.Parent as TableSchema).Name);
 				}
 			}
 			if(fkc.Columns.Count > 0){
@@ -207,7 +208,9 @@ namespace MonoDevelop.Database.Modeler
 				if(fkc==null){
 				   	fkc = new ForeignKeyConstraintSchema ((sourceCol.Parent as TableSchema).SchemaProvider);
 					fkc.ReferenceTableName = (sourceCol.Parent as TableSchema).Name;
-					fkc.ReferenceTable = (sourceCol.Parent as TableSchema);					
+					fkc.ReferenceTable = (sourceCol.Parent as TableSchema);
+					fkc.Name = (sourceCol.Parent as TableSchema).Name + "_" + TableSchema.Name + "_fk";
+					TableSchema.Constraints.Add(fkc);
 				}
 				ColumnSchema fkCol = new ColumnSchema(sourceCol);
 				if(optionality==kindOptionality.optional)
@@ -224,12 +227,58 @@ namespace MonoDevelop.Database.Modeler
 				fkCol.Name = fkCol.Name + "_" + (sourceCol.Parent as TableSchema).Name + "_fk"; //TODO: should be checked that this name doesn't exists at table yet
 				fkCol.Parent = TableSchema;
 				fkc.Columns.Add (fkCol);
+				TableSchema.Columns.Add (fkCol);
 				fkc.ReferenceColumns.Add (sourceCol);
 				ColumnFkFigure fk = new ColumnFkFigure (fkCol, FigureOwner, sourceCol.Name, (sourceCol.Parent as TableSchema).Name);
 				this.columns.Add (fk);
 				return fk;
 			}
 			return null;
+		}
+		//column.originalTableName,column.originalColumnName
+		public void removeFkConstraintColumn(ColumnFkFigure fkFigure)
+		{
+				ForeignKeyConstraintSchema fkc = null;
+				ColumnSchema colFk=null;
+				//Lookup for constraint containing column to remove from FK
+				int pos = -1;
+			
+				foreach(ConstraintSchema cs in TableSchema.Constraints){
+					if(cs is ForeignKeyConstraintSchema && (cs as ForeignKeyConstraintSchema).ReferenceTableName==fkFigure.originalTableName){
+						fkc = (cs as ForeignKeyConstraintSchema);
+						Console.WriteLine("Tengo reference Table: " + fkc.ReferenceTableName);
+						foreach(ColumnSchema col in fkc.ReferenceColumns){
+						Console.WriteLine("Busco: "+fkFigure.originalTableName+"."+ fkFigure.originalColumnName+" Tengo " +(cs as ForeignKeyConstraintSchema).ReferenceTableName +"."+col.Name);
+							if(col.Name==fkFigure.originalColumnName){
+								pos = fkc.ReferenceColumns.IndexOf(col);
+								colFk = fkc.Columns[pos];
+								Console.WriteLine("Eliminando: "+fkFigure.originalTableName+"."+ fkFigure.originalColumnName);
+							}
+						}
+					}
+				}
+				
+				if(pos>=0){
+					fkc.Columns.RemoveAt(pos);
+					fkc.ReferenceColumns.RemoveAt(pos);
+					TableSchema.Columns.Remove (colFk);
+					this.columns.Remove(fkFigure);
+				
+				Console.WriteLine();
+				Console.WriteLine();	
+				Console.WriteLine("Mande a quitar la columna que era fk: " + fkFigure.Text);
+					foreach(AbstractColumnFigure cf in this.columns){
+					if(cf is ColumnFkFigure )	
+						Console.WriteLine("		%%%%%%%%%%%%%% REVISO Columns en modelo de la tabla: " + cf.ColumnModel.Name + " o "+ (cf as ColumnFkFigure).originalColumnName );
+				}
+			
+				} else
+					throw new NotImplementedException ();
+				
+				if(fkc.Columns.Count==0)
+					TableSchema.Constraints.Remove(fkc);
+			
+			System.Console.WriteLine (SchemaProvider.GetTableCreateStatement (tableSchema));
 		}
 		
 		public void UpdateOptionalityFk(TableModel sourceTable, kindOptionality optionality){
@@ -262,9 +311,9 @@ namespace MonoDevelop.Database.Modeler
 		}
 
 		public string Name {
-			get { return tableName; }
+			get { return modelTableName; }
 			set {
-				tableName = value;
+				modelTableName = value;
 				tableSchema.Name = value;
 			}
 		}
@@ -303,7 +352,7 @@ namespace MonoDevelop.Database.Modeler
 
 		private DatabaseConnectionContext tableContext;
 		private ISchemaProvider tableSchemaProvider;
-		private string tableName;
+		private string modelTableName;
 		private TableSchema tableSchema;
 		private bool newTable;
 		private bool alteredTable;

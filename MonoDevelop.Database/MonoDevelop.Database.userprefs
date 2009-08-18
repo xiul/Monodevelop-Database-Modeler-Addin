@@ -3,15 +3,13 @@
   <MonoDevelop.Ide.DebuggingService>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService>
-  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Figures/ColumnFigure.cs" ctype="Workbench">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Logic/TableModel.cs" ctype="Workbench">
     <Files>
-      <File FileName="MonoDevelop.Database.Modeler/Figures/ColumnFigure.cs" Line="197" Column="30" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" Line="321" Column="28" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="514" Column="13" />
-      <File FileName="MonoDevelop.Database.Modeler/Logic/TableModel.cs" Line="199" Column="11" />
-      <File FileName="MonoDevelop.Database.Modeler/Logic/DatabaseModel.cs" Line="57" Column="5" />
-      <File FileName="MonoDevelop.Database.Modeler/Logic/modelController.cs" Line="65" Column="26" />
-      <File FileName="MonoDevelop.Database.Modeler/Canvas/ModelerCanvasWidget.cs" Line="155" Column="28" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/ColumnFigure.cs" Line="227" Column="24" />
+      <File FileName="MonoDevelop.Database.Modeler/Logic/TableModel.cs" Line="252" Column="81" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="301" Column="85" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" Line="239" Column="37" />
+      <File FileName="MonoDevelop.Database.Modeler/Logic/DatabaseModel.cs" Line="44" Column="44" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -19,10 +17,10 @@
           <Node name="MonoDevelop.Database.Modeler" expanded="True">
             <Node name="Canvas" expanded="True" />
             <Node name="Commands" expanded="True" />
-            <Node name="Figures" expanded="True">
-              <Node name="ColumnFigure.cs" selected="True" />
+            <Node name="Figures" expanded="True" />
+            <Node name="Logic" expanded="True">
+              <Node name="TableModel.cs" selected="True" />
             </Node>
-            <Node name="Logic" expanded="True" />
           </Node>
         </State>
       </Pad>
