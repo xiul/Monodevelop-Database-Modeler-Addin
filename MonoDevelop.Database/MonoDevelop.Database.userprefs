@@ -3,14 +3,14 @@
   <MonoDevelop.Ide.DebuggingService>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService>
-  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Figures/ColumnFigure.cs" ctype="Workbench">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" ctype="Workbench">
     <Files>
-      <File FileName="MonoDevelop.Database.Modeler/Figures/ColumnFigure.cs" Line="424" Column="58" />
-      <File FileName="MonoDevelop.Database.Modeler/Logic/TableModel.cs" Line="308" Column="23" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="309" Column="1" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/ColumnFigure.cs" Line="44" Column="30" />
+      <File FileName="MonoDevelop.Database.Modeler/Logic/TableModel.cs" Line="311" Column="7" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="314" Column="29" />
       <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" Line="52" Column="1" />
       <File FileName="MonoDevelop.Database.Modeler/Logic/DatabaseModel.cs" Line="44" Column="3" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/ButtonHandle.cs" Line="203" Column="8" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/ButtonHandle.cs" Line="252" Column="23" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -19,7 +19,7 @@
             <Node name="Canvas" expanded="True" />
             <Node name="Commands" expanded="True" />
             <Node name="Figures" expanded="True">
-              <Node name="ColumnFigure.cs" selected="True" />
+              <Node name="TableFigure.cs" selected="True" />
             </Node>
             <Node name="Logic" expanded="True" />
           </Node>

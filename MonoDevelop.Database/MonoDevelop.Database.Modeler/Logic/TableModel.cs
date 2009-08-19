@@ -319,11 +319,17 @@ namespace MonoDevelop.Database.Modeler
 				columnSchema.DataTypeName = storeTypes.Keys[0];
 				newColumn = new ColumnFigure (columnSchema, storeTypes, owner);
 				columns.Add (newColumn);
-				tableSchema.Columns.Add (columnSchema);
+				TableSchema.Columns.Add (columnSchema);
 			} else {
 				throw new NotImplementedException ();
 			}
 			return newColumn;
+		}
+		
+		public void removeColumn(AbstractColumnFigure column){
+			//TODO: remove all related stuff to column like Fk, Pk constraint, etc.
+			TableSchema.Columns.Remove(column.ColumnModel);
+			columns.Remove(column);
 		}
 		
 		//TODO: shouldn't allow this kind of access... must protected which kind of files to store in collections

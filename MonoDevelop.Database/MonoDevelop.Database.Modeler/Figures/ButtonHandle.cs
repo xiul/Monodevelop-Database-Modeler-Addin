@@ -249,7 +249,7 @@ namespace MonoDevelop.Database.Modeler
 					f.addNewColumn();
 				}
 				if (_locator is ColumnRemoveLocator){
-					f.removeColumn();
+					f.activateRemoveColumn();
 				}
 			}
 		}

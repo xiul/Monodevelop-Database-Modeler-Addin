@@ -309,9 +309,16 @@ namespace MonoDevelop.Database.Modeler
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
 
-		public void removeColumn(){
-				selectionColumnMode = true;
+		public void activateRemoveColumn(){
+				selectionColumnMode = !selectionColumnMode;
 		}
+		
+		public void removeColumn(AbstractColumnFigure column){
+			Model.removeColumn(column);
+			this.Remove(column);
+			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
+		}
+		
 		
 		//This is useful for?
 		public override RectangleD InvalidateDisplayBox {
@@ -459,7 +466,7 @@ namespace MonoDevelop.Database.Modeler
 			public TableTextFigureTool (IDrawingEditor editor, IFigure fig, ITool dt) : base(editor, fig, dt)
 			{
 			}
-
+			
 			public override void MouseDown (MouseEvent ev)
 			{
 				IDrawingView view = ev.View;
@@ -473,10 +480,11 @@ namespace MonoDevelop.Database.Modeler
 				} else if (figure != null && view.IsFigureSelected (Figure) && gdk_event.Button == 1) {
 					if (figure is AbstractColumnFigure) {
 						AbstractColumnFigure column = figure as AbstractColumnFigure;
-						if(((TableFigure)Figure).SelectionMode){
-							Console.WriteLine("Debo borrar la columna: " + column.ColumnModel.Name);
+						if(((TableFigure)Figure).SelectionMode && !(column is ColumnFkFigure)){
+							if(MonoDevelop.Core.Gui.MessageService.Confirm("Do you like to delete column: "+column.ColumnModel.Name+ " from table: "+column.ColumnModel.Parent.Name+"?", MonoDevelop.Core.Gui.AlertButton.Remove)){
+								((TableFigure)Figure).removeColumn(column);
+							}
 							((TableFigure)Figure).SelectionMode = false;
-								//TODO: 666 implement this
 						}else{
 							DelegateTool = new ColumnTextTool (Editor, column, DefaultTool);
 						}
@@ -496,6 +504,7 @@ namespace MonoDevelop.Database.Modeler
 						DelegateTool = new PopupMenuTool (Editor, cfigure, DefaultTool, DefaultTool, false);
 					}
 				}
+			base.MouseDown (ev);
 			}
 		}
 
