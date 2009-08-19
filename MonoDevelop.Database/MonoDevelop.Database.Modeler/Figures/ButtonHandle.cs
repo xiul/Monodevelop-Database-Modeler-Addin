@@ -37,12 +37,34 @@ using MonoHotDraw;
 
 namespace MonoDevelop.Database.Modeler
 {
+	
+	public enum kindButton
+	{
+		InverseTriangle,
+		PlusSymbol
+	}
+	
+	public class ColumnAddLocator : ILocator
+	{
+		public ColumnAddLocator ()
+		{
+		}
+		
+		public PointD Locate (IFigure owner)
+		{
+			if (owner != null) {
+				TableFigure ownerTable = (TableFigure)owner;
+				return new PointD ((ownerTable.DisplayBox.X + ownerTable.DisplayBox.Width - 8), (ownerTable.DisplayBox.Y + 6));
+			}
+			return new PointD (0, 0);
+		}
+	}
+	
 	public class IndexLocator : ILocator
 	{
 
 		public IndexLocator ()
 		{
-
 		}
 
 		public PointD Locate (IFigure owner)
@@ -61,7 +83,6 @@ namespace MonoDevelop.Database.Modeler
 
 		public TriggerLocator ()
 		{
-
 		}
 
 		public PointD Locate (IFigure owner)
@@ -77,10 +98,11 @@ namespace MonoDevelop.Database.Modeler
 
 	public class ButtonHandle : AbstractHandle
 	{
-		public ButtonHandle (IFigure owner, ILocator locator) : base(owner)
+		public ButtonHandle (IFigure owner, ILocator locator, kindButton type) : base(owner)
 		{
 			_locator = locator;
 			_clicked = false;
+			typeButton = type;
 		}
 
 		public override Gdk.Cursor CreateCursor ()
@@ -98,26 +120,54 @@ namespace MonoDevelop.Database.Modeler
 
 		public override void Draw (Context context)
 		{
+			
 			context.Save();
-			context.LineWidth = LineWidth;
-			if (!_clicked) {
-				context.MoveTo (DisplayBox.TopLeft);
-				context.LineTo (DisplayBox.TopRight);
-				double middlePoint = Math.Abs (DisplayBox.BottomLeft.X - DisplayBox.BottomRight.X) / 2;
-				context.LineTo (DisplayBox.BottomLeft.X + middlePoint, DisplayBox.BottomLeft.Y);
-				context.LineTo (DisplayBox.TopLeft);
-			} else {
-				context.MoveTo (DisplayBox.TopLeft);
-				context.LineTo (DisplayBox.BottomLeft);
-				double middlePoint = Math.Abs (DisplayBox.TopRight.Y - DisplayBox.BottomRight.Y) / 2;
-				context.LineTo (DisplayBox.BottomRight.X, DisplayBox.TopRight.Y + middlePoint);
-				context.LineTo (DisplayBox.TopLeft);
-
+			if(typeButton==kindButton.InverseTriangle){
+				context.LineWidth = LineWidth;
+				if (!_clicked) {
+					context.MoveTo (DisplayBox.TopLeft);
+					context.LineTo (DisplayBox.TopRight);
+					double middlePoint = Math.Abs (DisplayBox.BottomLeft.X - DisplayBox.BottomRight.X) / 2;
+					context.LineTo (DisplayBox.BottomLeft.X + middlePoint, DisplayBox.BottomLeft.Y);
+					context.LineTo (DisplayBox.TopLeft);
+				} else {
+					context.MoveTo (DisplayBox.TopLeft);
+					context.LineTo (DisplayBox.BottomLeft);
+					double middlePoint = Math.Abs (DisplayBox.TopRight.Y - DisplayBox.BottomRight.Y) / 2;
+					context.LineTo (DisplayBox.BottomRight.X, DisplayBox.TopRight.Y + middlePoint);
+					context.LineTo (DisplayBox.TopLeft);
+	
+				}
+				context.Color = FillColor;
+				context.FillPreserve ();
+				context.Color = LineColor;
+				context.Stroke ();
 			}
-			context.Color = FillColor;
-			context.FillPreserve ();
-			context.Color = LineColor;
-			context.Stroke ();
+			else if(typeButton==kindButton.PlusSymbol)
+			{
+					//TODO: create real figure :D
+					context.LineWidth = LineWidth;
+					Cairo.PointD tl=new Cairo.PointD(DisplayBox.TopLeft.X+1,DisplayBox.TopLeft.Y+1);
+					Cairo.PointD tr=new Cairo.PointD(DisplayBox.TopRight.X-1,DisplayBox.TopRight.Y+1);
+					Cairo.PointD bl=new Cairo.PointD(DisplayBox.BottomLeft.X+1,DisplayBox.BottomLeft.Y-1);
+					Cairo.PointD br=new Cairo.PointD(DisplayBox.BottomRight.X-1,DisplayBox.BottomRight.Y-1);
+					context.MoveTo (tl);
+					context.LineTo (bl);
+					context.LineTo (br);
+					context.LineTo (tr);
+					context.LineTo (tl);
+					context.Color = new Cairo.Color(147,112,219);
+					context.FillPreserve ();
+					context.Color = LineColor;
+					context.Stroke ();
+					context.LineWidth = context.LineWidth - 0.2;
+					context.MoveTo (tl.X+(tr.X-tl.X)/2,tl.Y);	//middleTop
+					context.LineTo (bl.X+(br.X-bl.X)/2,bl.Y);	//middleBottom
+					context.Stroke ();
+					context.MoveTo (tl.X,tl.Y+(bl.Y-tl.Y)/2);	//middleLeft
+					context.LineTo (tr.X,tr.Y+(br.Y-tr.Y)/2);	//middleRight
+					context.Stroke ();
+			}
 			context.Restore();
 		}
 
@@ -154,6 +204,9 @@ namespace MonoDevelop.Database.Modeler
 						f.showTriggers = true;
 					}
 				}
+				if (_locator is ColumnAddLocator){
+					f.addNewColumn();
+				}
 			}
 		}
 
@@ -177,6 +230,7 @@ namespace MonoDevelop.Database.Modeler
 
 		private ILocator _locator;
 		private bool _clicked;
+		private kindButton typeButton;
 	}
 
 }

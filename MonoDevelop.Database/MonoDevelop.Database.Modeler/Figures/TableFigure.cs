@@ -301,6 +301,12 @@ namespace MonoDevelop.Database.Modeler
 			this.Remove (column);
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
+		
+		public void addNewColumn(){
+			ColumnFigure f = Model.addNewColumn();
+			this.Add (f);
+			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
+		}
 
 		//This is useful for?
 		public override RectangleD InvalidateDisplayBox {
@@ -381,8 +387,9 @@ namespace MonoDevelop.Database.Modeler
 		private void InitializeHandles ()
 		{
 			_handles = new List<IHandle> ();
-			_handles.Add (new ButtonHandle (this, new IndexLocator ()));
-			_handles.Add (new ButtonHandle (this, new TriggerLocator ()));
+			_handles.Add (new ButtonHandle (this, new IndexLocator (),kindButton.InverseTriangle));
+			_handles.Add (new ButtonHandle (this, new TriggerLocator (),kindButton.InverseTriangle));
+			_handles.Add (new ButtonHandle (this, new ColumnAddLocator (),kindButton.PlusSymbol));
 		}
 
 

@@ -392,7 +392,7 @@ namespace MonoDevelop.Database.Modeler
 					}
 				}else{ //Add this column because don't belong yet
 					primaryKey = true;
-					Console.WriteLine("Add a table level this column " + pkTemp.Columns.Count );
+					Console.WriteLine("Addforce a table level this column " + pkTemp.Columns.Count );
 					pkTemp.Columns.Add (ColumnModel);
 					pkTemp = null;
 				}
@@ -433,6 +433,7 @@ namespace MonoDevelop.Database.Modeler
 			foreach(IFigure f in (tableFigureOwner as TableFigure).FiguresEnumerator){
 				Console.WriteLine("TIPO: " + f.GetType());
 			}
+			
 			//TODO: fix when multiple fk between same tables
 			if(tableFigureOwner is TableFigure){
 				 //TODO: VERY IMPORTANT KIND OPTIONALITY IS RIGHT NOW FIXED, FIND A WAY OF GET REAL VALUE

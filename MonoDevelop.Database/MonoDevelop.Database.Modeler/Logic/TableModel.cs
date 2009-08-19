@@ -109,7 +109,7 @@ namespace MonoDevelop.Database.Modeler
 			Initialize ();
 			//Add a first column
 			if (create) {
-				ColumnSchema columnSchema = new ColumnSchema (schemaProvider, tableSchema, "newColumn");
+				ColumnSchema columnSchema = new ColumnSchema (tableSchemaProvider, tableSchema, "newColumn");
 				if (storeTypes.Count > 0) {
 					columnSchema.DataTypeName = storeTypes.Keys[0];
 					columns.Add (new ColumnFigure (columnSchema, storeTypes, null));
@@ -296,6 +296,35 @@ namespace MonoDevelop.Database.Modeler
 
 		}
 		
+		public ColumnFigure addNewColumn(){
+				const string initialName="newColumn";
+				string usedName=initialName;
+				int number=1;
+				bool canUseit;
+				do{
+					canUseit=true;
+					foreach(ColumnSchema cs in TableSchema.Columns){
+						if (cs.Name.ToLower().CompareTo(usedName.ToLower())==0){
+							canUseit=false;
+							usedName=initialName+number;
+							number++;
+							break;
+						}
+					}
+				}while(!canUseit);
+
+			ColumnSchema columnSchema = new ColumnSchema (tableSchemaProvider, tableSchema, usedName);
+			ColumnFigure newColumn = null;
+			if (storeTypes.Count > 0) {
+				columnSchema.DataTypeName = storeTypes.Keys[0];
+				newColumn = new ColumnFigure (columnSchema, storeTypes, null);
+				columns.Add (newColumn);
+				tableSchema.Columns.Add (columnSchema);
+			} else {
+				throw new NotImplementedException ();
+			}
+			return newColumn;
+		}
 		
 		//TODO: shouldn't allow this kind of access... must protected which kind of files to store in collections
 		public ArrayList columns {
