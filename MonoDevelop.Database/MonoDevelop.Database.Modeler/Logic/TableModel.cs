@@ -296,7 +296,7 @@ namespace MonoDevelop.Database.Modeler
 
 		}
 		
-		public ColumnFigure addNewColumn(){
+		public ColumnFigure addNewColumn(IFigure owner){
 				const string initialName="newColumn";
 				string usedName=initialName;
 				int number=1;
@@ -317,7 +317,7 @@ namespace MonoDevelop.Database.Modeler
 			ColumnFigure newColumn = null;
 			if (storeTypes.Count > 0) {
 				columnSchema.DataTypeName = storeTypes.Keys[0];
-				newColumn = new ColumnFigure (columnSchema, storeTypes, null);
+				newColumn = new ColumnFigure (columnSchema, storeTypes, owner);
 				columns.Add (newColumn);
 				tableSchema.Columns.Add (columnSchema);
 			} else {

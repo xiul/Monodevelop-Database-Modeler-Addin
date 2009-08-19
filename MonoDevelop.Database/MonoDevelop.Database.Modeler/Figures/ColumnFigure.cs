@@ -428,7 +428,7 @@ namespace MonoDevelop.Database.Modeler
 					throw new NotImplementedException ();
 				}
 			}
-			
+
 			Console.WriteLine("Tipos dentro de la figura");
 			foreach(IFigure f in (tableFigureOwner as TableFigure).FiguresEnumerator){
 				Console.WriteLine("TIPO: " + f.GetType());

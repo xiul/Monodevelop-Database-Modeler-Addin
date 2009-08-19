@@ -68,6 +68,7 @@ namespace MonoDevelop.Database.Modeler
 			_height = 100;
 			_showingTriggers = false;
 			_showingIndexes = false;
+			selectionColumnMode = false;
 			populateTable ();
 			syncFigureMetrics ();
 			iconsWidth = IconFactory.GetIcon ("Resources.primarykey.png").Width * 2;
@@ -303,11 +304,15 @@ namespace MonoDevelop.Database.Modeler
 		}
 		
 		public void addNewColumn(){
-			ColumnFigure f = Model.addNewColumn();
+			ColumnFigure f = Model.addNewColumn(this);
 			this.Add (f);
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
 
+		public void removeColumn(){
+				selectionColumnMode = true;
+		}
+		
 		//This is useful for?
 		public override RectangleD InvalidateDisplayBox {
 			get {
@@ -390,6 +395,7 @@ namespace MonoDevelop.Database.Modeler
 			_handles.Add (new ButtonHandle (this, new IndexLocator (),kindButton.InverseTriangle));
 			_handles.Add (new ButtonHandle (this, new TriggerLocator (),kindButton.InverseTriangle));
 			_handles.Add (new ButtonHandle (this, new ColumnAddLocator (),kindButton.PlusSymbol));
+			_handles.Add (new ButtonHandle (this, new ColumnRemoveLocator (),kindButton.LessSymbol));
 		}
 
 
@@ -437,6 +443,12 @@ namespace MonoDevelop.Database.Modeler
 			set { _tableModel = value; }
 		}
 
+		public bool SelectionMode {
+			get { return selectionColumnMode; }
+			set { selectionColumnMode=value; }
+		}
+		
+		
 		/*
 		 * Text Editor Figure Tool for Columns
 		 */
@@ -461,7 +473,13 @@ namespace MonoDevelop.Database.Modeler
 				} else if (figure != null && view.IsFigureSelected (Figure) && gdk_event.Button == 1) {
 					if (figure is AbstractColumnFigure) {
 						AbstractColumnFigure column = figure as AbstractColumnFigure;
-						DelegateTool = new ColumnTextTool (Editor, column, DefaultTool);
+						if(((TableFigure)Figure).SelectionMode){
+							Console.WriteLine("Debo borrar la columna: " + column.ColumnModel.Name);
+							((TableFigure)Figure).SelectionMode = false;
+								//TODO: 666 implement this
+						}else{
+							DelegateTool = new ColumnTextTool (Editor, column, DefaultTool);
+						}
 					}else{
 						DelegateTool = new SimpleTextTool (Editor, figure, DefaultTool);
 					}
@@ -629,6 +647,7 @@ namespace MonoDevelop.Database.Modeler
 		private SimpleTextFigure _tableName, _triggerLabel, _indexLabel;
 		private bool _showingTriggers, _showingIndexes;
 		private double iconsWidth;
+		private bool selectionColumnMode;
 
 
 	}

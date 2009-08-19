@@ -41,8 +41,27 @@ namespace MonoDevelop.Database.Modeler
 	public enum kindButton
 	{
 		InverseTriangle,
-		PlusSymbol
+		PlusSymbol,
+		LessSymbol
 	}
+	
+	
+	public class ColumnRemoveLocator : ILocator
+	{
+		public ColumnRemoveLocator ()
+		{
+		}
+		
+		public PointD Locate (IFigure owner)
+		{
+			if (owner != null) {
+				TableFigure ownerTable = (TableFigure)owner;
+				return new PointD ((ownerTable.DisplayBox.X + ownerTable.DisplayBox.Width - 18), (ownerTable.DisplayBox.Y + 6));
+			}
+			return new PointD (0, 0);
+		}
+	}
+	
 	
 	public class ColumnAddLocator : ILocator
 	{
@@ -145,7 +164,7 @@ namespace MonoDevelop.Database.Modeler
 			}
 			else if(typeButton==kindButton.PlusSymbol)
 			{
-					//TODO: create real figure :D
+					//TODO: create better figure
 					context.LineWidth = LineWidth;
 					Cairo.PointD tl=new Cairo.PointD(DisplayBox.TopLeft.X+1,DisplayBox.TopLeft.Y+1);
 					Cairo.PointD tr=new Cairo.PointD(DisplayBox.TopRight.X-1,DisplayBox.TopRight.Y+1);
@@ -167,6 +186,28 @@ namespace MonoDevelop.Database.Modeler
 					context.MoveTo (tl.X,tl.Y+(bl.Y-tl.Y)/2);	//middleLeft
 					context.LineTo (tr.X,tr.Y+(br.Y-tr.Y)/2);	//middleRight
 					context.Stroke ();
+			}
+			else if(typeButton==kindButton.LessSymbol)
+			{
+					//TODO: create better figure
+					context.LineWidth = LineWidth;
+					Cairo.PointD tl=new Cairo.PointD(DisplayBox.TopLeft.X+1,DisplayBox.TopLeft.Y+1);
+					Cairo.PointD tr=new Cairo.PointD(DisplayBox.TopRight.X-1,DisplayBox.TopRight.Y+1);
+					Cairo.PointD bl=new Cairo.PointD(DisplayBox.BottomLeft.X+1,DisplayBox.BottomLeft.Y-1);
+					Cairo.PointD br=new Cairo.PointD(DisplayBox.BottomRight.X-1,DisplayBox.BottomRight.Y-1);
+					context.MoveTo (tl);
+					context.LineTo (bl);
+					context.LineTo (br);
+					context.LineTo (tr);
+					context.LineTo (tl);
+					context.Color = new Cairo.Color(147,112,219);
+					context.FillPreserve ();
+					context.Color = LineColor;
+					context.Stroke ();
+					context.MoveTo (tl.X,tl.Y+(bl.Y-tl.Y)/2);	//middleLeft
+					context.LineTo (tr.X,tr.Y+(br.Y-tr.Y)/2);	//middleRight
+					context.Stroke ();
+				
 			}
 			context.Restore();
 		}
@@ -206,6 +247,9 @@ namespace MonoDevelop.Database.Modeler
 				}
 				if (_locator is ColumnAddLocator){
 					f.addNewColumn();
+				}
+				if (_locator is ColumnRemoveLocator){
+					f.removeColumn();
 				}
 			}
 		}

@@ -3,13 +3,14 @@
   <MonoDevelop.Ide.DebuggingService>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService>
-  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Logic/TableModel.cs" ctype="Workbench">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MonoDevelop.Database.Modeler/Figures/ColumnFigure.cs" ctype="Workbench">
     <Files>
-      <File FileName="MonoDevelop.Database.Modeler/Figures/ColumnFigure.cs" Line="227" Column="24" />
-      <File FileName="MonoDevelop.Database.Modeler/Logic/TableModel.cs" Line="252" Column="81" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="301" Column="85" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" Line="239" Column="37" />
-      <File FileName="MonoDevelop.Database.Modeler/Logic/DatabaseModel.cs" Line="44" Column="44" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/ColumnFigure.cs" Line="424" Column="58" />
+      <File FileName="MonoDevelop.Database.Modeler/Logic/TableModel.cs" Line="308" Column="23" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="309" Column="1" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" Line="52" Column="1" />
+      <File FileName="MonoDevelop.Database.Modeler/Logic/DatabaseModel.cs" Line="44" Column="3" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/ButtonHandle.cs" Line="203" Column="8" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -17,10 +18,10 @@
           <Node name="MonoDevelop.Database.Modeler" expanded="True">
             <Node name="Canvas" expanded="True" />
             <Node name="Commands" expanded="True" />
-            <Node name="Figures" expanded="True" />
-            <Node name="Logic" expanded="True">
-              <Node name="TableModel.cs" selected="True" />
+            <Node name="Figures" expanded="True">
+              <Node name="ColumnFigure.cs" selected="True" />
             </Node>
+            <Node name="Logic" expanded="True" />
           </Node>
         </State>
       </Pad>
