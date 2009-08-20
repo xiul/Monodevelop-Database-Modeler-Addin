@@ -7,8 +7,8 @@
     <Files>
       <File FileName="MonoDevelop.Database.Modeler/Figures/ColumnFigure.cs" Line="44" Column="30" />
       <File FileName="MonoDevelop.Database.Modeler/Logic/TableModel.cs" Line="311" Column="7" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="314" Column="29" />
-      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" Line="52" Column="1" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/TableFigure.cs" Line="343" Column="42" />
+      <File FileName="MonoDevelop.Database.Modeler/Figures/RelationshipFigure.cs" Line="102" Column="4" />
       <File FileName="MonoDevelop.Database.Modeler/Logic/DatabaseModel.cs" Line="44" Column="3" />
       <File FileName="MonoDevelop.Database.Modeler/Figures/ButtonHandle.cs" Line="252" Column="23" />
     </Files>

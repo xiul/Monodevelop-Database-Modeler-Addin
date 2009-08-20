@@ -61,15 +61,24 @@ namespace MonoDevelop.Database.Modeler
 			identifyRelationship = false;
 			optionalityRelationship = kindOptionality.optional;
 			this.ConnectionChanged+=ConnectionChangedHandler;
+			//blockUntilRelease=false;
 		}
 
 		public override bool CanConnectEnd (IFigure figure)
 		{
-			if (figure is TableFigure) {
-				if (!figure.Includes (StartFigure)) {
-					return true;
+		/*	if(blockUntilRelease){
+				DisconnectEnd();
+				DisconnectStart();
+				return false;
+			}*/
+				if((figure is TableFigure) && (StartFigure as TableFigure).SourceReadyToCreateFk() && (!figure.Includes (StartFigure))){
+						return true;
+				} else if(figure != StartFigure){
+					Invalidate();
+					/*blockUntilRelease=true;
+					MonoDevelop.Core.Gui.MessageService.ShowWarning("Is imposible to create a foreign key between this two tables because source table lacks from primary key");*/
 				}
-			}
+			
 			return false;
 		}
 
@@ -355,5 +364,6 @@ namespace MonoDevelop.Database.Modeler
 		private RelationshipLineTerminal start, end;
 		private TableFigure figStart, figEnd;
 		private ForeignKeyConstraintSchema fkConstraint;
+		//private bool blockUntilRelease;
 	}
 }

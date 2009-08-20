@@ -316,6 +316,42 @@ namespace MonoDevelop.Database.Modeler
 		public void removeColumn(AbstractColumnFigure column){
 			Model.removeColumn(column);
 			this.Remove(column);
+			bool tableLevel=false;
+			PrimaryKeyConstraintSchema pkConsColumns = null;
+			//Lookup for pk at table level at reference table
+			foreach (ConstraintSchema cs in Model.TableSchema.Constraints) {
+				if (cs is PrimaryKeyConstraintSchema) {
+					foreach(ColumnSchema col in cs.Columns){
+						if(col.Name==column.ColumnModel.Name){
+							pkConsColumns = cs as PrimaryKeyConstraintSchema;
+							tableLevel=true;
+						}
+					}
+					break;
+				}
+			}
+			//Lookup for pk at column level at reference table
+			if (pkConsColumns == null) {
+					pkConsColumns = column.ColumnModel.Constraints.GetConstraint (ConstraintType.PrimaryKey) as PrimaryKeyConstraintSchema;
+				}
+			
+			//synchronize fk,pk metadata
+			if(pkConsColumns!=null){
+				//notify tables using this column pk as fk about that change
+				if (NotifyChanged != null) {
+				NotifyChanged (true, false, this, kindOptionality.mandatory, false, null);
+				}
+				//remove constraint
+				pkConsColumns.Columns.Remove(column.ColumnModel);
+				if(pkConsColumns.Columns.Count==0){
+					if(tableLevel){
+						Model.TableSchema.Constraints.Remove(pkConsColumns);
+					}else{
+						column.ColumnModel.Constraints.Remove(pkConsColumns);
+					}
+				}
+			}
+			
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
 		
@@ -352,6 +388,34 @@ namespace MonoDevelop.Database.Modeler
 			}
 		}
 
+		public bool SourceReadyToCreateFk(){
+			
+			PrimaryKeyConstraintSchema fkConsColumns = null;
+			//Lookup for pk at table level at reference table
+			foreach (ConstraintSchema cs in Model.TableSchema.Constraints) {
+				if (cs is PrimaryKeyConstraintSchema) {
+					fkConsColumns = cs as PrimaryKeyConstraintSchema;
+					break;
+				}
+			}
+
+			//Lookup for pk at column level at reference table
+			if (fkConsColumns == null) {
+				foreach (ColumnSchema col in Model.TableSchema.Columns) {
+					fkConsColumns = col.Constraints.GetConstraint (ConstraintType.PrimaryKey) as PrimaryKeyConstraintSchema;
+					if (fkConsColumns != null)
+						break;
+				}
+			}
+
+
+
+			//Add new fk(s) column to table
+			if (fkConsColumns != null)
+				return true;
+			else
+				return false;
+		}
 
 		//todo: avoid same effort of BasicMoveBy and OnfigureChanged
 		protected override void OnFigureChanged (FigureEventArgs e)
@@ -435,10 +499,6 @@ namespace MonoDevelop.Database.Modeler
 			//Adjust X axis to get related TextFigure (Column)
 			IFigure fig = FindFigure (x + (iconsWidth / 2), y);
 			if ((fig != null) && (fig is SimpleTextFigure)) {
-				Console.WriteLine ("Icons Width=" + iconsWidth);
-				Console.WriteLine ("X=" + x);
-				Console.WriteLine ("XFig= " + fig.DisplayBox.X);
-				Console.WriteLine ("XCal=" + (x - iconsWidth));
 				return (SimpleTextFigure)fig;
 			}
 
