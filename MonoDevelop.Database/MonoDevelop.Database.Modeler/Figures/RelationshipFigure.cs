@@ -51,7 +51,7 @@ namespace MonoDevelop.Database.Modeler
 	{
 
 		public RelationshipFigure () : base()
-		{
+		{ 
 			notation = kindNotation.Barker;
 			fkConstraint=null;
 			StartTerminal = new RelationshipLineTerminal (this, 8.0, 22.0, kindRelationshipTerminal.OneOne, notation, false);

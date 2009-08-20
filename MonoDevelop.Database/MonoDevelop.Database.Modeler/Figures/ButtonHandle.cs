@@ -33,6 +33,7 @@ using MonoHotDraw.Commands;
 using MonoHotDraw.Util;
 using MonoHotDraw.Handles;
 using MonoHotDraw.Locators;
+using MonoHotDraw.Tools;
 using MonoHotDraw;
 
 namespace MonoDevelop.Database.Modeler
@@ -237,9 +238,6 @@ namespace MonoDevelop.Database.Modeler
 					context.Stroke ();
 					context.Arc(br.X,br.Y,1,0,360);
 					context.Stroke ();
-				//cr.arc(width / 2.0, height / 2.0, radius / 2.0 - 20, 0, 2 * pi)
-
-
 			}
 			context.Restore();
 		}
@@ -284,7 +282,9 @@ namespace MonoDevelop.Database.Modeler
 					f.activateRemoveColumn();
 				}
 				if (_locator is ForeignKeyLocator){
-					Console.WriteLine("666 START FOREIGN KEY RELATIONSHIP FROM: "+ f.Model.Name);
+					RelationshipFigure rel = new RelationshipFigure ();
+					f.figureCanvas.Tool = new ConnectionCreationTool (f.figureCanvas, rel);
+					f.figureCanvas.Tool.MouseDown(new MouseEvent(f.figureCanvas.View,null,new Cairo.PointD(x,y)));
 				}
 			}
 		}

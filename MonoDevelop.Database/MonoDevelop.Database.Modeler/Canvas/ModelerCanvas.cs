@@ -56,7 +56,7 @@ namespace MonoDevelop.Database.Modeler
 			this.IsViewOnly = true;
 			//Create model view-controller environment
 			View = new StandardDrawingView (this);
-			_controller = new modelController (View);
+			_controller = new modelController (View,this);
 
 			//Create database designer canvas environment
 			widget = new ModelerCanvasWidget (this, _controller);

@@ -40,16 +40,17 @@ namespace MonoDevelop.Database.Modeler
 	{
 
 		//todo: this is not really the controller just a testing class
-		public modelController (IDrawingView view)
+		public modelController (IDrawingView view, ModelerCanvas canvas)
 		{
 			this.view = view;
+			this.canvas = canvas;
 			diagram = new DatabaseModel();
 		}
 
 		public void addNewTable (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider)
 		{	//TODO: improve way of assing last parameter
 			TableModel tableModel  = new TableModel (name,context,schemaProvider,true);
-			TableFigure tableFigure = new TableFigure (tableModel);
+			TableFigure tableFigure = new TableFigure (tableModel,canvas);
 			tableModel.FigureOwner = tableFigure;
 			view.Drawing.Add (tableFigure);
 			System.Console.WriteLine("added table");
@@ -61,7 +62,7 @@ namespace MonoDevelop.Database.Modeler
 		
 		public void addTable (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider, bool create){
 			TableModel tableModel = new TableModel(name,context,schemaProvider,false);
-			TableFigure tableFigure = new TableFigure (tableModel);
+			TableFigure tableFigure = new TableFigure (tableModel,canvas);
 			tableModel.FigureOwner=tableFigure;
 			view.Drawing.Add (tableFigure);
 			System.Console.WriteLine("added table22222");
@@ -120,6 +121,7 @@ namespace MonoDevelop.Database.Modeler
 		}*/
 
 		private IDrawingView view;
+		private ModelerCanvas canvas;
 		DatabaseModel diagram;
 	//	private TableModel _model;
 		//todo: this is not really all model only 1 table

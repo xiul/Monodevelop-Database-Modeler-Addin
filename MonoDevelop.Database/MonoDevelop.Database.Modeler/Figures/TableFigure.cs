@@ -61,9 +61,10 @@ namespace MonoDevelop.Database.Modeler
 
 	public class TableFigure : CompositeFigure, IRelationshipObserver, IRelationshipNotifier
 	{
-		public TableFigure (TableModel metadata)
+		public TableFigure (TableModel metadata, ModelerCanvas ownerCanvas)
 		{
 			Model = metadata;
+			canvas = ownerCanvas;
 			_width = 100;
 			_height = 100;
 			_showingTriggers = false;
@@ -467,6 +468,7 @@ namespace MonoDevelop.Database.Modeler
 			_handles.Add (new ButtonHandle (this, new TriggerLocator (),kindButton.InverseTriangle));
 			_handles.Add (new ButtonHandle (this, new ColumnAddLocator (),kindButton.PlusSymbol));
 			_handles.Add (new ButtonHandle (this, new ColumnRemoveLocator (),kindButton.LessSymbol));
+			
 			_handles.Add (new ButtonHandle (this, new ForeignKeyLocator (),kindButton.ForeignKeySymbol));
 		}
 
@@ -705,6 +707,9 @@ namespace MonoDevelop.Database.Modeler
 			}
 		}
 
+		public ModelerCanvas figureCanvas{
+			get {return canvas;}
+		}
 
 
 		//todo: eliminate variables redundancy later and fix visibility
@@ -718,7 +723,7 @@ namespace MonoDevelop.Database.Modeler
 		private bool _showingTriggers, _showingIndexes;
 		private double iconsWidth;
 		private bool selectionColumnMode;
-
+		private ModelerCanvas canvas;
 
 	}
 
