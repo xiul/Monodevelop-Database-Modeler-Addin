@@ -44,7 +44,8 @@ namespace MonoDevelop.Database.Modeler
 		InverseTriangle,
 		PlusSymbol,
 		LessSymbol,
-		ForeignKeySymbol
+		ForeignKeySymbol,
+		RemoveSymbol
 	}
 
 	
@@ -59,6 +60,22 @@ namespace MonoDevelop.Database.Modeler
 			if (owner != null) {
 				TableFigure ownerTable = (TableFigure)owner;
 				return new PointD ((ownerTable.DisplayBox.X + ownerTable.DisplayBox.Width - 8), (ownerTable.DisplayBox.Y + 6));
+			}
+			return new PointD (0, 0);
+		}
+	}	
+	
+	public class RemoveTableLocator: ILocator
+	{
+		public RemoveTableLocator ()
+		{
+		}
+		
+		public PointD Locate (IFigure owner)
+		{
+			if (owner != null) {
+				TableFigure ownerTable = (TableFigure)owner;
+				return new PointD ((ownerTable.DisplayBox.X + ownerTable.tableNameWidth+8), (ownerTable.DisplayBox.Y + 6));
 			}
 			return new PointD (0, 0);
 		}
@@ -219,7 +236,7 @@ namespace MonoDevelop.Database.Modeler
 					context.LineTo (br);
 					context.LineTo (tr);
 					context.LineTo (tl);
-					context.Color = new Cairo.Color(147,112,219);
+					context.Color = new Cairo.Color(0.57,0.43,0.85);
 					context.FillPreserve ();
 					context.Color = LineColor;
 					context.Stroke ();
@@ -238,6 +255,19 @@ namespace MonoDevelop.Database.Modeler
 					context.Stroke ();
 					context.Arc(br.X,br.Y,1,0,360);
 					context.Stroke ();
+			}else if(typeButton==kindButton.RemoveSymbol){
+					context.LineWidth = LineWidth;
+					Cairo.PointD tl=new Cairo.PointD(DisplayBox.TopLeft.X+1,DisplayBox.TopLeft.Y+1);
+					Cairo.PointD tr=new Cairo.PointD(DisplayBox.TopRight.X-1,DisplayBox.TopRight.Y+1);
+					Cairo.PointD bl=new Cairo.PointD(DisplayBox.BottomLeft.X+1,DisplayBox.BottomLeft.Y-1);
+					Cairo.PointD br=new Cairo.PointD(DisplayBox.BottomRight.X-1,DisplayBox.BottomRight.Y-1);
+					context.Color = new Cairo.Color(1,0,0);
+					context.MoveTo (tl);
+					context.LineTo (br);
+					context.Stroke ();
+					context.MoveTo (tr);
+					context.LineTo (bl);
+					context.Stroke ();
 			}
 			context.Restore();
 		}
@@ -248,7 +278,7 @@ namespace MonoDevelop.Database.Modeler
 				_clicked = !_clicked;
 				TableFigure f = (TableFigure)Owner;
 				if (_locator is IndexLocator) {
-					//Indexes
+					//Show/Hide Indexes
 					if (f.showIndexes) {
 						foreach (Index indx in f.Model.indexes) {
 							f.Remove (indx);
@@ -262,7 +292,7 @@ namespace MonoDevelop.Database.Modeler
 					}
 				}
 				if (_locator is TriggerLocator) {
-					//Triggers
+					//Show/Hide Triggers
 					if (f.showTriggers) {
 						foreach (Trigger trg in f.Model.triggers) {
 							f.Remove (trg);
@@ -276,23 +306,32 @@ namespace MonoDevelop.Database.Modeler
 					}
 				}
 				if (_locator is ColumnAddLocator){
+					//Add a new column to table
 					f.addNewColumn();
 				}
 				if (_locator is ColumnRemoveLocator){
+					//Activate a state where the figure wait for the user to click a column and then delete it
 					f.activateRemoveColumn();
 				}
 				if (_locator is ForeignKeyLocator){
+					//Start Creation of Foreign Key
 					RelationshipFigure rel = new RelationshipFigure ();
 					f.figureCanvas.Tool = new ConnectionCreationTool (f.figureCanvas, rel);
 					f.figureCanvas.Tool.MouseDown(new MouseEvent(f.figureCanvas.View,null,new Cairo.PointD(x,y)));
 				}
+				if (_locator is RemoveTableLocator){
+					//Remove Table Selected
+					f.unPopulateTable();
+					view.ToggleSelection(f);
+					view.Drawing.Remove(f);
+				}
 			}
 		}
-
 
 		public override void InvokeStep (double x, double y, IDrawingView view)
 		{
 		}
+		
 		public override void InvokeEnd (double x, double y, IDrawingView view)
 		{
 		}
@@ -311,5 +350,4 @@ namespace MonoDevelop.Database.Modeler
 		private bool _clicked;
 		private kindButton typeButton;
 	}
-
 }

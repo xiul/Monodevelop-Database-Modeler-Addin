@@ -38,12 +38,8 @@ using MonoHotDraw.Locators;
 using System.Collections.Generic;
 using MonoDevelop.Database.Sql;
 
-
-
-
 namespace MonoDevelop.Database.Modeler
 {
-
 	public delegate void NotifyObserverEventHandler (bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality, bool changeDatatype, ColumnSchema notifierColumn);
 
 	public interface IRelationshipNotifier
@@ -53,7 +49,6 @@ namespace MonoDevelop.Database.Modeler
 		void RemoveObserver (IRelationshipObserver observer);
 	}
 
-
 	public interface IRelationshipObserver
 	{
 		void Update (bool refresh, bool changeConnection, TableFigure notifier, kindOptionality optionality, bool changeDatatype, ColumnSchema notifierColumn);
@@ -61,10 +56,11 @@ namespace MonoDevelop.Database.Modeler
 
 	public class TableFigure : CompositeFigure, IRelationshipObserver, IRelationshipNotifier
 	{
-		public TableFigure (TableModel metadata, ModelerCanvas ownerCanvas)
+		public TableFigure (TableModel metadata, ModelerCanvas ownerCanvas, DatabaseModel databaseModel)
 		{
 			Model = metadata;
 			canvas = ownerCanvas;
+			dbModel = databaseModel;
 			_width = 100;
 			_height = 100;
 			_showingTriggers = false;
@@ -141,11 +137,14 @@ namespace MonoDevelop.Database.Modeler
 			Model.triggers.Clear ();
 			Model.indexes.Clear ();
 			_handles.Clear ();
+			dbModel.removeTable(this);
 
 			while (this.Figures.Count > 0) {
 				this.Remove (this.Figures[0]);
 			}
-
+			//TODO: delete table should remove al column fk that use origin from this table
+			//Syncronize all other tables asking to delete Fk from this table
+			NotifyChanged(false,false,this,kindOptionality.mandatory,false,null);
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
 
@@ -172,7 +171,7 @@ namespace MonoDevelop.Database.Modeler
 				this.Add (col);
 			}
 
-			//TODO: Add Foreign Keys that table model have
+			//TODO: Add/Detect Foreign Keys that table model have
 
 			//Add Table Indexes Label (items added at ButtonHandle)
 			this.Add (_indexLabel);
@@ -468,8 +467,8 @@ namespace MonoDevelop.Database.Modeler
 			_handles.Add (new ButtonHandle (this, new TriggerLocator (),kindButton.InverseTriangle));
 			_handles.Add (new ButtonHandle (this, new ColumnAddLocator (),kindButton.PlusSymbol));
 			_handles.Add (new ButtonHandle (this, new ColumnRemoveLocator (),kindButton.LessSymbol));
-			
 			_handles.Add (new ButtonHandle (this, new ForeignKeyLocator (),kindButton.ForeignKeySymbol));
+			_handles.Add (new ButtonHandle (this, new RemoveTableLocator (),kindButton.RemoveSymbol));			
 		}
 
 
@@ -587,6 +586,7 @@ namespace MonoDevelop.Database.Modeler
 				Console.WriteLine ("La tabla " + this.Model.Name + " ya fue Avisada de Cambio de tipo de dato en columna !!!!!!!!!!!!!!!!!!!!!!!!!!!" + notifierColumn.Name);
 			} else if (!changeConnection && !refresh && !changeDatatype) {
 				Console.WriteLine ("La tabla " + this.Model.Name + " ya fue Avisada de ELIMINAR FK !!!!!!!!!!!!!!!!!!!!!!!!!!! de la tabla:" + notifier.Model.Name);
+				removeAllForeignKeysFrom(notifier);
 			}
 
 		}
@@ -603,6 +603,35 @@ namespace MonoDevelop.Database.Modeler
 					}
 				}
 			}
+		}
+		
+		public void removeAllForeignKeysFrom(TableFigure sourceFK){
+			ForeignKeyConstraintSchema deleteFk=null;
+			foreach(ForeignKeyConstraintSchema fkc in Model.TableSchema.Constraints){
+				if(fkc.ReferenceTableName==sourceFK.Model.TableSchema.Name){
+					deleteFk=fkc;
+				}
+			}
+			if(deleteFk!=null){
+				Model.TableSchema.Constraints.Remove(deleteFk);
+				//Remove columns metadata from table
+				foreach(ColumnSchema colfk in deleteFk.Columns){
+					Model.TableSchema.Columns.Remove(colfk);
+				}
+				
+				List<ColumnFkFigure> deleteFigures = new List<ColumnFkFigure>();
+				foreach (AbstractColumnFigure f in Model.columns){
+					if(f is ColumnFkFigure && (f as ColumnFkFigure).originalTableName==sourceFK.Model.Name){
+						deleteFigures.Add(f as ColumnFkFigure);
+					}
+				}
+				foreach (ColumnFkFigure f in deleteFigures){
+					Model.columns.Remove(f);
+					this.Remove(f);
+				}
+					
+			}
+			//TODO: Add multiple fk between two tables remove functionality when needed
 		}
 
 		public void refreshForeignKeys (TableFigure sourceFk, kindOptionality optionality)
@@ -649,25 +678,24 @@ namespace MonoDevelop.Database.Modeler
 			}
 
 			//Remove not existing fk(s) to table
-			//if(fkConsColumns!=null){
-			bool @remove = true;
+			bool removeFk = true;
 			ColumnFkFigure removeCfk = null;
 			ColumnFkFigure colFigFk = null;
 			foreach (AbstractColumnFigure cf in Model.columns) {
 				if (cf is ColumnFkFigure) {
 					Console.WriteLine ("Busco si elimino a: " + cf.ColumnModel.Name);
 					colFigFk = cf as ColumnFkFigure;
-					@remove = true;
+					removeFk = true;
 					if (fkConsColumns != null) {
 						foreach (ColumnSchema colfk in fkConsColumns.Columns) {
 							Console.WriteLine ("\t\tComparo con: " + colfk.Name);
 							if (colFigFk.sameForeignKey (colfk.Parent.Name, colfk.Name)) {
-								@remove = false;
+								removeFk = false;
 								Console.WriteLine ("\t\t\tNo la debo remover tiene columna en el fkconstraint " + colfk.Name);
 							}
 						}
 					}
-					if (@remove) {
+					if (removeFk) {
 						removeCfk = colFigFk;
 						Console.WriteLine ("PORQ ENTRO AQUI CON: " + colFigFk.originalColumnName + "   " + colFigFk.ColumnModel.Name);
 					}
@@ -678,8 +706,6 @@ namespace MonoDevelop.Database.Modeler
 				Console.WriteLine ("Mando a eliminar " + removeCfk.originalTableName + "." + removeCfk.originalColumnName);
 				this.removeFkConstraintColumn (removeCfk);
 			}
-			//}
-
 		}
 
 		public void UpdateOptionalityFk (TableModel sourceTable, kindOptionality optionality)
@@ -711,6 +737,9 @@ namespace MonoDevelop.Database.Modeler
 			get {return canvas;}
 		}
 
+		public double tableNameWidth{
+			get {return _tableName.BasicDisplayBox.Width;}
+		}
 
 		//todo: eliminate variables redundancy later and fix visibility
 		private List<IHandle> _handles;
@@ -724,7 +753,7 @@ namespace MonoDevelop.Database.Modeler
 		private double iconsWidth;
 		private bool selectionColumnMode;
 		private ModelerCanvas canvas;
-
+		private DatabaseModel dbModel;
 	}
 
 }

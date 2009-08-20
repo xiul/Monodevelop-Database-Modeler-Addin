@@ -50,7 +50,7 @@ namespace MonoDevelop.Database.Modeler
 		public void addNewTable (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider)
 		{	//TODO: improve way of assing last parameter
 			TableModel tableModel  = new TableModel (name,context,schemaProvider,true);
-			TableFigure tableFigure = new TableFigure (tableModel,canvas);
+			TableFigure tableFigure = new TableFigure (tableModel,canvas,diagram);
 			tableModel.FigureOwner = tableFigure;
 			view.Drawing.Add (tableFigure);
 			System.Console.WriteLine("added table");
@@ -62,7 +62,7 @@ namespace MonoDevelop.Database.Modeler
 		
 		public void addTable (string name, DatabaseConnectionContext context, ISchemaProvider schemaProvider, bool create){
 			TableModel tableModel = new TableModel(name,context,schemaProvider,false);
-			TableFigure tableFigure = new TableFigure (tableModel,canvas);
+			TableFigure tableFigure = new TableFigure (tableModel,canvas,diagram);
 			tableModel.FigureOwner=tableFigure;
 			view.Drawing.Add (tableFigure);
 			System.Console.WriteLine("added table22222");
@@ -96,6 +96,43 @@ namespace MonoDevelop.Database.Modeler
 					}
 				}
 			}
+			/*
+			
+								IDrawingView View=f.figureCanvas.View;
+					bool moreFigures = false;
+					TableFigure deleteTable = null;
+					do{
+						if(View.SelectionCount>0){
+							foreach ( IFigure fig in view.SelectionEnumerator){
+								if(fig is TableFigure){
+									deleteTable = fig as TableFigure;	
+
+								}
+								if(fig is RelationshipFigure){
+									//TODO: implement (fig as RelationshipFigure) unconnect
+									view.Drawing.Remove(fig as RelationshipFigure);
+									}
+								}
+							}
+			
+						
+						if(deleteTable!=null){
+							deleteTable.unPopulateTable();
+							view.ToggleSelection(deleteTable);
+							view.Drawing.Remove(deleteTable);
+							//TODO: fix this
+							//diagram.removeTable(fig as TableFigure);
+						}
+							
+						foreach ( IFigure fig in view.SelectionEnumerator){
+							if(fig is TableFigure)
+								moreFigures=true;
+						}
+					
+				 	}while(moreFigures);
+			
+			
+			 * */
 		}
 		
 
