@@ -28,6 +28,7 @@
 using Cairo;
 using System;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 using MonoHotDraw.Figures;
 using MonoHotDraw.Commands;
 using MonoHotDraw.Util;
@@ -322,8 +323,25 @@ namespace MonoDevelop.Database.Modeler
 				if (_locator is RemoveTableLocator){
 					//Remove Table Selected
 					f.unPopulateTable();
-					view.ToggleSelection(f);
+					//view.ToggleSelection(f);
+					view.ClearSelection ();
 					view.Drawing.Remove(f);
+					view.Remove(f);
+					List<RelationshipFigure> deleteFigures = new List<RelationshipFigure>();
+					foreach ( IFigure fig in view.Drawing.FiguresEnumerator){
+							if(fig is RelationshipFigure){
+								TableFigure startTable=((fig as RelationshipFigure).StartFigure as TableFigure);
+								TableFigure endTable=((fig as RelationshipFigure).EndFigure as TableFigure);
+								if(startTable.Model.Name==f.Model.Name || endTable.Model.Name==f.Model.Name)
+									deleteFigures.Add(fig as RelationshipFigure);
+							}
+						}
+					if(deleteFigures.Count>0){
+						view.ClearSelection ();
+						foreach(RelationshipFigure delRelationship in deleteFigures){
+								view.Drawing.Remove(delRelationship);
+							}
+						}
 				}
 			}
 		}

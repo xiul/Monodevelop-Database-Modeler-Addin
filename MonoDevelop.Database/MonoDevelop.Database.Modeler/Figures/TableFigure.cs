@@ -144,7 +144,8 @@ namespace MonoDevelop.Database.Modeler
 			}
 			//TODO: delete table should remove al column fk that use origin from this table
 			//Syncronize all other tables asking to delete Fk from this table
-			NotifyChanged(false,false,this,kindOptionality.mandatory,false,null);
+			if(NotifyChanged!=null)
+				NotifyChanged(false,false,this,kindOptionality.mandatory,false,null);
 			OnFigureChanged (new FigureEventArgs (this, DisplayBox));
 		}
 
@@ -618,7 +619,6 @@ namespace MonoDevelop.Database.Modeler
 				foreach(ColumnSchema colfk in deleteFk.Columns){
 					Model.TableSchema.Columns.Remove(colfk);
 				}
-				
 				List<ColumnFkFigure> deleteFigures = new List<ColumnFkFigure>();
 				foreach (AbstractColumnFigure f in Model.columns){
 					if(f is ColumnFkFigure && (f as ColumnFkFigure).originalTableName==sourceFK.Model.Name){
@@ -629,7 +629,6 @@ namespace MonoDevelop.Database.Modeler
 					Model.columns.Remove(f);
 					this.Remove(f);
 				}
-					
 			}
 			//TODO: Add multiple fk between two tables remove functionality when needed
 		}

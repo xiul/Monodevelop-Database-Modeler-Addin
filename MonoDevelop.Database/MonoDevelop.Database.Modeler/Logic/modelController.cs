@@ -27,10 +27,12 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using MonoHotDraw;
 using MonoHotDraw.Figures;
 using MonoDevelop.Database.Sql;
 using MonoDevelop.Database.ConnectionManager;
+
 
 namespace MonoDevelop.Database.Modeler
 {
@@ -83,86 +85,39 @@ namespace MonoDevelop.Database.Modeler
 		
 		public void removeSelected (){
 		if(view.SelectionCount>0){
+			List<RelationshipFigure> deleteFigures = new List<RelationshipFigure>();
 			foreach ( IFigure fig in view.SelectionEnumerator){
 					if(fig is TableFigure){
 						//TODO: fix bug view not refresh after delete composite figure
 						(fig as TableFigure).unPopulateTable();
 						view.Drawing.Remove(fig as TableFigure);
 						diagram.removeTable(fig as TableFigure);
+						foreach ( IFigure rel in view.Drawing.FiguresEnumerator){
+							if(rel is RelationshipFigure){
+								TableFigure startTable=((rel as RelationshipFigure).StartFigure as TableFigure);
+								TableFigure endTable=((rel as RelationshipFigure).EndFigure as TableFigure);
+								if(startTable.Model.Name==(fig as TableFigure).Model.Name || endTable.Model.Name==(fig as TableFigure).Model.Name)
+									deleteFigures.Add(rel as RelationshipFigure);
+							}
+						}
 					}
 					if(fig is RelationshipFigure){
-						//TODO: implement (fig as RelationshipFigure) unconnect
+						(fig as RelationshipFigure).WarningDisconnect();
 						view.Drawing.Remove(fig as RelationshipFigure);
 					}
 				}
+			if(deleteFigures.Count>0){
+				view.ClearSelection ();
+				foreach(RelationshipFigure delRelationship in deleteFigures){
+					view.Drawing.Remove(delRelationship);
+				}
+			}										
+			view.ClearSelection();
 			}
-			/*
-			
-								IDrawingView View=f.figureCanvas.View;
-					bool moreFigures = false;
-					TableFigure deleteTable = null;
-					do{
-						if(View.SelectionCount>0){
-							foreach ( IFigure fig in view.SelectionEnumerator){
-								if(fig is TableFigure){
-									deleteTable = fig as TableFigure;	
-
-								}
-								if(fig is RelationshipFigure){
-									//TODO: implement (fig as RelationshipFigure) unconnect
-									view.Drawing.Remove(fig as RelationshipFigure);
-									}
-								}
-							}
-			
-						
-						if(deleteTable!=null){
-							deleteTable.unPopulateTable();
-							view.ToggleSelection(deleteTable);
-							view.Drawing.Remove(deleteTable);
-							//TODO: fix this
-							//diagram.removeTable(fig as TableFigure);
-						}
-							
-						foreach ( IFigure fig in view.SelectionEnumerator){
-							if(fig is TableFigure)
-								moreFigures=true;
-						}
-					
-				 	}while(moreFigures);
-			
-			
-			 * */
 		}
 		
-
-			/*		if(_model!=null){
-				Column xy = _model.columns[1] as Column;
-				_view.Drawing.Remove(xy);
-				_model.columns.RemoveAt(1);
-				//_tool.Deactivate();
-			}*/
-
-		/*public void xxxaddColumna ()
-		{
-			if (_model != null) {
-				_fig.AddColumn ("ColumnaX" + System.DateTime.Now.Millisecond);
-
-			}
-		}
-
-		public void refreshView ()
-		{
-			//StandardDrawingView x = (StandardDrawingView) _view;
-
-		}*/
-
 		private IDrawingView view;
 		private ModelerCanvas canvas;
 		DatabaseModel diagram;
-	//	private TableModel _model;
-		//todo: this is not really all model only 1 table
-	//	TableFigure _fig;
-
 	}
 }

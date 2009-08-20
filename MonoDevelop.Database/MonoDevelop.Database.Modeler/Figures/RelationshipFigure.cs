@@ -101,6 +101,10 @@ namespace MonoDevelop.Database.Modeler
 			}
 		}
 
+		public void WarningDisconnect(){
+			(EndFigure as TableFigure).removeAllForeignKeysFrom(StartFigure as TableFigure);
+		}
+		
 		public override ITool CreateFigureTool (IDrawingEditor editor, ITool defaultTool)
 		{
 			return new RelationshipMenuTool (editor, this, defaultTool, base.CreateFigureTool (editor, defaultTool));
