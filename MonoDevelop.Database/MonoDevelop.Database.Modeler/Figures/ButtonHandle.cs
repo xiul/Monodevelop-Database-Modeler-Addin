@@ -42,8 +42,26 @@ namespace MonoDevelop.Database.Modeler
 	{
 		InverseTriangle,
 		PlusSymbol,
-		LessSymbol
+		LessSymbol,
+		ForeignKeySymbol
 	}
+
+	
+	public class ForeignKeyLocator : ILocator
+	{
+		public ForeignKeyLocator ()
+		{
+		}
+		
+		public PointD Locate (IFigure owner)
+		{
+			if (owner != null) {
+				TableFigure ownerTable = (TableFigure)owner;
+				return new PointD ((ownerTable.DisplayBox.X + ownerTable.DisplayBox.Width - 8), (ownerTable.DisplayBox.Y + 6));
+			}
+			return new PointD (0, 0);
+		}
+	}	
 	
 	
 	public class ColumnRemoveLocator : ILocator
@@ -73,7 +91,7 @@ namespace MonoDevelop.Database.Modeler
 		{
 			if (owner != null) {
 				TableFigure ownerTable = (TableFigure)owner;
-				return new PointD ((ownerTable.DisplayBox.X + ownerTable.DisplayBox.Width - 8), (ownerTable.DisplayBox.Y + 6));
+				return new PointD ((ownerTable.DisplayBox.X + ownerTable.DisplayBox.Width - 27), (ownerTable.DisplayBox.Y + 6));
 			}
 			return new PointD (0, 0);
 		}
@@ -208,6 +226,20 @@ namespace MonoDevelop.Database.Modeler
 					context.LineTo (tr.X,tr.Y+(br.Y-tr.Y)/2);	//middleRight
 					context.Stroke ();
 				
+			}else if(typeButton==kindButton.ForeignKeySymbol){
+									context.LineWidth = LineWidth;
+					Cairo.PointD tl=new Cairo.PointD(DisplayBox.TopLeft.X+1,DisplayBox.TopLeft.Y+1);
+					Cairo.PointD br=new Cairo.PointD(DisplayBox.BottomRight.X-1,DisplayBox.BottomRight.Y-1);
+					context.MoveTo (tl);
+					context.LineTo (br);
+					context.Stroke ();
+					context.Arc(tl.X,tl.Y,1,0,360);
+					context.Stroke ();
+					context.Arc(br.X,br.Y,1,0,360);
+					context.Stroke ();
+				//cr.arc(width / 2.0, height / 2.0, radius / 2.0 - 20, 0, 2 * pi)
+
+
 			}
 			context.Restore();
 		}
@@ -250,6 +282,9 @@ namespace MonoDevelop.Database.Modeler
 				}
 				if (_locator is ColumnRemoveLocator){
 					f.activateRemoveColumn();
+				}
+				if (_locator is ForeignKeyLocator){
+					Console.WriteLine("666 START FOREIGN KEY RELATIONSHIP FROM: "+ f.Model.Name);
 				}
 			}
 		}

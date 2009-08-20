@@ -467,6 +467,7 @@ namespace MonoDevelop.Database.Modeler
 			_handles.Add (new ButtonHandle (this, new TriggerLocator (),kindButton.InverseTriangle));
 			_handles.Add (new ButtonHandle (this, new ColumnAddLocator (),kindButton.PlusSymbol));
 			_handles.Add (new ButtonHandle (this, new ColumnRemoveLocator (),kindButton.LessSymbol));
+			_handles.Add (new ButtonHandle (this, new ForeignKeyLocator (),kindButton.ForeignKeySymbol));
 		}
 
 
